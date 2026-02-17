@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String         @id @default(uuid())
+  username  String         @unique
+  password  String
+  role      String
+  logs      InventoryLog[]
+  createdAt DateTime       @default(now())
+}
+
+model Product {
+  id            String         @id @default(uuid())
+  name          String
+  price         Float
+  stockQty      Int            @default(0)
+  inventoryLogs InventoryLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model InventoryLog {
+  id          String   @id @default(uuid())
+  action      String
+  changeQty   Int
+  description String?
+  userId      String
+  productId   String
+  user        User     @relation(fields: [userId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model SyncLog {
+  id        String   @id @default(uuid())
+  entity    String
+  status    String
+  payload   Json
+  createdAt DateTime @default(now())
+}
