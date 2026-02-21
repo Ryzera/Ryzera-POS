@@ -2,10 +2,19 @@
   "extends": "@ryzera/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "module": "CommonJS",
+    "strict": false,
+    "esModuleInterop": true
   },
   "include": [
     "index.ts",
-    "prisma.config.ts"
-  ]
+    "prisma.config.ts",
+    "src/**/*.ts"]
 }
