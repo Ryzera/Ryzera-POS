@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="289e8363-2108-4107-a55c-3fc835dc3f16" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/auth/auth.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/auth/auth.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/auth/auth.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/auth/jwt-auth.guard.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/auth/jwt.strategy.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/categories/categories.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/categories/categories.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/categories/categories.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/inventory-logs/inventory-logs.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/inventory-logs/inventory-logs.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/inventory-logs/inventory-logs.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/prisma.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/products/products.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/products/products.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/products/products.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/suppliers/suppliers.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/suppliers/suppliers.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/suppliers/suppliers.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/test-prisma.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/users/users.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/users/users.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/users/users.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/app.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/main.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/prisma.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/test.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ryzera-pos.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.npmrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/eslint.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/app.controller.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/app.controller.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-api-service/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/apps/pos-web-app/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/prisma.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/prisma.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/packages/pos-database/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Ryzera-POS/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Ryzera-POS/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/.prettierrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/eslint.config.mjs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/nest-cli.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/src/app.controller.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/src/app.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/src/app.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/src/app.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/test/app.e2e-spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/test/jest-e2e.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/tsconfig.build.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-api-service/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/eslint.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/next-env.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/next.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/file-text.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/globe.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/next.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/turborepo-dark.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/turborepo-light.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/public/window.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/src/app/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/src/app/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/src/app/layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/src/app/page.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/src/app/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/pos-web-app/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/eslint-config/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/eslint-config/base.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/eslint-config/next.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/eslint-config/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/eslint-config/react-internal.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/.env.example" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/prisma.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/prisma/schema.prisma" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-database/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/pos-schema/empty" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/typescript-config/base.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/typescript-config/nestjs.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/typescript-config/nextjs.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/typescript-config/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-workspace.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/turbo.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/Ryzera-POS" />
+    <option name="ROOT_SYNC" value="SYNC" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;SenayaMendis&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Ryzera/Ryzera-POS&quot;,
+    &quot;accountId&quot;: &quot;b4c547ac-0148-4746-afeb-63a1a07441e8&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="39o4K4uzos95GE90wqjsraEBI1r" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\EX BOOK\\OneDrive\\Desktop\\POS Inventory\\Ryzera-POS\\node_modules\\prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.qodana&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\EX BOOK\\OneDrive\\Desktop\\POS Inventory\\Ryzera-POS\\apps\\pos-web-app\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.30387.83" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="289e8363-2108-4107-a55c-3fc835dc3f16" name="Changes" comment="" />
+      <created>1771349024663</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771349024663</updated>
+      <workItem from="1771349025890" duration="3839000" />
+      <workItem from="1771395977649" duration="1087000" />
+      <workItem from="1771397087233" duration="3533000" />
+      <workItem from="1771424091319" duration="3886000" />
+      <workItem from="1771431325005" duration="1499000" />
+      <workItem from="1771432963486" duration="7217000" />
+      <workItem from="1771440506242" duration="2029000" />
+      <workItem from="1771523585439" duration="5271000" />
+      <workItem from="1771529259452" duration="696000" />
+      <workItem from="1771576051099" duration="9871000" />
+      <workItem from="1771586291058" duration="8763000" />
+      <workItem from="1771660773162" duration="3276000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
