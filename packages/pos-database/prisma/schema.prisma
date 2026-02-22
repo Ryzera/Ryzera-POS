@@ -63,3 +63,112 @@ model SystemSetting {
 
   @@map("ryzera_pos_system_setting")
 }
+
+enum SaleStatus {
+  Pending
+  Completed
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Refunded
+}
+
+enum PaymentMethod {
+  Cash
+  Card
+  Split
+}
+
+enum ReturnType {
+  Full
+  Partial
+}
+
+enum RefundMethod {
+  Cash
+  Card
+  Wallet
+}
+
+model ryzera_pos_sale {
+  sale_id            Int          @id @default(autoincrement())
+  sale_date          DateTime     @default(now())
+  invoice_number     String       @unique
+  sale_status        SaleStatus
+  payment_status     String
+  subtotal           Float
+  discount_amount    Float
+  tax_amount         Float
+  total_amount       Float
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+
+  sale_items ryzera_pos_sale_item[] @relation("SaleToItems")
+  payments   ryzera_pos_payment[]   @relation("SaleToPayments")
+  returns    ryzera_pos_return[]    @relation("SaleToReturns")
+}
+
+model ryzera_pos_sale_item {
+  sale_item_id      Int     @id @default(autoincrement())
+  product_name      String
+  quantity          Float
+  unit              String
+  unit_price        Float
+  cost_price        Float
+  discount_percent  Float
+  discount_amount   Float
+  tax_percent       Float
+  tax_amount        Float
+  subtotal          Float
+  total_amount      Float
+  created_at        DateTime @default(now())
+
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToItems", fields: [saleId], references: [sale_id])
+}
+
+model ryzera_pos_payment {
+  payment_id           Int     @id @default(autoincrement())
+  payment_method       PaymentMethod
+  amount_paid          Float
+  payment_status       PaymentStatus
+  transaction_reference String?
+  payment_date         DateTime @default(now())
+  created_at           DateTime @default(now())
+
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToPayments", fields: [saleId], references: [sale_id])
+}
+
+model ryzera_pos_return {
+  return_id      Int      @id @default(autoincrement())
+  return_date    DateTime @default(now())
+  return_type    ReturnType
+  return_amount  Float
+  reason         String
+  refund_method  RefundMethod
+  status         String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToReturns", fields: [saleId], references: [sale_id])
+
+  return_items ryzera_pos_return_item[]
+}
+
+model ryzera_pos_return_item {
+  return_item_id    Int      @id @default(autoincrement())
+  quantity_returned Float
+  unit_price        Float
+  refund_amount     Float
+  item_condition    String
+  created_at        DateTime @default(now())
+
+  returnId Int
+  return   ryzera_pos_return @relation(fields: [returnId], references: [return_id])
+}

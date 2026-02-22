@@ -16,7 +16,7 @@ Copy the example environment file and configure your database connection:
 
 ```bash
 cd packages/pos-database
-cp .env.example .env
+cp .env .env
 ```
 
 Edit `.env` and update with your PostgreSQL credentials:
