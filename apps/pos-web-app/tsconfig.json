@@ -1,6 +1,5 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@ryzera/typescript-config/nextjs.json",
+  "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
     "plugins": [
       {
