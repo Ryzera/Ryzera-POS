@@ -1,17 +1,13 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 
-const VALID_ACTIONS = ['CREATE', 'UPDATE', 'SALE', 'RESTOCK', 'DELETE'];
-
 @Injectable()
 export class InventoryLogsService {
   constructor(private prisma: PrismaService) {}
 
   private validateLog(data: any) {
-    if (!data.action || !VALID_ACTIONS.includes(data.action)) {
-      throw new BadRequestException(
-        `action must be one of: ${VALID_ACTIONS.join(', ')}`,
-      );
+    if (!data.action || typeof data.action !== 'string') {
+      throw new BadRequestException('action is required and must be a string');
     }
     if (data.changeQty === undefined || typeof data.changeQty !== 'number') {
       throw new BadRequestException(
@@ -24,19 +20,22 @@ export class InventoryLogsService {
     if (!data.productId || typeof data.productId !== 'string') {
       throw new BadRequestException('productId is required');
     }
+    if (!data.branchId || typeof data.branchId !== 'string') {
+      throw new BadRequestException('branchId is required');
+    }
   }
 
   async createLog(data: any) {
     this.validateLog(data);
     return this.prisma.inventoryLog.create({
       data,
-      include: { user: true, product: true },
+      include: { user: true, product: true, branch: true },
     });
   }
 
   async getAllLogs() {
     return this.prisma.inventoryLog.findMany({
-      include: { user: true, product: true },
+      include: { user: true, product: true, branch: true },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -44,14 +43,14 @@ export class InventoryLogsService {
   async getLogById(id: string) {
     return this.prisma.inventoryLog.findUnique({
       where: { id },
-      include: { user: true, product: true },
+      include: { user: true, product: true, branch: true },
     });
   }
 
   async getLogsByProduct(productId: string) {
     return this.prisma.inventoryLog.findMany({
       where: { productId },
-      include: { user: true, product: true },
+      include: { user: true, product: true, branch: true },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -59,7 +58,15 @@ export class InventoryLogsService {
   async getLogsByUser(userId: string) {
     return this.prisma.inventoryLog.findMany({
       where: { userId },
-      include: { user: true, product: true },
+      include: { user: true, product: true, branch: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getLogsByBranch(branchId: string) {
+    return this.prisma.inventoryLog.findMany({
+      where: { branchId },
+      include: { user: true, product: true, branch: true },
       orderBy: { createdAt: 'desc' },
     });
   }

@@ -17,6 +17,11 @@ export class InventoryLogsController {
     return this.inventoryLogsService.getAllLogs();
   }
 
+  @Get('branch/:branchId')
+  findByBranch(@Param('branchId') branchId: string) {
+    return this.inventoryLogsService.getLogsByBranch(branchId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.inventoryLogsService.getLogById(id);

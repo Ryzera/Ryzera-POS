@@ -13,9 +13,7 @@ export class SuppliersService {
 
   private validatePhone(phone: string) {
     if (!/^\d{10}$/.test(phone)) {
-      throw new BadRequestException(
-        'Invalid Phone number',
-      );
+      throw new BadRequestException('Invalid Phone number');
     }
   }
 

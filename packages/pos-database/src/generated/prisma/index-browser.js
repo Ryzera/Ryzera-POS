@@ -120,11 +120,22 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.BranchScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
-  password: 'password'
+  password: 'password',
+  branchId: 'branchId'
 };
 
 exports.Prisma.SupplierScalarFieldEnum = {
@@ -153,13 +164,21 @@ exports.Prisma.ProductScalarFieldEnum = {
   description: 'description',
   price: 'price',
   costPrice: 'costPrice',
-  stockQty: 'stockQty',
   minStock: 'minStock',
-  categoryId: 'categoryId',
   isActive: 'isActive',
+  categoryId: 'categoryId',
+  supplierId: 'supplierId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  supplierId: 'supplierId'
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BranchProductScalarFieldEnum = {
+  id: 'id',
+  stockQty: 'stockQty',
+  branchId: 'branchId',
+  productId: 'productId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.InventoryLogScalarFieldEnum = {
@@ -169,7 +188,54 @@ exports.Prisma.InventoryLogScalarFieldEnum = {
   description: 'description',
   userId: 'userId',
   productId: 'productId',
+  branchId: 'branchId',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.StockAlertScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  stockQty: 'stockQty',
+  minStock: 'minStock',
+  productId: 'productId',
+  branchId: 'branchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  notes: 'notes',
+  supplierId: 'supplierId',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  stockAlertId: 'stockAlertId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderItemScalarFieldEnum = {
+  id: 'id',
+  quantity: 'quantity',
+  unitCost: 'unitCost',
+  totalCost: 'totalCost',
+  productId: 'productId',
+  purchaseOrderId: 'purchaseOrderId'
+};
+
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  invoiceNo: 'invoiceNo',
+  status: 'status',
+  totalAmount: 'totalAmount',
+  issuedAt: 'issuedAt',
+  dueDate: 'dueDate',
+  paidAt: 'paidAt',
+  notes: 'notes',
+  purchaseOrderId: 'purchaseOrderId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -194,12 +260,37 @@ exports.InventoryAction = exports.$Enums.InventoryAction = {
   DELETE: 'DELETE'
 };
 
+exports.AlertStatus = exports.$Enums.AlertStatus = {
+  PENDING: 'PENDING',
+  SEEN: 'SEEN',
+  RESOLVED: 'RESOLVED'
+};
+
+exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
+  DRAFT: 'DRAFT',
+  SENT: 'SENT',
+  RECEIVED: 'RECEIVED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
+  UNPAID: 'UNPAID',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.Prisma.ModelName = {
+  Branch: 'Branch',
   User: 'User',
   Supplier: 'Supplier',
   Category: 'Category',
   Product: 'Product',
-  InventoryLog: 'InventoryLog'
+  BranchProduct: 'BranchProduct',
+  InventoryLog: 'InventoryLog',
+  StockAlert: 'StockAlert',
+  PurchaseOrder: 'PurchaseOrder',
+  PurchaseOrderItem: 'PurchaseOrderItem',
+  Invoice: 'Invoice'
 };
 
 /**
