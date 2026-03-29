@@ -1,46 +1,226 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+model Branch {
+  id       String  @id @default(uuid())
+  name     String
+  address  String?
+  phone    String?
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  branchProducts BranchProduct[]
+  inventoryLogs  InventoryLog[]
+  stockAlerts    StockAlert[]
+  purchaseOrders PurchaseOrder[]
+}
+
 model User {
-  id        String         @id @default(uuid())
-  username  String         @unique
-  password  String
-  role      String
-  logs      InventoryLog[]
-  createdAt DateTime       @default(now())
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  inventoryLogs  InventoryLog[]
+  purchaseOrders PurchaseOrder[]
+}
+
+model Supplier {
+  id          String  @id @default(uuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+
+  leadTimeDays Int     @default(0)
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([name])
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
 }
 
 model Product {
-  id            String         @id @default(uuid())
-  name          String
-  price         Float
-  stockQty      Int            @default(0)
-  inventoryLogs InventoryLog[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id          String  @id @default(uuid())
+  name        String
+  sku         String  @unique
+  barcode     String? @unique
+  description String?
+  price       Float
+  costPrice   Float?
+  minStock    Int     @default(5)
+  isActive    Boolean @default(true)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branchProducts     BranchProduct[]
+  inventoryLogs      InventoryLog[]
+  stockAlerts        StockAlert[]
+  purchaseOrderItems PurchaseOrderItem[]
+}
+
+model BranchProduct {
+  id       String @id @default(uuid())
+  stockQty Int    @default(0)
+
+  branchId  String
+  branch    Branch  @relation(fields: [branchId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([branchId, productId])
+  @@index([branchId])
+  @@index([productId])
+}
+
+enum InventoryAction {
+  CREATE
+  UPDATE
+  SALE
+  RESTOCK
+  DELETE
 }
 
 model InventoryLog {
-  id          String   @id @default(uuid())
-  action      String
+  id          String          @id @default(uuid())
+  action      InventoryAction
   changeQty   Int
   description String?
-  userId      String
-  productId   String
-  user        User     @relation(fields: [userId], references: [id])
-  product     Product  @relation(fields: [productId], references: [id])
-  createdAt   DateTime @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  branchId  String
+  branch    Branch  @relation(fields: [branchId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
-model SyncLog {
-  id        String   @id @default(uuid())
-  entity    String
-  status    String
-  payload   Json
+enum AlertStatus {
+  PENDING
+  SEEN
+  RESOLVED
+}
+
+model StockAlert {
+  id       String      @id @default(uuid())
+  status   AlertStatus @default(PENDING)
+  stockQty Int
+  minStock Int
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  branchId  String
+  branch    Branch  @relation(fields: [branchId], references: [id])
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  purchaseOrder PurchaseOrder?
+
+  @@index([status])
+  @@index([productId, branchId])
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id     String              @id @default(uuid())
+  status PurchaseOrderStatus @default(DRAFT)
+  notes  String?
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  branchId   String
+  branch     Branch   @relation(fields: [branchId], references: [id])
+
+  createdById  String
+  createdBy    User        @relation(fields: [createdById], references: [id])
+  stockAlertId String?     @unique
+  stockAlert   StockAlert? @relation(fields: [stockAlertId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items   PurchaseOrderItem[]
+  invoice Invoice?
+
+  @@index([supplierId])
+  @@index([branchId])
+}
+
+model PurchaseOrderItem {
+  id        String @id @default(uuid())
+  quantity  Int
+  unitCost  Float
+  totalCost Float
+
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+
+  @@index([purchaseOrderId])
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCELLED
+}
+
+model Invoice {
+  id          String        @id @default(uuid())
+  invoiceNo   String        @unique
+  status      InvoiceStatus @default(UNPAID)
+  totalAmount Float
+  issuedAt    DateTime      @default(now())
+  dueDate     DateTime?
+  paidAt      DateTime?
+  notes       String?
+
+  purchaseOrderId String        @unique
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
