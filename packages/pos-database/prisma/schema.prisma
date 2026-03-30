@@ -7,192 +7,123 @@ datasource db {
   provider = "postgresql"
 }
 
-model Company {
-  company_id   Int      @id @default(autoincrement())
-  name         String
-  code         String   @unique
-  email        String?
-  phone        String?
-  address      String?
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  branches     Branch[]
-  users        User[]
-
-  @@map("ryzera_pos_company")
+enum SaleStatus {
+  Pending
+  Completed
+  Cancelled
 }
 
-model Branch {
-  branchId   Int      @id @default(autoincrement())
-  company_id  Int
-  name        String
-  code        String
-  address     String?
-  city        String?
-  phone       String?
-  email       String?
-  manager_name String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  company    Company   @relation(fields: [company_id], references: [company_id])
-  users      User[]
-  userLogs   UserLog[]
-
-  @@map("ryzera_pos_branch")
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Refunded
 }
 
-model User {
-  user_id       Int            @id @default(autoincrement())
-  username      String         @unique
-  password      String
-  user_type     String    @default("STAFF")
-  status        String
-  company_id    Int
-  branch_id     Int
-  failed_login_attempts  Int       @default(0)
-  last_failed_login      DateTime?
-  account_locked_until   DateTime?
-  last_login_at          DateTime?
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  company       Company        @relation(fields: [company_id], references: [company_id])
-  branch        Branch         @relation(fields: [branch_id], references: [branchId])
-  info          UserInfo?
-  userRoles     UserRole[]
-  logs          UserLog[]
-  inventoryLogs InventoryLog[]
-
-  @@map("ryzera_pos_user")
+enum PaymentMethod {
+  Cash
+  Card
+  Split
 }
 
-model UserInfo {
-  user_info_id Int      @id @default(autoincrement())
-  user_id      Int      @unique
-  first_name   String
-  last_name    String
-  email        String?  @unique
-  phone        String?
-  address      String?
-  profile_pic  String?
-
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
-  @@map("ryzera_pos_user_info")
+enum ReturnType {
+  Full
+  Partial
 }
 
-model Role {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  description     String?
-  createdAt       DateTime         @default(now())
-
-  userRoles       UserRole[]
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_role")
+enum RefundMethod {
+  Cash
+  Card
+  Wallet
 }
 
-model Authority {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  description     String?
-  createdAt       DateTime         @default(now())
-
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_authority")
+enum ReturnStatus {
+  Pending
+  Completed
+  Rejected
 }
 
-model UserRole {
-  id        String   @id @default(uuid())
-  userId    Int
-  roleId    String
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, roleId])
-  @@map("ryzera_pos_user_role")
+model ryzera_pos_sale {
+  sale_id         Int                    @id @default(autoincrement())
+  branch_id       Int
+  sale_date       DateTime               @default(now())
+  invoice_number  String                 @unique
+  sale_status     SaleStatus             @default(Pending)
+  payment_status  PaymentStatus          @default(Pending)
+  subtotal        Float                  @default(0)
+  discount_amount Float                  @default(0)
+  tax_amount      Float                  @default(0)
+  total_amount    Float                  @default(0)
+  created_at      DateTime               @default(now())
+  updated_at      DateTime               @updatedAt
+  sale_items      ryzera_pos_sale_item[] @relation("SaleToItems")
+  payments        ryzera_pos_payment[]   @relation("SaleToPayments")
+  returns         ryzera_pos_return[]    @relation("SaleToReturns")
 }
 
-model RoleAuthority {
-  id          String     @id @default(uuid())
-  roleId      String
-  authorityId String
-  createdAt   DateTime   @default(now())
+model ryzera_pos_sale_item {
+  sale_item_id     Int      @id @default(autoincrement())
+  product_name     String
+  quantity         Float
+  unit             String
+  unit_price       Float
+  cost_price       Float
+  discount_percent Float    @default(0)
+  discount_amount  Float    @default(0)
+  tax_percent      Float    @default(0)
+  tax_amount       Float    @default(0)
+  subtotal         Float
+  total_amount     Float
+  created_at       DateTime @default(now())
 
-  role        Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  authority   Authority  @relation(fields: [authorityId], references: [id], onDelete: Cascade)
-
-  @@unique([roleId, authorityId])
-  @@map("ryzera_pos_role_authority")
+  saleId       Int
+  sale         ryzera_pos_sale          @relation("SaleToItems", fields: [saleId], references: [sale_id])
+  return_items ryzera_pos_return_item[]
 }
 
-model UserLog {
-  id        String   @id @default(uuid())
-  userId    Int
-  branch_id Int
-  action    String
-  ipAddress String?
-  device_info String?
-  userAgent String?
-  status    String
-  createdAt DateTime @default(now())
+model ryzera_pos_payment {
+  payment_id            Int           @id @default(autoincrement())
+  payment_method        PaymentMethod
+  amount_paid           Float
+  payment_status        PaymentStatus @default(Pending)
+  transaction_reference String?
+  payment_date          DateTime      @default(now())
+  created_at            DateTime      @default(now())
 
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  branch    Branch   @relation(fields: [branch_id], references: [branchId])
-
-  @@map("ryzera_pos_user_log")
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToPayments", fields: [saleId], references: [sale_id])
 }
 
-model Product {
-  id            String         @id @default(uuid())
-  name          String
-  price         Float
-  stockQty      Int            @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  inventoryLogs InventoryLog[]
+model ryzera_pos_return {
+  return_id     Int          @id @default(autoincrement())
+  return_date   DateTime     @default(now())
+  return_type   ReturnType
+  return_amount Float
+  reason        String
+  refund_method RefundMethod
+  status        ReturnStatus @default(Pending)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
 
-  @@map("ryzera_pos_product")
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToReturns", fields: [saleId], references: [sale_id])
+
+  return_items ryzera_pos_return_item[]
 }
 
-model InventoryLog {
-  id          String          @id @default(uuid())
-  action      InventoryAction
-  changeQty   Int
-  description String?
-  userId      Int
-  productId   String
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [user_id])
-  product     Product  @relation(fields: [productId], references: [id])
+model ryzera_pos_return_item {
+  return_item_id    Int      @id @default(autoincrement())
+  quantity_returned Float
+  unit_price        Float
+  refund_amount     Float
+  item_condition    String
+  created_at        DateTime @default(now())
 
-  @@map("ryzera_pos_inventory_log")
-}
+  returnId Int
+  return   ryzera_pos_return @relation(fields: [returnId], references: [return_id])
 
-model StockAlert {
-  id       String      @id @default(uuid())
-  status   AlertStatus @default(PENDING)
-  stockQty Int
-  minStock Int
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  branchId  String
-  branch    Branch  @relation(fields: [branchId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@map("ryzera_pos_sync_log")
+  saleItemId Int
+  sale_item  ryzera_pos_sale_item @relation(fields: [saleItemId], references: [sale_item_id])
 }
 
 
