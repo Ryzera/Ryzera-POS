@@ -1,3 +1,4 @@
+
 import { Controller, Get } from '@nestjs/common';
 import { SyncService } from './sync.service';
 
