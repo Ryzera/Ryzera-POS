@@ -6,11 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum SettingScope {
-  GLOBAL
-  BRANCH
-}
-
 model User {
   id        String         @id @default(uuid())
   username  String         @unique
@@ -42,13 +37,33 @@ model InventoryLog {
   createdAt   DateTime @default(now())
 }
 
+model SyncLog {
+  id        String   @id @default(uuid())
+  companyId String?
+  branchId  String?
+  entity    String
+  status    String   @default("PENDING")
+  payload   Json
+  error     String?
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  syncedAt  DateTime?
+  updatedAt DateTime @updatedAt
+
+  company   Company? @relation(fields: [companyId], references: [id])
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+
+  @@index([status])
+  @@index([createdAt])
+}
+
 model Company {
-  id        String           @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  code      String?          @unique
-  isActive  Boolean          @default(true)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  code      String?  @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   branches  Branch[]
   syncLogs  SyncLog[]
@@ -57,17 +72,17 @@ model Company {
 }
 
 model Branch {
-  id        String           @id @default(uuid())
+  id        String   @id @default(uuid())
   companyId String
   name      String
   code      String
   address   String?
   phone     String?
-  isActive  Boolean          @default(true)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  company   Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   syncLogs  SyncLog[]
   settings  SystemSetting[]
   backups   BackupMetadata[]
@@ -76,43 +91,20 @@ model Branch {
   @@index([companyId])
 }
 
-model SyncLog {
-  id            String   @id @default(uuid())
-  companyId     String?
-  branchId      String?
-  entity        String
-  syncType      String?
-  status        String   @default("PENDING")
-  payload       Json
-  error         String?
-  attempts      Int      @default(0)
-  recordsSynced Int?
-  createdAt     DateTime @default(now())
-  syncedAt      DateTime?
-  updatedAt     DateTime @updatedAt
-
-  company       Company? @relation(fields: [companyId], references: [id])
-  branch        Branch?  @relation(fields: [branchId], references: [id])
-
-  @@index([companyId, status])
-  @@index([branchId, status])
-  @@index([createdAt])
-}
-
 model SystemSetting {
-  id          String       @id @default(uuid())
+  id          String   @id @default(uuid())
   key         String
   value       String
   description String?
-  scope       SettingScope @default(GLOBAL)
+  scope       String   @default("GLOBAL")
   companyId   String?
   branchId    String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  company     Company?     @relation(fields: [companyId], references: [id])
-  branch      Branch?      @relation(fields: [branchId], references: [id])
+  company     Company? @relation(fields: [companyId], references: [id])
+  branch      Branch?  @relation(fields: [branchId], references: [id])
 
   @@unique([companyId, branchId, key])
   @@index([companyId])
