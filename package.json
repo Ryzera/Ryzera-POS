@@ -3,8 +3,13 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "start": "turbo run start",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:generate": "turbo run prisma:generate",
+    "db:push": "turbo run prisma:push",
+    "db:studio": "pnpm --filter @ryzera/pos-database prisma studio",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },

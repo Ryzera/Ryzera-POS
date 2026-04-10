@@ -1,18 +1,103 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  output   = "../dist/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum BranchStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+
+  @@map("branch_status")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+
+  @@map("product_status")
+}
+
+enum UnitOfMeasure {
+  PCS
+  KG
+  PACK
+  LTR
+  BOX
+  MTR
+
+  @@map("unit_of_measure")
+}
+
+enum InventoryAction {
+  CREATE
+  UPDATE
+  SALE
+  RESTOCK
+  DELETE
+  TRANSFER
+  ADJUSTMENT
+  STOCK_TAKE
+  RETURN_FROM_CUSTOMER
+  RETURN_TO_SUPPLIER
+  WASTE_DAMAGED
+
+  @@map("inventory_action")
+}
+
+enum AlertStatus {
+  PENDING
+  SEEN
+  RESOLVED
+
+  @@map("alert_status")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  RECEIVED
+  CANCELLED
+
+  @@map("purchase_order_status")
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCELLED
+
+  @@map("invoice_status")
+}
+
+enum TransferStatus {
+  PENDING
+  SHIPPED
+  RECEIVED
+  CANCELLED
+
+  @@map("transfer_status")
+}
+
+// ─────────────────────────────────────────────
+// Core Models
+// ─────────────────────────────────────────────
+
 model Branch {
-  id       String  @id @default(uuid())
-  name     String
-  address  String?
-  phone    String?
-  isActive Boolean @default(true)
+  id      String       @id @default(uuid())
+  name    String
+  address String?
+  phone   String?
+  status  BranchStatus @default(ACTIVE)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -22,6 +107,10 @@ model Branch {
   inventoryLogs  InventoryLog[]
   stockAlerts    StockAlert[]
   purchaseOrders PurchaseOrder[]
+  transfersFrom  Transfer[]      @relation("TransferSource")
+  transfersTo    Transfer[]      @relation("TransferDestination")
+
+  @@map("branch")
 }
 
 model User {
@@ -35,6 +124,9 @@ model User {
 
   inventoryLogs  InventoryLog[]
   purchaseOrders PurchaseOrder[]
+  transfers      Transfer[]
+
+  @@map("user")
 }
 
 model Supplier {
@@ -55,24 +147,28 @@ model Supplier {
   purchaseOrders PurchaseOrder[]
 
   @@index([name])
+  @@map("supplier")
 }
 
 model Category {
   id       String    @id @default(uuid())
   name     String    @unique
   products Product[]
+
+  @@map("category")
 }
 
 model Product {
-  id          String  @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
-  sku         String  @unique
-  barcode     String? @unique
+  sku         String        @unique
+  barcode     String?       @unique
   description String?
-  price       Float
-  costPrice   Float?
-  minStock    Int     @default(5)
-  isActive    Boolean @default(true)
+  price       Decimal       @db.Decimal(12, 4)
+  costPrice   Decimal?      @db.Decimal(12, 4)
+  minStock    Int           @default(5)
+  unit        UnitOfMeasure @default(PCS)
+  status      ProductStatus @default(ACTIVE)
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id])
@@ -87,11 +183,16 @@ model Product {
   inventoryLogs      InventoryLog[]
   stockAlerts        StockAlert[]
   purchaseOrderItems PurchaseOrderItem[]
+  transferItems      TransferItem[]
+  batches            Batch[]
+
+  @@map("product")
 }
 
 model BranchProduct {
-  id       String @id @default(uuid())
-  stockQty Int    @default(0)
+  id          String @id @default(uuid())
+  stockQty    Int    @default(0)
+  reservedQty Int    @default(0)
 
   branchId  String
   branch    Branch  @relation(fields: [branchId], references: [id])
@@ -101,18 +202,17 @@ model BranchProduct {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  inventoryLogs InventoryLog[]
+
   @@unique([branchId, productId])
   @@index([branchId])
   @@index([productId])
+  @@map("branch_product")
 }
 
-enum InventoryAction {
-  CREATE
-  UPDATE
-  SALE
-  RESTOCK
-  DELETE
-}
+// ─────────────────────────────────────────────
+// Inventory & Audit
+// ─────────────────────────────────────────────
 
 model InventoryLog {
   id          String          @id @default(uuid())
@@ -120,20 +220,19 @@ model InventoryLog {
   changeQty   Int
   description String?
 
-  userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  branchId  String
-  branch    Branch  @relation(fields: [branchId], references: [id])
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  branchId        String
+  branch          Branch        @relation(fields: [branchId], references: [id])
+  branchProductId String
+  branchProduct   BranchProduct @relation(fields: [branchProductId], references: [id])
 
   createdAt DateTime @default(now())
-}
 
-enum AlertStatus {
-  PENDING
-  SEEN
-  RESOLVED
+  @@index([branchProductId])
+  @@map("inventory_log")
 }
 
 model StockAlert {
@@ -154,14 +253,12 @@ model StockAlert {
 
   @@index([status])
   @@index([productId, branchId])
+  @@map("stock_alert")
 }
 
-enum PurchaseOrderStatus {
-  DRAFT
-  SENT
-  RECEIVED
-  CANCELLED
-}
+// ─────────────────────────────────────────────
+// Purchasing & Invoicing
+// ─────────────────────────────────────────────
 
 model PurchaseOrder {
   id     String              @id @default(uuid())
@@ -186,13 +283,14 @@ model PurchaseOrder {
 
   @@index([supplierId])
   @@index([branchId])
+  @@map("purchase_order")
 }
 
 model PurchaseOrderItem {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
   quantity  Int
-  unitCost  Float
-  totalCost Float
+  unitCost  Decimal @db.Decimal(12, 4)
+  totalCost Decimal @db.Decimal(12, 4)
 
   productId       String
   product         Product       @relation(fields: [productId], references: [id])
@@ -200,19 +298,14 @@ model PurchaseOrderItem {
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
 
   @@index([purchaseOrderId])
-}
-
-enum InvoiceStatus {
-  UNPAID
-  PAID
-  CANCELLED
+  @@map("purchase_order_item")
 }
 
 model Invoice {
   id          String        @id @default(uuid())
   invoiceNo   String        @unique
   status      InvoiceStatus @default(UNPAID)
-  totalAmount Float
+  totalAmount Decimal       @db.Decimal(12, 4)
   issuedAt    DateTime      @default(now())
   dueDate     DateTime?
   paidAt      DateTime?
@@ -223,4 +316,68 @@ model Invoice {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("invoice")
+}
+
+// ─────────────────────────────────────────────
+// Inter-Branch Transfers
+// ─────────────────────────────────────────────
+
+model Transfer {
+  id     String         @id @default(uuid())
+  status TransferStatus @default(PENDING)
+  notes  String?
+
+  sourceBranchId      String
+  sourceBranch        Branch @relation("TransferSource", fields: [sourceBranchId], references: [id])
+  destinationBranchId String
+  destinationBranch   Branch @relation("TransferDestination", fields: [destinationBranchId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items TransferItem[]
+
+  @@index([sourceBranchId])
+  @@index([destinationBranchId])
+  @@map("transfer")
+}
+
+model TransferItem {
+  id       String @id @default(uuid())
+  quantity Int
+
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  transferId String
+  transfer   Transfer @relation(fields: [transferId], references: [id])
+
+  @@index([transferId])
+  @@map("transfer_item")
+}
+
+// ─────────────────────────────────────────────
+// Batch & Expiry Tracking
+// ─────────────────────────────────────────────
+
+model Batch {
+  id              String    @id @default(uuid())
+  batchNumber     String    @unique
+  manufactureDate DateTime?
+  expiryDate      DateTime?
+  quantity        Int
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([expiryDate])
+  @@map("batch")
 }
