@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateBranchDto } from './dto/create-branch.dto';
+import { CreateBranchDto } from './schemas/create-branch.schema';
 
 @Injectable()
 export class BranchService {

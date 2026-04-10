@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode  } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { MockAuthService } from './mock-auth.service';
 
@@ -8,6 +8,7 @@ export class MockAuthController {
     constructor(private readonly mockAuthService: MockAuthService) {}
 
     @Post('login')
+    @HttpCode(200)
     @ApiOperation({ summary: 'Login and get JWT token' })
     @ApiBody({
         schema: {
