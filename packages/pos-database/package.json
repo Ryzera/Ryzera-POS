@@ -1,12 +1,12 @@
 {
   "name": "@ryzera/pos-database",
   "version": "1.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./index.ts",
+      "default": "./index.ts"
     }
   },
   "files": [
@@ -25,6 +25,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@nestjs/common": "^11.0.1",
     "@prisma/client": "^7.4.0",
     "@prisma/config": "^7.4.0",
     "dotenv": "^17.3.1"

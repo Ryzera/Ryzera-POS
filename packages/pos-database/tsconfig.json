@@ -2,10 +2,8 @@
   "extends": "@ryzera/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "declaration": true
   },
-  "include": [
-    "index.ts",
-    "prisma.config.ts"
-  ]
+  "include": ["index.ts", "prisma.config.ts", "src/**/*"]
 }
