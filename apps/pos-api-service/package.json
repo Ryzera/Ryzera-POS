@@ -24,6 +24,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.7",
     "@prisma/adapter-pg": "^7.4.0",
     "@ryzera/pos-database": "workspace:*",
     "@ryzera/pos-schema": "workspace:*",
@@ -33,12 +34,12 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
