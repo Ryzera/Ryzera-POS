@@ -6,9 +6,16 @@ import { AppService } from './app.service';
 import { BranchModule } from './branch/branch.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
+import { SupplierModule } from './supplier/supplier.module';
 
 @Module({
-  imports: [DatabaseModule, BranchModule, CategoryModule, ProductModule],
+  imports: [
+    DatabaseModule,
+    BranchModule,
+    CategoryModule,
+    ProductModule,
+    SupplierModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
