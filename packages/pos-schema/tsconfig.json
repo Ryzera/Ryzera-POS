@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "ES2021",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020"],
     "declaration": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "strictNullChecks": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
