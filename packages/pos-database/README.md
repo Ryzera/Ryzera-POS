@@ -74,22 +74,22 @@ See `prisma/schema.prisma` for the complete schema definition.
 
 ## 🛠️ Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm run build` | Compile TypeScript to `dist/` |
-| `pnpm run clean` | Remove build outputs |
-| `pnpm run db:generate` | Generate Prisma Client from schema |
-| `pnpm run db:migrate` | Create and apply database migrations |
-| `pnpm run db:push` | Push schema changes to database (dev only) |
-| `pnpm run db:reset` | Reset database and re-apply migrations |
-| `pnpm run db:studio` | Open Prisma Studio (visual database browser) |
+| Script                 | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `pnpm run build`       | Compile TypeScript to `dist/`                |
+| `pnpm run clean`       | Remove build outputs                         |
+| `pnpm run db:generate` | Generate Prisma Client from schema           |
+| `pnpm run db:migrate`  | Create and apply database migrations         |
+| `pnpm run db:push`     | Push schema changes to database (dev only)   |
+| `pnpm run db:reset`    | Reset database and re-apply migrations       |
+| `pnpm run db:studio`   | Open Prisma Studio (visual database browser) |
 
 ## 📚 Usage in Other Packages
 
 ### Importing the Prisma Client
 
 ```typescript
-import { PrismaClient } from '@ryzera/pos-database';
+import { PrismaClient } from "@ryzera/pos-database";
 
 const prisma = new PrismaClient();
 
@@ -102,7 +102,7 @@ const users = await prisma.user.findMany();
 All Prisma types are automatically exported:
 
 ```typescript
-import type { User, Product, InventoryLog } from '@ryzera/pos-database';
+import type { User, Product, InventoryLog } from "@ryzera/pos-database";
 ```
 
 ## 🔧 Development Workflow
@@ -170,6 +170,7 @@ packages/pos-database/
 ### Prisma Client Location
 
 After running `pnpm run db:generate`, the Prisma Client is generated to:
+
 ```
 node_modules/.prisma/client/
 node_modules/@prisma/client/
@@ -189,13 +190,15 @@ This is automatically handled by Prisma and referenced by the package exports.
 
 ### Type errors after schema changes
 
-**Solution**: 
+**Solution**:
+
 1. Run `pnpm run db:generate` to update Prisma Client
 2. Run `pnpm run build` to recompile with new types
 
 ### Migration conflicts
 
 **Solution**: If you have migration conflicts, you might need to reset:
+
 ```bash
 pnpm run db:reset  # WARNING: This deletes all data!
 ```

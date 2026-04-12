@@ -1,7 +1,2 @@
-/**
- * @ryzera/pos-database
- * 
- * Database package that exports the Prisma client for the POS system.
- */
-
-export * from '@prisma/client';
+export * from './src/generated/prisma/index';
+export { PrismaService } from './src/prisma.service';

@@ -44,14 +44,14 @@ Whether you're building a single-store POS or a multi-location retail management
 
 ### Technology Stack
 
-| Layer | Technology | Description |
-|-------|-----------|-------------|
-| **Frontend** | Next.js 16 + React 19 | Modern web application with server-side rendering |
-| **Backend** | NestJS 11 | Enterprise-grade Node.js framework with TypeScript |
-| **Database** | PostgreSQL + Prisma 7 | Type-safe database access with modern ORM |
-| **Monorepo** | Turborepo + pnpm | High-performance build system with workspace management |
-| **Type System** | TypeScript 5.9 | Static typing across the entire stack |
-| **Testing** | Jest | Comprehensive unit and integration testing |
+| Layer           | Technology            | Description                                             |
+| --------------- | --------------------- | ------------------------------------------------------- |
+| **Frontend**    | Next.js 16 + React 19 | Modern web application with server-side rendering       |
+| **Backend**     | NestJS 11             | Enterprise-grade Node.js framework with TypeScript      |
+| **Database**    | PostgreSQL + Prisma 7 | Type-safe database access with modern ORM               |
+| **Monorepo**    | Turborepo + pnpm      | High-performance build system with workspace management |
+| **Type System** | TypeScript 5.9        | Static typing across the entire stack                   |
+| **Testing**     | Jest                  | Comprehensive unit and integration testing              |
 
 ### Monorepo Structure
 
@@ -78,6 +78,7 @@ The system uses PostgreSQL with Prisma ORM, featuring:
 - **Sync Operations**: Built-in data synchronization capabilities
 
 Key entities:
+
 - `User`: User accounts with role-based access
 - `Product`: Product catalog with pricing and stock quantities
 - `InventoryLog`: Detailed history of inventory changes
@@ -88,27 +89,32 @@ Key entities:
 ## Features
 
 ### 🔐 Authentication & Authorization
+
 - Role-based access control (RBAC)
 - Secure user management
 - Session handling
 
 ### 📦 Inventory Management
+
 - Real-time stock tracking
 - Product catalog management
 - Inventory change logging
 - Low stock alerts capability
 
 ### 💰 Point of Sale Operations
+
 - Fast checkout processing
 - Product search and selection
 - Transaction management
 
 ### 📊 Data Synchronization
+
 - Multi-location data sync
 - Audit trail for all operations
 - Conflict resolution mechanisms
 
 ### 🛠️ Developer Features
+
 - Hot module reloading (HMR)
 - Type-safe API contracts
 - Shared component library
@@ -147,12 +153,14 @@ pnpm install
 Create environment files for each application:
 
 For the API service (`apps/pos-api-service/.env`):
+
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/ryzera_pos"
 PORT=3001
 ```
 
 For the database package (`packages/pos-database/.env`):
+
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/ryzera_pos"
 ```
@@ -174,6 +182,7 @@ pnpm dev
 ```
 
 This will start:
+
 - API Service at `http://localhost:3001`
 - Web App at `http://localhost:3000`
 
@@ -266,7 +275,9 @@ pnpm --filter=@ryzera/pos-api-service test:e2e
 ### Apps
 
 #### `pos-api-service`
+
 The NestJS backend API providing RESTful endpoints for:
+
 - User authentication and management
 - Product catalog operations
 - Inventory management
@@ -275,7 +286,9 @@ The NestJS backend API providing RESTful endpoints for:
 **Tech Stack**: NestJS, TypeScript, Jest
 
 #### `pos-web-app`
+
 The Next.js frontend application offering:
+
 - Modern, responsive UI
 - Server-side rendering for optimal performance
 - Real-time updates
@@ -286,32 +299,37 @@ The Next.js frontend application offering:
 ### Packages
 
 #### `pos-database`
+
 Shared Prisma database client used across all applications.
+
 - Centralized database schema
 - Type-safe database access
 - Migration management
 - Prisma Client generation
 
 #### `pos-schema`
+
 Shared validation schemas and types for consistent data validation.
 
 #### `eslint-config`
+
 Shared ESLint configurations ensuring code quality and consistency.
 
 #### `typescript-config`
+
 Shared TypeScript configurations for unified type checking.
 
 ---
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in development mode |
-| `pnpm build` | Build all apps and packages |
-| `pnpm lint` | Run ESLint on all packages |
-| `pnpm format` | Format code with Prettier |
-| `pnpm check-types` | Run TypeScript type checking |
+| Command            | Description                        |
+| ------------------ | ---------------------------------- |
+| `pnpm dev`         | Start all apps in development mode |
+| `pnpm build`       | Build all apps and packages        |
+| `pnpm lint`        | Run ESLint on all packages         |
+| `pnpm format`      | Format code with Prettier          |
+| `pnpm check-types` | Run TypeScript type checking       |
 
 ### Turborepo Features
 
@@ -323,6 +341,7 @@ Turborepo provides:
 - **Content-Aware Hashing**: Accurate change detection
 
 Learn more about Turborepo:
+
 - [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
 - [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
 - [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
@@ -335,6 +354,7 @@ Learn more about Turborepo:
 We welcome contributions! Please follow these guidelines:
 
 1. **Fork the repository** and create your feature branch
+
    ```bash
    git checkout -b feature/amazing-feature
    ```
@@ -345,11 +365,13 @@ We welcome contributions! Please follow these guidelines:
    - Write tests for new features
 
 3. **Commit your changes** with descriptive messages
+
    ```bash
    git commit -m 'Add amazing feature'
    ```
 
 4. **Push to your branch**
+
    ```bash
    git push origin feature/amazing-feature
    ```
