@@ -8,6 +8,12 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
+  "pnpm": {
+    "overrides": {
+      "@nestjs/common": "^11.0.1",
+      "@nestjs/core": "^11.0.1"
+    }
+  },
   "devDependencies": {
     "@types/node": "^25.2.3",
     "prettier": "^3.7.4",

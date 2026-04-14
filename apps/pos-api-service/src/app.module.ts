@@ -7,7 +7,8 @@ import { NotificationsModule }   from './notifications/notifications.module';
 import { KpiTargetsModule }      from './kpi-targets/kpi-targets.module';
 
 @Module({
-  imports: [PrismaModule,
+  imports: [
+    PrismaModule,
     MockAuthModule,
     BranchModule,
     DashboardModule,
