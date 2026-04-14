@@ -1,0 +1,38 @@
+{
+  "name": "@ryzera/pos-database",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "prisma/schema.prisma",
+    "prisma.config.ts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/config": "^7.4.0",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.22.0",
+    "@ryzera/typescript-config": "workspace:*",
+    "prisma": "^5.22.0",
+    "typescript": "5.9.2"
+  },
+  "license": "UNLICENSED"
+}
