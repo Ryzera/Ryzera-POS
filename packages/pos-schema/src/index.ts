@@ -5,3 +5,4 @@ export * from './supplier.schema';
 export * from './inventory.schema';
 export * from './purchase-order.schema';
 export * from './transfer.schema';
+export * from './batch.schema';
