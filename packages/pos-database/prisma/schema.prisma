@@ -8,14 +8,161 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────
-// Enums
+// Enums (Sync Module)
 // ─────────────────────────────────────────────
+
+enum SyncStatus {
+  PENDING
+  SYNCED
+  FAILED
+  @@map("sync_status")
+}
+
+enum SyncSettingScope {
+  GLOBAL
+  BRANCH
+  @@map("sync_setting_scope")
+}
+
+enum SyncBackupStatus {
+  SUCCESS
+  FAILED
+  PARTIAL
+  @@map("sync_backup_status")
+}
+
+// ─────────────────────────────────────────────
+// Sync Company – groups branches under one company
+// ─────────────────────────────────────────────
+
+model SyncCompany {
+  id        String   @id @default(uuid())
+  name      String
+  code      String?  @unique
+  email     String?
+  phone     String?
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branches  SyncBranch[]
+  syncLogs  SyncLog[]
+  settings  SyncSetting[]
+  backups   SyncBackup[]
+
+  @@index([code])
+  @@map("sync_company")
+}
+
+// ─────────────────────────────────────────────
+// Sync Branch – physical store location
+// ─────────────────────────────────────────────
+
+model SyncBranch {
+  id         String   @id @default(uuid())
+  companyId  String
+  name       String
+  code       String
+  address    String?
+  phone      String?
+  adminEmail String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  syncLogs  SyncLog[]
+  settings  SyncSetting[]
+  backups   SyncBackup[]
+
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@map("sync_branch")
+}
+
+// ─────────────────────────────────────────────
+// Sync Log – offline‑first queue
+// ─────────────────────────────────────────────
+
+model SyncLog {
+  id        String        @id @default(uuid())
+  companyId String?
+  branchId  String?
+  entity    String
+  status    SyncStatus    @default(PENDING)
+  payload   Json
+  error     String?
+  attempts  Int           @default(0)
+  syncedAt  DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  company   SyncCompany? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    SyncBranch?  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
+  @@index([branchId, status])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sync_log")
+}
+
+// ─────────────────────────────────────────────
+// Sync Setting – key‑value configuration
+// ─────────────────────────────────────────────
+
+model SyncSetting {
+  id          String           @id @default(uuid())
+  key         String
+  value       String
+  description String?
+  scope       SyncSettingScope @default(GLOBAL)
+  companyId   String
+  branchId    String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    SyncBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, branchId, key])
+  @@index([companyId])
+  @@index([branchId])
+  @@map("sync_setting")
+}
+
+// ─────────────────────────────────────────────
+// Sync Backup – backup history
+// ─────────────────────────────────────────────
+
+model SyncBackup {
+  id        String           @id @default(uuid())
+  companyId String
+  branchId  String?
+  status    SyncBackupStatus @default(SUCCESS)
+  fileName  String
+  notes     String?
+  createdAt DateTime         @default(now())
+
+  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    SyncBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([branchId])
+  @@index([createdAt])
+  @@map("sync_backup")
+}
+
+// ============================================================
+// Other tables (User, Product, Branch, etc.)
+// ============================================================
 
 enum BranchStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
-
   @@map("branch_status")
 }
 
@@ -23,7 +170,6 @@ enum ProductStatus {
   ACTIVE
   INACTIVE
   DISCONTINUED
-
   @@map("product_status")
 }
 
@@ -34,7 +180,6 @@ enum UnitOfMeasure {
   LTR
   BOX
   MTR
-
   @@map("unit_of_measure")
 }
 
@@ -50,7 +195,6 @@ enum InventoryAction {
   RETURN_FROM_CUSTOMER
   RETURN_TO_SUPPLIER
   WASTE_DAMAGED
-
   @@map("inventory_action")
 }
 
@@ -58,7 +202,6 @@ enum AlertStatus {
   PENDING
   SEEN
   RESOLVED
-
   @@map("alert_status")
 }
 
@@ -67,7 +210,6 @@ enum PurchaseOrderStatus {
   SENT
   RECEIVED
   CANCELLED
-
   @@map("purchase_order_status")
 }
 
@@ -75,7 +217,6 @@ enum InvoiceStatus {
   UNPAID
   PAID
   CANCELLED
-
   @@map("invoice_status")
 }
 
@@ -84,13 +225,8 @@ enum TransferStatus {
   SHIPPED
   RECEIVED
   CANCELLED
-
   @@map("transfer_status")
 }
-
-// ─────────────────────────────────────────────
-// Core Models
-// ─────────────────────────────────────────────
 
 model Branch {
   id      String       @id @default(uuid())
@@ -107,8 +243,8 @@ model Branch {
   inventoryLogs  InventoryLog[]
   stockAlerts    StockAlert[]
   purchaseOrders PurchaseOrder[]
-  transfersFrom  Transfer[]      @relation("TransferSource")
-  transfersTo    Transfer[]      @relation("TransferDestination")
+  transfersFrom  Transfer[] @relation("TransferSource")
+  transfersTo    Transfer[] @relation("TransferDestination")
 
   @@map("branch")
 }
@@ -210,10 +346,6 @@ model BranchProduct {
   @@map("branch_product")
 }
 
-// ─────────────────────────────────────────────
-// Inventory & Audit
-// ─────────────────────────────────────────────
-
 model InventoryLog {
   id          String          @id @default(uuid())
   action      InventoryAction
@@ -255,10 +387,6 @@ model StockAlert {
   @@index([productId, branchId])
   @@map("stock_alert")
 }
-
-// ─────────────────────────────────────────────
-// Purchasing & Invoicing
-// ─────────────────────────────────────────────
 
 model PurchaseOrder {
   id     String              @id @default(uuid())
@@ -320,10 +448,6 @@ model Invoice {
   @@map("invoice")
 }
 
-// ─────────────────────────────────────────────
-// Inter-Branch Transfers
-// ─────────────────────────────────────────────
-
 model Transfer {
   id     String         @id @default(uuid())
   status TransferStatus @default(PENDING)
@@ -359,10 +483,6 @@ model TransferItem {
   @@index([transferId])
   @@map("transfer_item")
 }
-
-// ─────────────────────────────────────────────
-// Batch & Expiry Tracking
-// ─────────────────────────────────────────────
 
 model Batch {
   id              String    @id @default(uuid())
