@@ -10,7 +10,7 @@ export class BranchGuard implements CanActivate {
 
         const requestedBranchId = request.query.branchId as string ?? null;
 
-        if (requestedBranchId !== null && requestedBranchId !== user.branchId) {
+        if (requestedBranchId !== null && Number(requestedBranchId) !== Number(user.branchId)) {
             throw new ForbiddenException('You can only access data from your own branch');
         }
         return true;
