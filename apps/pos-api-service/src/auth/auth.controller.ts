@@ -1,12 +1,19 @@
 import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import type { Request } from 'express';   // ← "import type" කරන්න
+import type { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
+
+
+    @Post('register')
+    async register(@Body() dto: RegisterDto) {
+        return this.authService.register(dto);
+    }
 
     @Post('login')
     async login(@Body() dto: LoginDto, @Req() req: Request) {

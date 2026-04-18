@@ -6,6 +6,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
+import { ConflictException, BadRequestException } from '@nestjs/common';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +15,46 @@ export class AuthService {
         private prisma: PrismaService,
         private jwtService: JwtService,
     ) {
+    }
+
+    async register(dto: RegisterDto) {
+        const existing = await this.prisma.user.findUnique({
+            where: { username: dto.username },
+        });
+        if (existing) throw new ConflictException('Username already exists');
+
+        const role = await this.prisma.role.findUnique({
+            where: { name: dto.role ?? 'CASHIER' },
+        });
+        if (!role) throw new BadRequestException(`Role not found`);
+
+        const hashedPassword = await bcrypt.hash(dto.password, 12);
+
+        const user = await this.prisma.user.create({
+            data: {
+                username: dto.username,
+                password: hashedPassword,
+                company_id: dto.company_id,
+                branch_id: dto.branch_id,
+                user_type: dto.user_type ?? 'STAFF',
+                status: 'ACTIVE',
+                info: {
+                    create: {
+                        first_name: dto.firstName,
+                        last_name: dto.lastName,
+                        email: dto.email,
+                        phone: dto.phone,
+                    },
+                },
+                userRoles: {
+                    create: { roleId: role.id },
+                },
+            },
+            include: { info: true, userRoles: { include: { role: true } } },
+        });
+
+        const { password, ...result } = user;
+        return result;
     }
 
     async login(dto: LoginDto, ipAddress?: string, userAgent?: string) {
