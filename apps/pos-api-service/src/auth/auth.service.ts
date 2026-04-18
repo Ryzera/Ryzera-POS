@@ -1,21 +1,23 @@
 import {
     Injectable,
     UnauthorizedException,
+    ConflictException,
+    BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
-import { ConflictException, BadRequestException } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private prisma: PrismaService,
         private jwtService: JwtService,
-    ) {
-    }
+        private tokenBlacklistService: TokenBlacklistService,
+    ) {}
 
     async register(dto: RegisterDto) {
         const existing = await this.prisma.user.findUnique({
@@ -58,38 +60,32 @@ export class AuthService {
     }
 
     async login(dto: LoginDto, ipAddress?: string, userAgent?: string) {
-
-        // Find user
         const user = await this.prisma.user.findUnique({
-            where: {username: dto.username},
+            where: { username: dto.username },
             include: {
-                userRoles: {include: {role: true}},
+                userRoles: { include: { role: true } },
                 info: true,
             },
         });
 
-        // Validate user
         if (!user || user.status !== 'ACTIVE') {
-            await this.logAction(user?.user_id, 'LOGIN', 'FAILED', ipAddress, userAgent);
+            await this.logAction(user?.user_id, user?.branch_id, 'LOGIN', 'FAILED', ipAddress, userAgent);
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Check password
         const isPasswordValid = await bcrypt.compare(dto.password, user.password);
         if (!isPasswordValid) {
-            await this.logAction(user.user_id, 'LOGIN', 'FAILED', ipAddress, userAgent);
+            await this.logAction(user.user_id, user.branch_id, 'LOGIN', 'FAILED', ipAddress, userAgent);
             throw new UnauthorizedException('Invalid credentials');
         }
-        // Log success
-        await this.logAction(user.user_id, 'LOGIN', 'SUCCESS', ipAddress, userAgent);
 
-        // Update last login
+        await this.logAction(user.user_id, user.branch_id, 'LOGIN', 'SUCCESS', ipAddress, userAgent);
+
         await this.prisma.user.update({
             where: { user_id: user.user_id },
             data: { last_login_at: new Date() },
         });
 
-        // Generate JWT
         const roles = user.userRoles.map((ur) => ur.role.name);
         const token = this.jwtService.sign({
             sub: user.user_id,
@@ -109,8 +105,16 @@ export class AuthService {
         };
     }
 
-    async logout(userId: number, ipAddress?: string, userAgent?: string) {
-        await this.logAction(userId, 'LOGOUT', 'SUCCESS', ipAddress, userAgent);
+    async logout(userId: number, token?: string, ipAddress?: string, userAgent?: string) {
+        if (token) {
+            this.tokenBlacklistService.blacklist(token);
+        }
+        const user = await this.prisma.user.findUnique({
+            where: { user_id: userId },
+        });
+        if (user) {
+            await this.logAction(userId, user.branch_id, 'LOGOUT', 'SUCCESS', ipAddress, userAgent);
+        }
         return { message: 'Logged out successfully' };
     }
 
@@ -147,19 +151,20 @@ export class AuthService {
 
     private async logAction(
         userId: number | undefined,
+        branchId: number | undefined,
         action: string,
         status: string,
         ipAddress?: string,
         userAgent?: string,
     ) {
-        if (!userId) return;
+        if (!userId || !branchId) return;
         await this.prisma.userLog.create({
             data: {
                 userId,
-                branch_id: 1,
+                branch_id: branchId,
                 action,
                 status,
-                ipAddress: ipAddress,
+                ipAddress,
                 device_info: userAgent,
             },
         });

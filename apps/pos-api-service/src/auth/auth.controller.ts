@@ -23,7 +23,9 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('logout')
     async logout(@Req() req: any) {
-        return this.authService.logout(req.user.id, req.ip, req.headers['user-agent']);
+        const authHeader = req.headers['authorization'];
+        const token = authHeader ? authHeader.split(' ')[1] : undefined;
+        return this.authService.logout(req.user.id, token, req.ip, req.headers['user-agent']);
     }
 
     @UseGuards(JwtAuthGuard)
