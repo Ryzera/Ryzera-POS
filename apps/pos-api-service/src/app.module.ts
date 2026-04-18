@@ -7,6 +7,7 @@ import { NotificationsModule }   from './notifications/notifications.module';
 import { KpiTargetsModule }      from './kpi-targets/kpi-targets.module';
 import { InventoryStatusModule } from './inventory-status/inventory-status.module';
 import { DailySummaryModule }    from './daily-summary/daily-summary.module';
+import { SalesReportModule }      from './sales-report/sales-report.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DailySummaryModule }    from './daily-summary/daily-summary.module';
     KpiTargetsModule,
     InventoryStatusModule,
     DailySummaryModule,
+    SalesReportModule,
   ],
 })
 export class AppModule {}
