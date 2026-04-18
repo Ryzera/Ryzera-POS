@@ -11,6 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -53,7 +54,6 @@ export class BranchController {
   @ApiOperation({ summary: 'Get a single branch by ID' })
   @ApiParam({ name: 'id', description: 'Branch UUID' })
   @ApiResponse({ status: 200, description: 'Branch detail' })
-  @ApiResponse({ status: 400, description: 'Invalid UUID' })
   @ApiResponse({ status: 404, description: 'Branch not found' })
   findOne(@Param('id', ParseUuidPipe) id: string) {
     return this.branchService.findOne(id);
@@ -62,8 +62,18 @@ export class BranchController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new branch' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: { type: 'string', example: 'Colombo Main Branch' },
+        address: { type: 'string', example: '123 Galle Rd, Colombo 03' },
+        phone: { type: 'string', example: '+94771234567' },
+      },
+    },
+  })
   @ApiResponse({ status: 201, description: 'Branch created' })
-  @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 409, description: 'Branch name already exists' })
   create(
     @Body(new ZodValidationPipe(CreateBranchSchema)) dto: CreateBranchDto,
@@ -74,8 +84,17 @@ export class BranchController {
   @Put(':id')
   @ApiOperation({ summary: 'Update a branch' })
   @ApiParam({ name: 'id', description: 'Branch UUID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Colombo Main Branch' },
+        address: { type: 'string', example: '123 Galle Rd, Colombo 03' },
+        phone: { type: 'string', example: '+94771234567' },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Branch updated' })
-  @ApiResponse({ status: 400, description: 'Validation error or invalid UUID' })
   @ApiResponse({ status: 404, description: 'Branch not found' })
   @ApiResponse({ status: 409, description: 'Branch name already exists' })
   update(
@@ -90,10 +109,6 @@ export class BranchController {
   @ApiOperation({ summary: 'Soft-delete (deactivate) a branch' })
   @ApiParam({ name: 'id', description: 'Branch UUID' })
   @ApiResponse({ status: 200, description: 'Branch deactivated' })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid UUID or business rule violation',
-  })
   @ApiResponse({ status: 404, description: 'Branch not found' })
   remove(@Param('id', ParseUuidPipe) id: string) {
     return this.branchService.remove(id);

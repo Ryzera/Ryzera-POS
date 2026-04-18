@@ -284,15 +284,18 @@ importers:
 
   packages/pos-database:
     dependencies:
+      '@nestjs/common':
+        specifier: ^11.0.1
+        version: 11.1.13(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core':
+        specifier: ^11.0.1
+        version: 11.1.13(@nestjs/common@11.1.13(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.13)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@prisma/adapter-pg':
-        specifier: ^7.4.1
+        specifier: ^7.4.0
         version: 7.7.0
       '@prisma/client':
         specifier: ^7.4.0
         version: 7.4.0(prisma@7.4.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.2))(typescript@5.9.2)
-      '@prisma/config':
-        specifier: ^7.4.0
-        version: 7.4.0
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
