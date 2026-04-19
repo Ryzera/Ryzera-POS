@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ryzera_pos_user {
+  user_id                Int       @id @default(autoincrement())
+  username               String    @unique
+  password               String
+  status                 String
+  failed_login_attempts  Int       @default(0)
+  last_failed_login     DateTime?
+  account_locked_until  DateTime?
+  last_login_at         DateTime?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  user_info             ryzera_pos_user_info?
+  user_roles            ryzera_pos_user_role[]
+  logs                  ryzera_pos_user_log[]
+}
+
+model ryzera_pos_user_info {
+  user_info_id   Int    @id @default(autoincrement())
+  user_id        Int    @unique
+  first_name     String
+  last_name      String
+  email          String @unique
+  phone_number   String
+  address        String
+  profile_picture String?
+
+  user ryzera_pos_user @relation(fields: [user_id], references: [user_id])
+}
+
+model ryzera_pos_role {
+  role_id     Int    @id @default(autoincrement())
+  role_name   String @unique
+  description String?
+
+  user_roles ryzera_pos_user_role[]
+  authorities ryzera_pos_role_authority[]
+}
+
+model ryzera_pos_authority {
+  authority_id   Int    @id @default(autoincrement())
+  authority_name String @unique
+  description    String?
+
+  roles ryzera_pos_role_authority[]
+}
+
+model ryzera_pos_user_role {
+  user_role_id Int @id @default(autoincrement())
+  user_id      Int
+  role_id      Int
+
+  user ryzera_pos_user @relation(fields: [user_id], references: [user_id])
+  role ryzera_pos_role @relation(fields: [role_id], references: [role_id])
+}
+
+model ryzera_pos_role_authority {
+  role_authority_id Int @id @default(autoincrement())
+  role_id           Int
+  authority_id      Int
+
+  role ryzera_pos_role @relation(fields: [role_id], references: [role_id])
+  authority ryzera_pos_authority @relation(fields: [authority_id], references: [authority_id])
+}
+
+model ryzera_pos_user_log {
+  log_id     Int      @id @default(autoincrement())
+  user_id    Int
+  action     String
+  timestamp  DateTime @default(now())
+  ip_address String
+  device_info String
+
+  user ryzera_pos_user @relation(fields: [user_id], references: [user_id])
+}
