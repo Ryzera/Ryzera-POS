@@ -8,6 +8,7 @@ import { KpiTargetsModule }      from './kpi-targets/kpi-targets.module';
 import { InventoryStatusModule } from './inventory-status/inventory-status.module';
 import { DailySummaryModule }    from './daily-summary/daily-summary.module';
 import { SalesReportModule }      from './sales-report/sales-report.module';
+import { ProfitLossModule } from './profit-loss/profit-loss.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SalesReportModule }      from './sales-report/sales-report.module';
     InventoryStatusModule,
     DailySummaryModule,
     SalesReportModule,
+    ProfitLossModule,
   ],
 })
 export class AppModule {}
