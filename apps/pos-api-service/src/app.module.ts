@@ -10,6 +10,7 @@ import { DailySummaryModule } from './daily-summary/daily-summary.module';
 import { SalesReportModule } from './sales-report/sales-report.module';
 import { ProfitLossModule } from './profit-loss/profit-loss.module';
 import { CategoryPerformanceModule } from './category-performance/category-performance.module';
+import { ProductPerformanceModule } from './product-performance/product-performance.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CategoryPerformanceModule } from './category-performance/category-perfo
     SalesReportModule,
     ProfitLossModule,
     CategoryPerformanceModule,
+    ProductPerformanceModule,
   ],
 })
 export class AppModule {}
