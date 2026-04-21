@@ -1,6 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { ReturnsRepository } from './returns.repository';
-import { CreateReturnDto } from './dto/create-return.dto';
+import { CreateReturnDto } from './schema/create-return.schema';
 
 @Injectable()
 export class ReturnsService {

@@ -1,6 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, BadRequestException } from '@nestjs/common';
-import { ReturnsService } from './returns.service';
-import { CreateReturnSchema, CreateReturnDto } from './dto/create-return.dto';
+import { CreateReturnSchema, CreateReturnDto } from './schema/create-return.schema';
 
 @Controller('returns')
 export class ReturnsController {
