@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, BadRequestException } from '@nestjs/common';
 import { BillingService } from './billing.service';
-import { CreateSaleSchema, CreateSaleDto } from './dto/create-sale.dto';
-import { ProcessPaymentSchema, ProcessPaymentDto } from './dto/process-payment.dto';
+import { CreateSaleSchema, CreateSaleDto } from './schema/create-sale.schema';
+import { ProcessPaymentSchema, ProcessPaymentDto } from './schema/process-payment.schema';
 
 @Controller('billing')
 export class BillingController {
@@ -9,14 +9,20 @@ export class BillingController {
 
   @Post('sales')
   createSale(@Body() body: unknown) {
-    const dto: CreateSaleDto = CreateSaleSchema.parse(body);
-    return this.billingService.createSale(dto);
+    const result = CreateSaleSchema.safeParse(body);
+    if (!result.success) {
+      throw new BadRequestException(result.error.issues);
+    }
+    return this.billingService.createSale(result.data);
   }
 
   @Post('sales/payment')
   processPayment(@Body() body: unknown) {
-    const dto: ProcessPaymentDto = ProcessPaymentSchema.parse(body);
-    return this.billingService.processPayment(dto);
+    const result = ProcessPaymentSchema.safeParse(body);
+    if (!result.success) {
+      throw new BadRequestException(result.error.issues);
+    }
+    return this.billingService.processPayment(result.data);
   }
 
   @Patch('sales/:id/cancel')

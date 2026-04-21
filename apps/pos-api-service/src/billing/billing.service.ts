@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { CreateSaleDto } from './dto/create-sale.dto';
-import { ProcessPaymentDto } from './dto/process-payment.dto';
+import { CreateSaleDto } from './schema/create-sale.schema';
+import { ProcessPaymentDto } from './schema/process-payment.schema';
 import { BillingRepository } from './billing.repository';
 
 @Injectable()
