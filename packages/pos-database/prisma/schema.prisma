@@ -1,11 +1,16 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ═════════════════════════════════════════════════════════════════
+//  ENUMS
+// ═════════════════════════════════════════════════════════════════
 
 enum SaleStatus {
   Pending
@@ -119,6 +124,10 @@ enum SettingScope {
   BRANCH
 }
 
+// ═════════════════════════════════════════════════════════════════
+//  SECTION 1 — BILLING TABLES
+// ═════════════════════════════════════════════════════════════════
+
 model ryzera_pos_sale {
   sale_id         Int        @id @default(autoincrement())
   sale_date       DateTime   @default(now())
@@ -206,6 +215,10 @@ model ryzera_pos_return_item {
   sale_item  ryzera_pos_sale_item @relation(fields: [saleItemId], references: [sale_item_id])
 }
 
+// ═════════════════════════════════════════════════════════════════
+//  SECTION 2 — AUTHENTICATION & USER TABLES
+// ═════════════════════════════════════════════════════════════════
+
 model Company {
   company_id Int      @id @default(autoincrement())
   name       String
@@ -255,12 +268,17 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  // ── Relations ──────────────────────────────────────────────────
   company       Company            @relation(fields: [company_id], references: [company_id])
   branch        Branch             @relation(fields: [branch_id], references: [branchId])
   info          UserInfo?
   userRoles     UserRole[]
   logs          UserLog[]
   inventoryLogs AuthInventoryLog[]
+
+  // ── Reports Hub back-relations ─────────────────────────────────
+  savedReportConfigs SavedReportConfig[]
+  reportSchedules    ReportSchedule[]
 
   @@map("ryzera_pos_user")
 }
@@ -384,7 +402,9 @@ model AuthSyncLog {
   @@map("ryzera_pos_sync_log")
 }
 
-//   REPORTING TABLES
+// ═════════════════════════════════════════════════════════════════
+//  SECTION 3 — REPORTING TABLES
+// ═════════════════════════════════════════════════════════════════
 
 model DailySummary {
   id                String   @id @default(uuid())
@@ -408,6 +428,8 @@ model DailySummary {
   @@unique([summaryDate, branchId])
 }
 
+// Legacy scheduled report table — kept for backward compatibility.
+// New schedules use ReportSchedule below.
 model ryzera_pos_scheduled_report {
   id            Int      @id @default(autoincrement())
   report_name   String
@@ -424,7 +446,7 @@ model ryzera_pos_scheduled_report {
 model Notification {
   notification_id Int      @id @default(autoincrement())
   branch_id       Int?
-  type            String // e.g. "SALES_TARGET", "LOW_STOCK", "EOD_SUMMARY"
+  type            String
   title           String
   message         String
   is_read         Boolean  @default(false)
@@ -436,12 +458,78 @@ model Notification {
 model KpiTarget {
   kpi_id        Int     @id @default(autoincrement())
   branch_id     Int     @default(0) // 0 = all branches
-  period_type   String // "Daily", "Weekly", "Monthly"
+  period_type   String // "Daily" | "Weekly" | "Monthly"
   target_amount Decimal @db.Decimal(12, 2)
 
   @@unique([period_type, branch_id])
   @@map("ryzera_pos_kpi_target")
 }
+
+// ─── Reports Hub: Saved Configurations ───────────────────────────
+// Named filter presets that a user can reload quickly from the UI.
+// e.g. "Weekly Dairy Sales — Colombo"
+model SavedReportConfig {
+  id         String   @id @default(uuid())
+  configName String   @db.VarChar(100)
+  reportType String   @db.VarChar(50)
+  startDate  String   @db.VarChar(10) // YYYY-MM-DD
+  endDate    String   @db.VarChar(10) // YYYY-MM-DD
+  branchId   Int? // null = "All Branches"
+  categoryId String?  @db.VarChar(36) // null = "All Categories"
+  userId     Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("saved_report_configs")
+}
+
+// ─── Reports Hub: Automated Schedules ────────────────────────────
+// Recurring report deliveries sent via email (DAILY / WEEKLY / MONTHLY).
+model ReportSchedule {
+  id             String    @id @default(uuid())
+  scheduleName   String    @db.VarChar(100)
+  reportType     String    @db.VarChar(50)
+  frequency      String    @db.VarChar(20) // DAILY | WEEKLY | MONTHLY
+  recipientEmail String    @db.VarChar(255)
+  branchId       Int?
+  categoryId     String?   @db.VarChar(36)
+  isActive       Boolean   @default(true)
+  nextRunAt      DateTime?
+  userId         Int
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user       User             @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+  deliveries ReportDelivery[]
+
+  @@index([userId])
+  @@index([isActive, nextRunAt]) // used by the cron job query
+  @@map("report_schedules")
+}
+
+// ─── Reports Hub: Delivery History ───────────────────────────────
+// Immutable audit log of every report email attempt.
+model ReportDelivery {
+  id             String   @id @default(uuid())
+  recipientEmail String   @db.VarChar(255)
+  status         String   @db.VarChar(20) // PENDING | DELIVERED | FAILED
+  failureReason  String?  @db.Text
+  reportFileUrl  String?  @db.VarChar(500)
+  sentAt         DateTime @default(now())
+
+  scheduleId String
+  schedule   ReportSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId])
+  @@map("report_deliveries")
+}
+
+// ═════════════════════════════════════════════════════════════════
+//  SECTION 4 — INVENTORY TABLES
+// ═════════════════════════════════════════════════════════════════
 
 model InvBranch {
   id      String       @id @default(uuid())
@@ -481,13 +569,12 @@ model InvUser {
 }
 
 model Supplier {
-  id          String  @id @default(uuid())
-  name        String
-  contactName String?
-  email       String?
-  phone       String?
-  address     String?
-
+  id           String  @id @default(uuid())
+  name         String
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
   leadTimeDays Int     @default(0)
   isActive     Boolean @default(true)
 
@@ -716,97 +803,4 @@ model Batch {
   @@index([productId])
   @@index([expiryDate])
   @@map("batch")
-}
-
-model OfflineCompany {
-  id        String   @id @default(uuid())
-  name      String
-  code      String?  @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  branches OfflineBranch[]
-  syncLogs OfflineSyncLog[]
-  settings SystemSetting[]
-  backups  BackupMetadata[]
-}
-
-model OfflineBranch {
-  id        String   @id @default(uuid())
-  companyId String
-  name      String
-  code      String
-  address   String?
-  phone     String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  company  OfflineCompany   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  syncLogs OfflineSyncLog[]
-  settings SystemSetting[]
-  backups  BackupMetadata[]
-
-  @@unique([companyId, code])
-  @@index([companyId])
-}
-
-model OfflineSyncLog {
-  id            String    @id @default(uuid())
-  companyId     String?
-  branchId      String?
-  entity        String
-  syncType      String?
-  status        String    @default("PENDING")
-  payload       Json
-  error         String?
-  attempts      Int       @default(0)
-  recordsSynced Int?
-  createdAt     DateTime  @default(now())
-  syncedAt      DateTime?
-  updatedAt     DateTime  @updatedAt
-
-  company OfflineCompany? @relation(fields: [companyId], references: [id])
-  branch  OfflineBranch?  @relation(fields: [branchId], references: [id])
-
-  @@index([companyId, status])
-  @@index([branchId, status])
-  @@index([createdAt])
-}
-
-model SystemSetting {
-  id          String       @id @default(uuid())
-  key         String
-  value       String
-  description String?
-  scope       SettingScope @default(GLOBAL)
-  companyId   String?
-  branchId    String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  company OfflineCompany? @relation(fields: [companyId], references: [id])
-  branch  OfflineBranch?  @relation(fields: [branchId], references: [id])
-
-  @@unique([companyId, branchId, key])
-  @@index([companyId])
-  @@index([branchId])
-}
-
-model BackupMetadata {
-  id        String   @id @default(uuid())
-  companyId String?
-  branchId  String?
-  status    String
-  fileName  String?
-  notes     String?
-  createdAt DateTime @default(now())
-
-  company OfflineCompany? @relation(fields: [companyId], references: [id])
-  branch  OfflineBranch?  @relation(fields: [branchId], references: [id])
-
-  @@index([companyId])
-  @@index([branchId])
 }
