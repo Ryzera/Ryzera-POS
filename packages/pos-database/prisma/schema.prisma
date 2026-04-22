@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -525,6 +524,57 @@ model ReportDelivery {
 
   @@index([scheduleId])
   @@map("report_deliveries")
+}
+
+model KpiMarginTarget {
+  id                  Int     @id @default(autoincrement())
+  branch_id           Int     @default(0)
+  target_gross_margin Decimal @db.Decimal(5, 2) // e.g. 38.00 = 38%
+  target_net_margin   Decimal @db.Decimal(5, 2) // e.g. 32.00 = 32%
+
+  @@unique([branch_id])
+  @@map("ryzera_pos_kpi_margin_target")
+}
+
+model KpiInventoryThreshold {
+  id                    Int @id @default(autoincrement())
+  branch_id             Int @default(0)
+  default_reorder_level Int @default(20) // reorder alert fires when stock < this
+  critical_stock_level  Int @default(5) // urgent alert level
+  zero_sales_hours      Int @default(24) // hours with no product sales before alert
+
+  @@unique([branch_id])
+  @@map("ryzera_pos_kpi_inventory_threshold")
+}
+
+model KpiNotificationRule {
+  id                         Int     @id @default(autoincrement())
+  branch_id                  Int     @default(0)
+  daily_target_midday        Boolean @default(true)
+  unusual_hourly_drop        Boolean @default(true)
+  zero_sales_product         Boolean @default(true)
+  low_stock_alert            Boolean @default(true)
+  out_of_stock_alert         Boolean @default(true)
+  daily_summary_notification Boolean @default(true)
+  weekly_performance_summary Boolean @default(false) // OFF by default (matches UI)
+  margin_below_target        Boolean @default(true) // ON by default (matches UI)
+  check_frequency_minutes    Int     @default(5) // 1 | 5 | 10 | 30 | 60
+
+  @@unique([branch_id])
+  @@map("ryzera_pos_kpi_notification_rule")
+}
+
+model KpiReportDefault {
+  id                   Int     @id @default(autoincrement())
+  branch_id            Int     @default(0)
+  default_date_range   String  @default("LAST_30_DAYS")
+  // Accepted values: LAST_7_DAYS | LAST_30_DAYS | LAST_90_DAYS | THIS_MONTH | CUSTOM
+  default_branch_view  String  @default("ALL")
+  // Accepted values: ALL | <branch_id as string>
+  show_target_progress Boolean @default(true)
+
+  @@unique([branch_id])
+  @@map("ryzera_pos_kpi_report_default")
 }
 
 // ═════════════════════════════════════════════════════════════════
