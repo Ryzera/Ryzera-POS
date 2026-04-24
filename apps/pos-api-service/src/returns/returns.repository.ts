@@ -6,28 +6,24 @@ export class ReturnsRepository {
     constructor(private prisma: PrismaService) {}
 
     async findSaleById(sale_id: number) {
-        const sale = await this.prisma.getSale();
-        return sale.findUnique({
+        return this.prisma.ryzera_pos_sale.findUnique({
             where: { sale_id },
             include: { sale_items: true },
         });
     }
 
     async createReturn(data: any) {
-        const ret = await this.prisma.getReturn();
-        return ret.create(data);
+        return this.prisma.ryzera_pos_return.create(data);
     }
 
     async findReturnById(return_id: number) {
-        const ret = await this.prisma.getReturn();
-        return ret.findUnique({
+        return this.prisma.ryzera_pos_return.findUnique({
             where: { return_id },
         });
     }
 
     async findAllReturns() {
-        const ret = await this.prisma.getReturn();
-        return ret.findMany({
+        return this.prisma.ryzera_pos_return.findMany({
             orderBy: { created_at: 'desc' },
         });
     }

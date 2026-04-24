@@ -1,4 +1,6 @@
-import { CreateReturnDto } from './schema/create-return.schema';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ReturnsRepository } from './returns.repository.js';
+import { CreateReturnDto } from './schema/create-return.schema.js';
 
 @Injectable()
 export class ReturnsService {
@@ -16,10 +18,10 @@ export class ReturnsService {
                 (i: any) => i.sale_item_id === returnItem.sale_item_id,
             );
             if (!saleItem) throw new BadRequestException(`Sale item ${returnItem.sale_item_id} not found`);
-            if (returnItem.quantity_returned > saleItem.quantity)
+            if (returnItem.quantity_returned > Number(saleItem.quantity))
                 throw new BadRequestException(`Return quantity exceeds original quantity`);
 
-            return sum + (saleItem.unit_price * returnItem.quantity_returned);
+            return sum + (Number(saleItem.unit_price) * returnItem.quantity_returned);
         }, 0);
 
         return this.returnsRepository.createReturn({
