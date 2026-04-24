@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProfitLossController } from './profit-loss.controller';
 import { ProfitLossService }    from './profit-loss.service';
 import { PrismaModule }         from '../prisma/prisma.module';
+import { AuditLogModule }        from '../audit-log/audit-log.module';
 
 /**
  * ProfitLossModule
@@ -10,7 +11,7 @@ import { PrismaModule }         from '../prisma/prisma.module';
  * ProfitLossService is exported so ScheduledReportsModule can reuse it.
  */
 @Module({
-    imports:     [PrismaModule],
+    imports:     [PrismaModule,AuditLogModule],
     controllers: [ProfitLossController],
     providers:   [ProfitLossService],
     exports:     [ProfitLossService],

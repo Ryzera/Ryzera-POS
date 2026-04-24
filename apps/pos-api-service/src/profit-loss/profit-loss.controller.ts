@@ -186,7 +186,7 @@ export class ProfitLossController {
     ) {
         const query = this.parseQuery({ dateFrom, dateTo, branchId });
         query.branchId = this.resolvebranchId(user, query.branchId);
-        const buffer = await this.profitLossService.exportCsv(query);
+        const buffer = await this.profitLossService.exportCsv(query,user);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="profit-loss.csv"');
         res.send(buffer);
@@ -212,7 +212,7 @@ export class ProfitLossController {
     ) {
         const query = this.parseQuery({ dateFrom, dateTo, branchId });
         query.branchId = this.resolvebranchId(user, query.branchId);
-        const buffer = await this.profitLossService.exportPdf(query);
+        const buffer = await this.profitLossService.exportPdf(query,user);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="profit-loss.pdf"');
         res.send(buffer);

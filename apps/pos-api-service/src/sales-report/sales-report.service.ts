@@ -5,7 +5,9 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService }       from '@ryzera/pos-database';
+import { AuditLogService } from '../audit-log/audit-log.service';
 import type { QuerySalesReportDto, CreateSummaryDto } from './schemas/sales-report.schema';
+import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 
 // ─── Internal helper types ────────────────────────────────────────────────────
 interface PaymentGroup {
@@ -15,7 +17,10 @@ interface PaymentGroup {
 
 @Injectable()
 export class SalesReportService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly auditLogService: AuditLogService,
+        ) {}
 
     // ─── Private Helpers ────────────────────────────────────────────────────────
 
@@ -50,6 +55,13 @@ export class SalesReportService {
                 ? (record['updatedAt'] as Date).toISOString().slice(0, 16).replace('T', ' ')
                 : record['updatedAt'],
         };
+    }
+
+    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+        const parts: string[] = [];
+        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
+        if (dto.category)               parts.push(dto.category);
+        return parts.join(', ') || 'All';
     }
 
     // ─── KPI Summary Cards ──────────────────────────────────────────────────────
@@ -453,7 +465,7 @@ export class SalesReportService {
     }
 
     // ─── CSV Export ─────────────────────────────────────────────────────────────
-    async exportToCsv(dto: QuerySalesReportDto & { branchId?: number }): Promise<string> {
+    async exportToCsv(dto: QuerySalesReportDto & { branchId?: number },user: JwtPayload): Promise<string> {
         const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
         const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
         dateTo.setHours(23, 59, 59, 999);
@@ -487,11 +499,20 @@ export class SalesReportService {
             sale.payment_status,
         ].join(','));
 
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported CSV',
+            reportType:  'Sales Report',   // ← change this label per report
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
+
         return [headers, ...rows].join('\n');
     }
 
     // ─── PDF Export ─────────────────────────────────────────────────────────────
-    async exportToPdf(dto: QuerySalesReportDto & { branchId?: number }): Promise<Buffer> {
+    async exportToPdf(dto: QuerySalesReportDto & { branchId?: number },user: JwtPayload): Promise<Buffer> {
         const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
         const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
         dateTo.setHours(23, 59, 59, 999);
@@ -630,6 +651,15 @@ export class SalesReportService {
             );
             y += rowHeight;
         });
+
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported PDF',
+            reportType:  'Sales Report',   // ← change this label per report
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
 
         // Footer
         const footerY = (doc.page.height as number) - 28;

@@ -134,7 +134,7 @@ export class SalesReportController {
         @Res() res: Response,
     ) {
         const branchId = this.resolvebranchId(user, query.branchId);
-        const csv = await this.salesReportService.exportToCsv({ ...query, branchId });
+        const csv = await this.salesReportService.exportToCsv({ ...query, branchId },user);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader(
             'Content-Disposition',
@@ -153,7 +153,7 @@ export class SalesReportController {
         @Res() res: Response,
     ) {
         const branchId = this.resolvebranchId(user, query.branchId);
-        const pdfBuffer = await this.salesReportService.exportToPdf({ ...query, branchId });
+        const pdfBuffer = await this.salesReportService.exportToPdf({ ...query, branchId },user);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(
             'Content-Disposition',

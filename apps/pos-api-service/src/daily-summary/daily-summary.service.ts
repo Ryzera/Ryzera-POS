@@ -1,13 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@ryzera/pos-database';
 import { QueryDailySummaryInput }        from './schemas/daily-summary.schema';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 
 // ─── Constants (avoids hard-coded strings scattered in logic) ────────────
 const SALE_STATUS_COMPLETED = 'Completed';
 
 @Injectable()
 export class DailySummaryService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly auditLogService: AuditLogService,
+        ) {}
 
     // ─── Private helpers ─────────────────────────────────────────────────
 
@@ -45,6 +50,13 @@ export class DailySummaryService {
      */
     private toNumber(val: any): number {
         return parseFloat(parseFloat(String(val ?? 0)).toFixed(2));
+    }
+
+    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+        const parts: string[] = [];
+        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
+        if (dto.category)               parts.push(dto.category);
+        return parts.join(', ') || 'All';
     }
 
     // ─── KPI Summary Cards ───────────────────────────────────────────────
@@ -288,7 +300,7 @@ export class DailySummaryService {
 
     // ─── Export CSV ──────────────────────────────────────────────────────
 
-    async exportCsv(dto: QueryDailySummaryInput): Promise<Buffer> {
+    async exportCsv(dto: QueryDailySummaryInput,user: JwtPayload): Promise<Buffer> {
         const result = await this.getDailySummaryDetails(dto);
 
         if (!result.table || !result.plBreakdown) {
@@ -317,6 +329,15 @@ export class DailySummaryService {
             ['Profit Margin',      plBreakdown.profitMargin + '%'],
         ];
 
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported CSV',
+            reportType:  'Daily Summary',   // ← change this label per report
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
+
         const lines = [
             tableHeaders.map((v) => `"${v}"`).join(','),
             tableRow.map((v) => `"${v}"`).join(','),
@@ -330,7 +351,7 @@ export class DailySummaryService {
 
     // ─── Export PDF ──────────────────────────────────────────────────────
 
-    async exportPdf(dto: QueryDailySummaryInput): Promise<Buffer> {
+    async exportPdf(dto: QueryDailySummaryInput,user: JwtPayload): Promise<Buffer> {
         const result = await this.getDailySummaryDetails(dto);
         const PDFDocument = require('pdfkit');
 
@@ -431,6 +452,15 @@ export class DailySummaryService {
             doc.text(value, margin + 210, y + 6);
             y += rowHeight;
         });
+
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported PDF',
+            reportType:  'Daily Summary',   // ← change this label per report
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
 
         const footerY = doc.page.height - 28;
         doc.moveTo(margin, footerY).lineTo(pageWidth - margin, footerY)

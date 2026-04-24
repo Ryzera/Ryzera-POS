@@ -1,6 +1,8 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@ryzera/pos-database';
 import type { ProfitLossQuery } from './schemas/profit-loss.schema';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 
 // ─── Internal types ──────────────────────────────────────────────────────────
 
@@ -28,7 +30,10 @@ const SALE_STATUS_COMPLETED  = 'Completed';
  */
 @Injectable()
 export class ProfitLossService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly auditLogService: AuditLogService,
+    ) {}
 
     // ─── Private Helpers ─────────────────────────────────────────────────────
 
@@ -73,6 +78,12 @@ export class ProfitLossService {
         return parseFloat(value.toFixed(1));
     }
 
+    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+        const parts: string[] = [];
+        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
+        if (dto.category)               parts.push(dto.category);
+        return parts.join(', ') || 'All';
+    }
     // ─── KPI Cards ───────────────────────────────────────────────────────────
 
     /**
@@ -346,7 +357,7 @@ export class ProfitLossService {
      * Generates a CSV buffer of the P&L table.
      * Called by GET /profit-loss/export/csv
      */
-    async exportCsv(query: ProfitLossQuery): Promise<Buffer> {
+    async exportCsv(query: ProfitLossQuery,user: JwtPayload): Promise<Buffer> {
         const { data } = await this.getProfitLossTable(query);
 
         if (!data || data.length === 0) {
@@ -372,6 +383,17 @@ export class ProfitLossService {
             row.margin,
         ]);
 
+        // Audit: fire-and-forget — never blocks the CSV response
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported CSV',
+            reportType:  'P&L Summary',
+            filtersUsed: this.buildFilterSummary(query),                        // ← param is 'query'
+            branchName:  query.branchId ? `Branch ${query.branchId}` : 'All',  // ← use query.branchId
+        });
+
         const csv = [headers, ...rows]
             .map((row) => row.map((v) => `"${v}"`).join(','))
             .join('\n');
@@ -385,7 +407,7 @@ export class ProfitLossService {
      * Generates a styled PDF buffer of the full P&L report.
      * Called by GET /profit-loss/export/pdf
      */
-    async exportPdf(query: ProfitLossQuery): Promise<Buffer> {
+    async exportPdf(query: ProfitLossQuery,user: JwtPayload): Promise<Buffer> {
         const [kpi, tableResult] = await Promise.all([
             this.getKpiCards(query),
             this.getProfitLossTable(query),
@@ -528,6 +550,17 @@ export class ProfitLossService {
                 i % 2 === 0,
             );
             y += rowHeight;
+        });
+
+        // Audit: fire-and-forget — never blocks the PDF response
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported PDF',
+            reportType:  'P&L Summary',
+            filtersUsed: this.buildFilterSummary(query),                        // ← param is 'query'
+            branchName:  query.branchId ? `Branch ${query.branchId}` : 'All',  // ← use query.branchId
         });
 
         // ── Footer ─────────────────────────────────────────────────────

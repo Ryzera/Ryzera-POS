@@ -1,6 +1,8 @@
 import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';  // ← added BadRequestException
 import { PrismaService } from '@ryzera/pos-database';
 import type { QueryInventoryStatusDto } from './schemas/query-inventory-status.schema';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 
 export interface ClassifiedProduct {
     product_name:   string;
@@ -29,7 +31,10 @@ export interface InventoryDetailRow {
 @Injectable()
 export class InventoryStatusService {
 
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly auditLogService: AuditLogService,
+        ) {}
 
     // ─── Maps auth branchId (integer) → inventory branchId (UUID) ────────────
     private readonly branchIdMap: Record<number, string> = {
@@ -163,6 +168,13 @@ export class InventoryStatusService {
         };
     }
 
+    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+        const parts: string[] = [];
+        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
+        if (dto.category)               parts.push(dto.category);
+        return parts.join(', ') || 'All';
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // PUBLIC METHODS
     // ─────────────────────────────────────────────────────────────────────────
@@ -259,7 +271,7 @@ export class InventoryStatusService {
     }
 
     // ─── exportCsv and exportPdf are unchanged — no edits needed ─────────────
-    async exportCsv(dto: QueryInventoryStatusDto): Promise<Buffer> {
+    async exportCsv(dto: QueryInventoryStatusDto,user: JwtPayload): Promise<Buffer> {
         const { inventoryDetails } = await this.getFilteredDetails(dto);
 
         const headers = [
@@ -279,6 +291,15 @@ export class InventoryStatusService {
             row.sellingValue,
         ]);
 
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported CSV',
+            reportType:  'Inventory Status Report',   // ← change this label per report
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
+
         const csv = [headers, ...rows]
             .map(row => row.map(v => `"${v}"`).join(','))
             .join('\n');
@@ -286,7 +307,7 @@ export class InventoryStatusService {
         return Buffer.from(csv, 'utf-8');
     }
 
-    async exportPdf(dto: QueryInventoryStatusDto): Promise<Buffer> {
+    async exportPdf(dto: QueryInventoryStatusDto,user: JwtPayload): Promise<Buffer> {
         const { kpi, inventoryDetails } = await this.getFilteredDetails(dto);
 
         // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -414,6 +435,15 @@ export class InventoryStatusService {
             }, false, i % 2 === 0);
             y += ROW_HEIGHT;
         }
+
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported PDF',
+            reportType:  'Inventory Status Report',   // ← change this label per report
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
 
         const footerY = doc.page.height - 28;
         doc.moveTo(MARGIN, footerY).lineTo(PAGE_WIDTH - MARGIN, footerY)

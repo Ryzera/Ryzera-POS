@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@ryzera/pos-database';
 import { QueryCategoryPerformanceDto } from './schemas/query-category-performance.schema';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 
 /** Default fallback start date when no dateFrom is provided */
 const DEFAULT_DATE_FROM = '2026-01-01';
@@ -15,7 +17,10 @@ interface CategoryMetrics {
 
 @Injectable()
 export class CategoryPerformanceService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly auditLogService: AuditLogService,
+        ) {}
 
     // ── Private Helpers ──────────────────────────────────────────────────────
 
@@ -105,6 +110,13 @@ export class CategoryPerformanceService {
         }
 
         return grouped;
+    }
+
+    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+        const parts: string[] = [];
+        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
+        if (dto.category)               parts.push(dto.category);
+        return parts.join(', ') || 'All';
     }
 
     // ── Public Service Methods ───────────────────────────────────────────────
@@ -275,7 +287,7 @@ export class CategoryPerformanceService {
      * Exports the detail table as a UTF-8 CSV buffer.
      * Respects branchId scoping (undefined = all branches).
      */
-    async exportCsv(dto: QueryCategoryPerformanceDto): Promise<Buffer> {
+    async exportCsv(dto: QueryCategoryPerformanceDto,user: JwtPayload): Promise<Buffer> {
         const result = await this.getCategoryTable(dto);
 
         if (!result.data || result.data.length === 0) {
@@ -293,6 +305,17 @@ export class CategoryPerformanceService {
             r.transactions, r.margin,
         ]);
 
+        // Audit: fire-and-forget — never blocks the CSV response
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported CSV',
+            reportType:  'Category Perf.',
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All', // ← use dto.branchId
+        });
+
         const csv = [headers, ...rows]
             .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
             .join('\n');
@@ -306,7 +329,7 @@ export class CategoryPerformanceService {
      *
      * Layout: landscape A4, full table with all 8 columns, header row shaded.
      */
-    async exportPdf(dto: QueryCategoryPerformanceDto): Promise<Buffer> {
+    async exportPdf(dto: QueryCategoryPerformanceDto,user: JwtPayload): Promise<Buffer> {
         const result = await this.getCategoryTable(dto);
 
         // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -492,6 +515,17 @@ export class CategoryPerformanceService {
                         { width: col.width - 8, align: col.align, lineBreak: false },
                     );
                 tx += col.width;
+            });
+
+            // Audit: fire-and-forget — never blocks the PDF response
+            void this.auditLogService.record({
+                userId:      user.userId,
+                username:    user.username,
+                role:        user.role,
+                action:      'Exported PDF',
+                reportType:  'Category Perf.',
+                filtersUsed: this.buildFilterSummary(dto),
+                branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All', // ← use dto.branchId
             });
 
             // ── Generated timestamp ──────────────────────────────────────────

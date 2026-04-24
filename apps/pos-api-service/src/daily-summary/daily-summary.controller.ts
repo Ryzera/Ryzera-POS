@@ -114,7 +114,7 @@ export class DailySummaryController {
         @Res() res: Response,
     ) {
         const dto = this.parseAndEnrichQuery(user, rawQuery);
-        const buffer = await this.dailySummaryService.exportCsv(dto);
+        const buffer = await this.dailySummaryService.exportCsv(dto,user);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="daily-summary.csv"');
         res.send(buffer);
@@ -130,7 +130,7 @@ export class DailySummaryController {
         @Res() res: Response,
     ) {
         const dto = this.parseAndEnrichQuery(user, rawQuery);
-        const buffer = await this.dailySummaryService.exportPdf(dto);
+        const buffer = await this.dailySummaryService.exportPdf(dto,user);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="daily-summary.pdf"');
         res.send(buffer);
