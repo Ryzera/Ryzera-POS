@@ -305,7 +305,7 @@ export class ProductPerformanceController {
     ): Promise<void> {
         const query = this.parseQuery({ dateFrom, dateTo, category, branchId });
         query.resolvedBranchId = this.resolvebranchId(user, query.branchId);
-        const csv = await this.productPerformanceService.exportToCsv(query);
+        const csv = await this.productPerformanceService.exportToCsv(query,user);
         res!.setHeader('Content-Type', 'text/csv');
         res!.setHeader(
             'Content-Disposition',
@@ -353,7 +353,7 @@ export class ProductPerformanceController {
         const query = this.parseQuery({ dateFrom, dateTo, category, branchId });
         query.resolvedBranchId = this.resolvebranchId(user, query.branchId);
         const pdfBuffer =
-            await this.productPerformanceService.exportToPdf(query);
+            await this.productPerformanceService.exportToPdf(query,user);
         res!.setHeader('Content-Type', 'application/pdf');
         res!.setHeader(
             'Content-Disposition',

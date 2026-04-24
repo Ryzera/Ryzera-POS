@@ -188,6 +188,7 @@ export class CategoryPerformanceController {
     ) {
         const buffer = await this.categoryPerformanceService.exportCsv(
             this.resolvedDto(user, dto),
+            user, // ← pass user for audit logging
         );
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
         res.setHeader('Content-Disposition', 'attachment; filename="category-performance.csv"');
@@ -209,6 +210,7 @@ export class CategoryPerformanceController {
     ) {
         const buffer = await this.categoryPerformanceService.exportPdf(
             this.resolvedDto(user, dto),
+            user, // ← pass user for audit logging
         );
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="category-performance.pdf"');

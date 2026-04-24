@@ -83,7 +83,7 @@ export class InventoryStatusController {
     ) {
         const dto = this.parseQuery(rawQuery);
         dto.branchId = this.resolveEffectiveBranchId(user, dto.branchId);
-        const buffer = await this.inventoryStatusService.exportCsv(dto);
+        const buffer = await this.inventoryStatusService.exportCsv(dto,user);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="inventory-status.csv"');
         res.send(buffer);
@@ -101,7 +101,7 @@ export class InventoryStatusController {
     ) {
         const dto = this.parseQuery(rawQuery);
         dto.branchId = this.resolveEffectiveBranchId(user, dto.branchId);
-        const buffer = await this.inventoryStatusService.exportPdf(dto);
+        const buffer = await this.inventoryStatusService.exportPdf(dto,user);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="inventory-status.pdf"');
         res.send(buffer);

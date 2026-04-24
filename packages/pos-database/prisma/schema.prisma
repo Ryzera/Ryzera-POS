@@ -278,6 +278,7 @@ model User {
   // ── Reports Hub back-relations ─────────────────────────────────
   savedReportConfigs SavedReportConfig[]
   reportSchedules    ReportSchedule[]
+  auditLogs          AuditLog[]
 
   @@map("ryzera_pos_user")
 }
@@ -575,6 +576,41 @@ model KpiReportDefault {
 
   @@unique([branch_id])
   @@map("ryzera_pos_kpi_report_default")
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  /// Username of the user who performed the action
+  username String @db.VarChar(100)
+
+  /// Role label at the time of the action (e.g. "Branch Mgr", "Super Admin")
+  role String @db.VarChar(50)
+
+  /// "Generated" | "Exported PDF" | "Exported CSV"
+  action String @db.VarChar(30)
+
+  /// Report type label (e.g. "Sales Report", "P&L Summary")
+  reportType String @db.VarChar(50)
+
+  /// Human-readable filter summary (e.g. "Feb 1–28, Dairy")
+  filtersUsed String @db.VarChar(200)
+
+  /// Branch name at time of action, or "All"
+  branchName String @db.VarChar(100)
+
+  /// Foreign key back to the user — kept for joins but not strictly required
+  userId Int
+
+  /// Timestamp of the action (stored in UTC)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
 // ═════════════════════════════════════════════════════════════════

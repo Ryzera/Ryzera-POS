@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@ryzera/pos-database';
 import type { ResolvedProductPerformanceFilter } from './schemas/product-performance.schema';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -31,7 +33,10 @@ type SaleItemRow = {
 
 @Injectable()
 export class ProductPerformanceService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly auditLogService: AuditLogService,
+        ) {}
 
     // ────────────────────────────────────────────────────────────────────────────
     // Private Helpers
@@ -113,6 +118,13 @@ export class ProductPerformanceService {
         }
 
         return grouped;
+    }
+
+    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+        const parts: string[] = [];
+        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
+        if (dto.category)               parts.push(dto.category);
+        return parts.join(', ') || 'All';
     }
 
     private round2(value: number): number {
@@ -431,6 +443,7 @@ export class ProductPerformanceService {
 
     async exportToCsv(
         filter: ResolvedProductPerformanceFilter,
+        user: JwtPayload,
     ): Promise<string> {
         const allFilter = { ...filter, page: 1, limit: EXPORT_LIMIT };
         const result = await this.getProductTable(allFilter);
@@ -459,6 +472,17 @@ export class ProductPerformanceService {
             ].join(','),
         );
 
+        // Audit: fire-and-forget — never blocks the CSV response
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported CSV',
+            reportType:  'Product Perf.',
+            filtersUsed: this.buildFilterSummary(filter),                                   // ← param is 'filter'
+            branchName:  filter.resolvedBranchId ? `Branch ${filter.resolvedBranchId}` : 'All',
+        });
+
         return [headers, ...rows].join('\n');
     }
 
@@ -467,8 +491,7 @@ export class ProductPerformanceService {
     // ────────────────────────────────────────────────────────────────────────────
 
     async exportToPdf(
-        filter: ResolvedProductPerformanceFilter,
-    ): Promise<Buffer> {
+        filter: ResolvedProductPerformanceFilter,user: JwtPayload): Promise<Buffer> {
         const dateFrom = filter.dateFrom
             ? new Date(filter.dateFrom)
             : DEFAULT_DATE_FROM;
@@ -655,6 +678,17 @@ export class ProductPerformanceService {
                 i % 2 === 0,
             );
             y += ROW_HEIGHT;
+        });
+
+        // Audit: fire-and-forget — never blocks the PDF response
+        void this.auditLogService.record({
+            userId:      user.userId,
+            username:    user.username,
+            role:        user.role,
+            action:      'Exported PDF',
+            reportType:  'Product Perf.',
+            filtersUsed: this.buildFilterSummary(filter),                                   // ← param is 'filter'
+            branchName:  filter.resolvedBranchId ? `Branch ${filter.resolvedBranchId}` : 'All',
         });
 
         // Footer
