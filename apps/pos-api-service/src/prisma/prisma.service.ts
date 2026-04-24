@@ -1,33 +1,24 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import * as dotenv from 'dotenv';
-dotenv.config();
-
-const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prismaClient: any = new PrismaClient({ adapter });
-
-let isConnected = false;
-
-async function getClient() {
-  if (!isConnected) {
-    await prismaClient.$connect();
-    isConnected = true;
-  }
-  return prismaClient;
-}
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import 'dotenv/config';
 
 @Injectable()
-export class PrismaService implements OnModuleInit {
-  async onModuleInit(): Promise<void> {
-    await getClient();
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  constructor() {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) throw new Error('DATABASE_URL missing');
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
+    super({ adapter });
   }
 
-  async getSale() { return (await getClient()).ryzera_pos_sale; }
-  async getSaleItem() { return (await getClient()).ryzera_pos_sale_item; }
-  async getPayment() { return (await getClient()).ryzera_pos_payment; }
-  async getReturn() { return (await getClient()).ryzera_pos_return; }
-  async getReturnItem() { return (await getClient()).ryzera_pos_return_item; }
-  async tx(operations: any[]) { return (await getClient()).$transaction(operations); }
+  async onModuleInit() {
+    await this.$connect();
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
 }
