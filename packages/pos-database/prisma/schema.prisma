@@ -7,6 +7,26 @@ datasource db {
   provider = "postgresql"
 }
 
+enum InventoryAction {
+  CREATE
+  UPDATE
+  SALE
+  RESTOCK
+  DELETE
+  TRANSFER
+  ADJUSTMENT
+  STOCK_TAKE
+  RETURN_FROM_CUSTOMER
+  RETURN_TO_SUPPLIER
+  WASTE_DAMAGED
+}
+
+enum AlertStatus {
+  PENDING
+  SEEN
+  RESOLVED
+}
+
 model Company {
   company_id   Int      @id @default(autoincrement())
   name         String
@@ -25,45 +45,47 @@ model Company {
 }
 
 model Branch {
-  branchId   Int      @id @default(autoincrement())
-  company_id  Int
-  name        String
-  code        String
-  address     String?
-  city        String?
-  phone       String?
-  email       String?
+  branchId     Int      @id @default(autoincrement())
+  company_id   Int
+  name         String
+  code         String
+  address      String?
+  city         String?
+  phone        String?
+  email        String?
   manager_name String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   company    Company   @relation(fields: [company_id], references: [company_id])
   users      User[]
   userLogs   UserLog[]
+  stockAlerts StockAlert[]
 
   @@map("ryzera_pos_branch")
 }
 
 model User {
-  user_id       Int            @id @default(autoincrement())
-  username      String         @unique
-  password      String
-  user_type     String    @default("STAFF")
-  status        String
-  company_id    Int
-  branch_id     Int
+  user_id                Int       @id @default(autoincrement())
+  username               String    @unique
+  password               String
+  user_type              String    @default("STAFF")
+  status                 String
+  company_id             Int
+  branch_id              Int
   failed_login_attempts  Int       @default(0)
   last_failed_login      DateTime?
   account_locked_until   DateTime?
   last_login_at          DateTime?
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  company       Company        @relation(fields: [company_id], references: [company_id])
-  branch        Branch         @relation(fields: [branch_id], references: [branchId])
-  info          UserInfo?
-  userRoles     UserRole[]
-  logs          UserLog[]
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+  
+  company    Company    @relation(fields: [company_id], references: [company_id])
+  branch     Branch     @relation(fields: [branch_id], references: [branchId])
+  info       UserInfo?
+  userRoles  UserRole[]
+  logs       UserLog[]
   inventoryLogs InventoryLog[]
 
   @@map("ryzera_pos_user")
@@ -78,11 +100,10 @@ model UserInfo {
   phone        String?
   address      String?
   profile_pic  String?
-
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("ryzera_pos_user_info")
 }
@@ -116,8 +137,8 @@ model UserRole {
   roleId    String
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@map("ryzera_pos_user_role")
@@ -129,8 +150,8 @@ model RoleAuthority {
   authorityId String
   createdAt   DateTime   @default(now())
 
-  role        Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  authority   Authority  @relation(fields: [authorityId], references: [id], onDelete: Cascade)
+  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  authority Authority @relation(fields: [authorityId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, authorityId])
   @@map("ryzera_pos_role_authority")
@@ -147,8 +168,8 @@ model UserLog {
   status    String
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  branch    Branch   @relation(fields: [branch_id], references: [branchId])
+  user   User   @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+  branch Branch @relation(fields: [branch_id], references: [branchId])
 
   @@map("ryzera_pos_user_log")
 }
@@ -161,6 +182,7 @@ model Product {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   inventoryLogs InventoryLog[]
+  stockAlerts   StockAlert[]
 
   @@map("ryzera_pos_product")
 }
@@ -173,26 +195,147 @@ model InventoryLog {
   userId      Int
   productId   String
   createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [user_id])
-  product     Product  @relation(fields: [productId], references: [id])
+  
+  user    User    @relation(fields: [userId], references: [user_id])
+  product Product @relation(fields: [productId], references: [id])
 
   @@map("ryzera_pos_inventory_log")
 }
 
 model StockAlert {
-  id       String      @id @default(uuid())
-  status   AlertStatus @default(PENDING)
-  stockQty Int
-  minStock Int
-
+  id        String      @id @default(uuid())
+  status    AlertStatus @default(PENDING)
+  stockQty  Int
+  minStock  Int
   productId String
-  product   Product @relation(fields: [productId], references: [id])
-  branchId  String
-  branch    Branch  @relation(fields: [branchId], references: [id])
-
+  branchId  Int
   createdAt DateTime @default(now())
 
-  @@map("ryzera_pos_sync_log")
+  product Product @relation(fields: [productId], references: [id])
+  branch  Branch  @relation(fields: [branchId], references: [branchId])
+
+  @@map("ryzera_pos_stock_alert")
 }
 
+// ============================================================
+// SYNC MODULE TABLES 
+// ============================================================
 
+model SyncCompany {
+  id        String   @id @default(uuid())
+  name      String
+  code      String?  @unique
+  email     String?
+  phone     String?
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branches  SyncBranch[]
+  syncLogs  SyncLog[]
+  settings  SyncSetting[]
+  backups   SyncBackup[]
+
+  @@index([code])
+  @@map("sync_company")
+}
+
+model SyncBranch {
+  id         String   @id @default(uuid())
+  companyId  String
+  name       String
+  code       String
+  address    String?
+  phone      String?
+  adminEmail String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  syncLogs  SyncLog[]
+  settings  SyncSetting[]
+  backups   SyncBackup[]
+
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@map("sync_branch")
+}
+
+model SyncLog {
+  id        String   @id @default(uuid())
+  companyId String?
+  branchId  String?
+  entity    String
+  status    String   @default("PENDING")
+  payload   Json
+  error     String?
+  attempts  Int      @default(0)
+  syncedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   SyncCompany? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    SyncBranch?  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
+  @@index([branchId, status])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sync_log")
+}
+
+model SyncSetting {
+  id          String   @id @default(uuid())
+  key         String
+  value       String
+  description String?
+  scope       String   @default("GLOBAL")
+  companyId   String
+  branchId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    SyncBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, branchId, key])
+  @@index([companyId])
+  @@index([branchId])
+  @@map("sync_setting")
+}
+
+model SyncBackup {
+  id        String   @id @default(uuid())
+  companyId String
+  branchId  String?
+  status    String   @default("SUCCESS")
+  fileName  String
+  notes     String?
+  createdAt DateTime @default(now())
+
+  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch    SyncBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([branchId])
+  @@index([createdAt])
+  @@map("sync_backup")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("notification")
+}
