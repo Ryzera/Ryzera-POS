@@ -6,12 +6,12 @@ import { CreateSettingDto, UpdateSettingDto } from './schema/settings.schema';
 export class SettingsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Create setting. Auto-creates default company if none exists. */
   async create(data: CreateSettingDto) {
-    // Create a default company if companyId not provided
+    // Create default company if not exists (ensures settings have a parent context)
     let companyId = data.companyId;
     
     if (!companyId) {
-      // Check if default company exists
       const defaultCompany = await this.prisma.syncCompany.findFirst({
         where: { code: 'DEFAULT' }
       });
@@ -19,7 +19,6 @@ export class SettingsService {
       if (defaultCompany) {
         companyId = defaultCompany.id;
       } else {
-        // Create default company
         const newCompany = await this.prisma.syncCompany.create({
           data: {
             name: 'Default Company',
@@ -37,18 +36,13 @@ export class SettingsService {
         value: data.value,
         description: data.description || null,
         scope: data.scope,
-        company: {
-          connect: { id: companyId }
-        },
-        ...(data.branchId && {
-          branch: {
-            connect: { id: data.branchId }
-          }
-        })
+        company: { connect: { id: companyId } },
+        ...(data.branchId && { branch: { connect: { id: data.branchId } } })
       },
     });
   }
 
+  /** Get all settings with optional company/branch filters. */
   async findAll(companyId?: string, branchId?: string) {
     const where: any = {};
     if (companyId) where.companyId = companyId;
@@ -57,13 +51,11 @@ export class SettingsService {
     return this.prisma.syncSetting.findMany({
       where,
       orderBy: { key: 'asc' },
-      include: {
-        company: true,
-        branch: true,
-      },
+      include: { company: true, branch: true },
     });
   }
 
+  /** Get setting by key. throws NotFoundException if missing. */
   async findByKey(key: string, companyId?: string, branchId?: string) {
     const where: any = { key };
     if (companyId) where.companyId = companyId;
@@ -76,6 +68,7 @@ export class SettingsService {
     return setting;
   }
 
+  /** Update setting value. throws NotFoundException if missing. */
   async update(key: string, data: UpdateSettingDto, companyId?: string, branchId?: string) {
     const where: any = { key };
     if (companyId) where.companyId = companyId;
@@ -92,6 +85,7 @@ export class SettingsService {
     });
   }
 
+  /** Delete setting by key. throws NotFoundException if missing. */
   async delete(key: string, companyId?: string, branchId?: string) {
     const where: any = { key };
     if (companyId) where.companyId = companyId;

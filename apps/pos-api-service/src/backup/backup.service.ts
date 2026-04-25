@@ -6,8 +6,9 @@ import { CreateBackupDto } from './schema/backup.schema';
 export class BackupService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Create backup. Auto-creates default company. Generates JSON filename with timestamp. */
   async createBackup(data: CreateBackupDto) {
-    // Get or create default company
+    // Get or create default company (ensures backup has company context)
     let companyId = data.companyId;
     
     if (!companyId) {
@@ -31,6 +32,7 @@ export class BackupService {
 
     const fileName = `backup_${companyId}_${Date.now()}.json`;
     
+    // Fetch all data to be backed up in parallel
     const [settings, pendingLogs, syncedLogs] = await Promise.all([
       this.prisma.syncSetting.findMany({ where: { companyId } }),
       this.prisma.syncLog.findMany({ where: { companyId, status: 'PENDING' } }),
@@ -48,6 +50,7 @@ export class BackupService {
     });
   }
 
+  /** Get backup history. Most recent first. */
   async getBackupHistory(companyId?: string, branchId?: string) {
     const where: any = {};
     if (companyId) where.companyId = companyId;
@@ -59,6 +62,7 @@ export class BackupService {
     });
   }
 
+  /** Get system summary counts for dashboard display. */
   async getSummary(companyId?: string, branchId?: string) {
     const where: any = {};
     if (companyId) where.companyId = companyId;
