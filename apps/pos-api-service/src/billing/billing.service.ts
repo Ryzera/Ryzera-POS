@@ -69,7 +69,7 @@ export class BillingService {
       throw new BadRequestException('Cannot pay for a cancelled sale');
     if (sale.payment_status === 'Paid')
       throw new BadRequestException('Sale already paid');
-    if (dto.amount_paid < sale.total_amount)
+    if (dto.amount_paid < Number(sale.total_amount))
       throw new BadRequestException(`Insufficient amount. Required: ${sale.total_amount}`);
 
     return this.billingRepository.processPaymentTransaction(dto, sale);
@@ -93,7 +93,7 @@ export class BillingService {
     return sale;
   }
 
-  async getAllSales(branch_id?: string) {
+  async getAllSales(branch_id?: number) {
     return this.billingRepository.findAllSales(branch_id);
   }
 }

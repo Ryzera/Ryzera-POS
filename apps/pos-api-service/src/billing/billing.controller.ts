@@ -37,6 +37,6 @@ export class BillingController {
 
   @Get('sales')
   getAllSales(@Query('branch_id') branch_id?: string) {
-    return this.billingService.getAllSales(branch_id);
+    return this.billingService.getAllSales(branch_id? Number(branch_id) : undefined);
   }
 }

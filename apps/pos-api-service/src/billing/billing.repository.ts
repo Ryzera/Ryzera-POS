@@ -27,7 +27,7 @@ export class BillingRepository {
         return this.prisma.ryzera_pos_payment.create({ data });
     }
 
-    async findAllSales(branch_id?: string) {
+    async findAllSales(branch_id?: number) {
         return this.prisma.ryzera_pos_sale.findMany({
             where: branch_id ? { branch_id } : {},
             include: { sale_items: true, payments: true },
