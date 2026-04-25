@@ -16,8 +16,8 @@ export const CreateSaleItemSchema = z.object({
 });
 
 export const CreateSaleSchema = z.object({
-    branch_id: z.string().uuid(),
-    user_id: z.string().uuid(),
+    branch_id: z.number().positive(),
+    user_id: z.number().positive(),
     items: z.array(CreateSaleItemSchema).min(1),
     discount_type: z.enum(['item', 'bill']).optional(),
     bill_discount_percent: z.number().min(0).max(MAX_DISCOUNT_PERCENT).optional(),
