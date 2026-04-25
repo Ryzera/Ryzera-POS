@@ -318,7 +318,7 @@ importers:
         specifier: ^7.4.0
         version: 7.7.0
       dotenv:
-        specifier: ^17.3.1
+        specifier: ^17.4.2
         version: 17.4.2
       pg:
         specifier: ^8.18.0
