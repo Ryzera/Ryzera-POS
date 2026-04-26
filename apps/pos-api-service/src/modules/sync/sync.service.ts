@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PushSyncDto } from './schema/push-sync.schema';
-import { SyncRepository } from './repository/sync.repository';
+import { SyncRepository, SyncStatus } from './repository/sync.repository';
 import { EmailService } from '../../email/email.service';
-import { SyncStatus } from '@prisma/client';
 
 /**
  * Implements the offline‑first sync logic.
