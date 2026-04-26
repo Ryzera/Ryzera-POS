@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { SyncStatus } from '@prisma/client';
 import { ISyncRepository } from './sync.repository.interface';
+
+export enum SyncStatus {
+  PENDING = 'PENDING',
+  SYNCED = 'SYNCED',
+  FAILED = 'FAILED',
+}
 
 /**
  * Stores and retrieves sync records using Prisma ORM.

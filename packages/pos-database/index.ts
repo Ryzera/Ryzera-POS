@@ -1,2 +1,2 @@
-export * from './src/generated/prisma/index';
+export * from '@prisma/client';
 export { PrismaService } from './src/prisma.service';
