@@ -47,7 +47,7 @@ export class BranchService {
 
     if (branch.status === BranchStatus.INACTIVE) {
       throw new BadRequestException(
-        'Cannot update an inactive branch. Reactivate it first.',
+          'Cannot update an inactive branch. Reactivate it first.',
       );
     }
 
@@ -67,10 +67,26 @@ export class BranchService {
 
     if (branch.status === BranchStatus.SUSPENDED) {
       throw new BadRequestException(
-        'Cannot deactivate a suspended branch. Resolve the suspension first.',
+          'Cannot deactivate a suspended branch. Resolve the suspension first.',
       );
     }
 
     return this.branchRepo.softDelete(id);
+  }
+
+  async reactivate(id: string) {
+    const branch = await this.findOrFail(id);
+
+    if (branch.status === BranchStatus.ACTIVE) {
+      throw new BadRequestException('Branch is already active.');
+    }
+
+    if (branch.status === BranchStatus.SUSPENDED) {
+      throw new BadRequestException(
+          'Cannot reactivate a suspended branch. Resolve the suspension first.',
+      );
+    }
+
+    return this.branchRepo.reactivate(id);
   }
 }

@@ -92,4 +92,12 @@ export class BranchRepository {
       where: { id },
     });
   }
+
+  reactivate(id: string) {
+    return this.prisma.branch.update({
+      data: { status: 'ACTIVE' },
+      select: LIST_SELECT,
+      where: { id },
+    });
+  }
 }

@@ -6,19 +6,28 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable CORS for frontend
+  app.enableCors({
+    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
+
   // Global prefix for all routes
   app.setGlobalPrefix('api');
 
-  // Swagger setup (optional but nice)
+  // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('Ryzera POS API')
-    .setDescription('POS system API')
-    .setVersion('1.0')
-    .build();
+      .setTitle('Ryzera POS API')
+      .setDescription('Inventory Management System API')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
   console.log(`🚀 Application is running on: http://localhost:${process.env.PORT ?? 3000}/api`);
 }
-bootstrap();
+void bootstrap();

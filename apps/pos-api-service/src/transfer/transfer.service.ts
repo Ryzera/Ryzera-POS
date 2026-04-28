@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { PrismaService } from '@ryzera/pos-database';
 
 import { TransferQueryDto } from './transfer-query.schema';
 import { TransferRepository } from './transfer.repository';
@@ -26,12 +27,30 @@ interface UpdateTransferStatusDto {
 
 @Injectable()
 export class TransferService {
-  constructor(private readonly transferRepo: TransferRepository) {}
+  constructor(
+      private readonly transferRepo: TransferRepository,
+      private readonly prisma: PrismaService,
+  ) {}
 
   private async findOrFail(id: string) {
     const transfer = await this.transferRepo.findById(id);
     if (!transfer) throw new NotFoundException(`Transfer "${id}" not found`);
     return transfer;
+  }
+
+  private async ensureBranchActive(branchId: string, role: 'source' | 'destination') {
+    const branch = await this.prisma.branch.findUnique({
+      where: { id: branchId },
+      select: { id: true, name: true, status: true },
+    });
+    if (!branch) {
+      throw new NotFoundException(`Branch "${branchId}" not found`);
+    }
+    if (branch.status !== 'ACTIVE') {
+      throw new BadRequestException(
+          `${role === 'source' ? 'Source' : 'Destination'} branch "${branch.name}" is ${branch.status.toLowerCase()} and cannot be used for transfers`,
+      );
+    }
   }
 
   findAll(query: TransferQueryDto) {
@@ -42,7 +61,9 @@ export class TransferService {
     return this.findOrFail(id);
   }
 
-  create(dto: CreateTransferDto, createdById: string) {
+  async create(dto: CreateTransferDto, createdById: string) {
+    await this.ensureBranchActive(dto.sourceBranchId, 'source');
+    await this.ensureBranchActive(dto.destinationBranchId, 'destination');
     return this.transferRepo.create(dto, createdById);
   }
 
@@ -59,7 +80,7 @@ export class TransferService {
     const allowed = transitions[transfer.status] ?? [];
     if (!allowed.includes(dto.status)) {
       throw new BadRequestException(
-        `Cannot transition from "${transfer.status}" to "${dto.status}"`,
+          `Cannot transition from "${transfer.status}" to "${dto.status}"`,
       );
     }
 
@@ -70,7 +91,7 @@ export class TransferService {
     if (dto.status === 'RECEIVED') {
       if (transfer.status !== 'SHIPPED') {
         throw new BadRequestException(
-          'Transfer must be shipped before it can be received.',
+            'Transfer must be shipped before it can be received.',
         );
       }
       return this.transferRepo.receiveTransfer(transfer, dto.userId);

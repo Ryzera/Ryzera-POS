@@ -1,182 +1,251 @@
 generator client {
-  provider = "prisma-client-js"
-  url      = env("DATABASE_URL")
+  provider     = "prisma-client-js"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model Company {
-  company_id   Int      @id @default(autoincrement())
-  name         String
-  code         String   @unique
-  email        String?
-  phone        String?
-  address      String?
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
 
-  branches     Branch[]
-  users        User[]
+enum BranchStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
 
-  @@map("ryzera_pos_company")
+  @@map("branch_status")
 }
 
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+
+  @@map("user_role")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+
+  @@map("product_status")
+}
+
+enum UnitOfMeasure {
+  PCS
+  KG
+  PACK
+  LTR
+  BOX
+  MTR
+
+  @@map("unit_of_measure")
+}
+
+enum InventoryAction {
+  CREATE
+  UPDATE
+  SALE
+  RESTOCK
+  DELETE
+  TRANSFER
+  ADJUSTMENT
+  STOCK_TAKE
+  RETURN_FROM_CUSTOMER
+  RETURN_TO_SUPPLIER
+  WASTE_DAMAGED
+
+  @@map("inventory_action")
+}
+
+enum AlertStatus {
+  PENDING
+  SEEN
+  RESOLVED
+
+  @@map("alert_status")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  RECEIVED
+  CANCELLED
+
+  @@map("purchase_order_status")
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCELLED
+
+  @@map("invoice_status")
+}
+
+enum TransferStatus {
+  PENDING
+  SHIPPED
+  RECEIVED
+  CANCELLED
+
+  @@map("transfer_status")
+}
+
+// ─────────────────────────────────────────────
+// Core Models
+// ─────────────────────────────────────────────
+
 model Branch {
-  branchId   Int      @id @default(autoincrement())
-  company_id  Int
-  name        String
-  code        String
-  address     String?
-  city        String?
-  phone       String?
-  email       String?
-  manager_name String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id      String       @id @default(uuid())
+  name    String
+  address String?
+  phone   String?
+  status  BranchStatus @default(ACTIVE)
 
-  company    Company   @relation(fields: [company_id], references: [company_id])
-  users      User[]
-  userLogs   UserLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("ryzera_pos_branch")
+  users          User[]
+  branchProducts BranchProduct[]
+  inventoryLogs  InventoryLog[]
+  stockAlerts    StockAlert[]
+  purchaseOrders PurchaseOrder[]
+  transfersFrom  Transfer[]      @relation("TransferSource")
+  transfersTo    Transfer[]      @relation("TransferDestination")
+
+  @@map("branch")
 }
 
 model User {
-  user_id       Int            @id @default(autoincrement())
-  username      String         @unique
-  password      String
-  user_type     String    @default("STAFF")
-  status        String
-  company_id    Int
-  branch_id     Int
-  failed_login_attempts  Int       @default(0)
-  last_failed_login      DateTime?
-  account_locked_until   DateTime?
-  last_login_at          DateTime?
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  company       Company        @relation(fields: [company_id], references: [company_id])
-  branch        Branch         @relation(fields: [branch_id], references: [branchId])
-  info          UserInfo?
-  userRoles     UserRole[]
-  logs          UserLog[]
-  inventoryLogs InventoryLog[]
+  id       String   @id @default(uuid())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(STAFF)
 
-  @@map("ryzera_pos_user")
-}
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
-model UserInfo {
-  user_info_id Int      @id @default(autoincrement())
-  user_id      Int      @unique
-  first_name   String
-  last_name    String
-  email        String?  @unique
-  phone        String?
-  address      String?
-  profile_pic  String?
-
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
-  @@map("ryzera_pos_user_info")
-}
-
-model Role {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  description     String?
-  createdAt       DateTime         @default(now())
-
-  userRoles       UserRole[]
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_role")
-}
-
-model Authority {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  description     String?
-  createdAt       DateTime         @default(now())
-
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_authority")
-}
-
-model UserRole {
-  id        String   @id @default(uuid())
-  userId    Int
-  roleId    String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  inventoryLogs  InventoryLog[]
+  purchaseOrders PurchaseOrder[]
+  transfers      Transfer[]
 
-  @@unique([userId, roleId])
-  @@map("ryzera_pos_user_role")
+  @@map("user")
 }
 
-model RoleAuthority {
-  id          String     @id @default(uuid())
-  roleId      String
-  authorityId String
-  createdAt   DateTime   @default(now())
+model Supplier {
+  id          String  @id @default(uuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
 
-  role        Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  authority   Authority  @relation(fields: [authorityId], references: [id], onDelete: Cascade)
+  leadTimeDays Int     @default(0)
+  isActive     Boolean @default(true)
 
-  @@unique([roleId, authorityId])
-  @@map("ryzera_pos_role_authority")
-}
-
-model UserLog {
-  id        String   @id @default(uuid())
-  userId    Int
-  branch_id Int
-  action    String
-  ipAddress String?
-  device_info String?
-  userAgent String?
-  status    String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  branch    Branch   @relation(fields: [branch_id], references: [branchId])
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
 
-  @@map("ryzera_pos_user_log")
+  @@index([name])
+  @@map("supplier")
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+
+  @@map("category")
 }
 
 model Product {
-  id            String         @id @default(uuid())
-  name          String
-  price         Float
-  stockQty      Int            @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id          String        @id @default(uuid())
+  name        String
+  sku         String        @unique
+  barcode     String?       @unique
+  description String?
+  price       Decimal       @db.Decimal(12, 4)
+  costPrice   Decimal?      @db.Decimal(12, 4)
+  minStock    Int           @default(5)
+  unit        UnitOfMeasure @default(PCS)
+  status      ProductStatus @default(ACTIVE)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branchProducts     BranchProduct[]
+  inventoryLogs      InventoryLog[]
+  stockAlerts        StockAlert[]
+  purchaseOrderItems PurchaseOrderItem[]
+  transferItems      TransferItem[]
+  batches            Batch[]
+
+  @@map("product")
+}
+
+model BranchProduct {
+  id          String @id @default(uuid())
+  stockQty    Int    @default(0)
+  reservedQty Int    @default(0)
+
+  branchId  String
+  branch    Branch  @relation(fields: [branchId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   inventoryLogs InventoryLog[]
 
-  @@map("ryzera_pos_product")
+  @@unique([branchId, productId])
+  @@index([branchId])
+  @@index([productId])
+  @@map("branch_product")
 }
+
+// ─────────────────────────────────────────────
+// Inventory & Audit
+// ─────────────────────────────────────────────
 
 model InventoryLog {
   id          String          @id @default(uuid())
   action      InventoryAction
   changeQty   Int
   description String?
-  userId      Int
-  productId   String
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [user_id])
-  product     Product  @relation(fields: [productId], references: [id])
 
-  @@map("ryzera_pos_inventory_log")
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  branchId        String
+  branch          Branch        @relation(fields: [branchId], references: [id])
+  branchProductId String
+  branchProduct   BranchProduct @relation(fields: [branchProductId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([branchProductId])
+  @@map("inventory_log")
 }
 
 model StockAlert {
@@ -191,8 +260,137 @@ model StockAlert {
   branch    Branch  @relation(fields: [branchId], references: [id])
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("ryzera_pos_sync_log")
+  purchaseOrder PurchaseOrder?
+
+  @@index([status])
+  @@index([productId, branchId])
+  @@map("stock_alert")
 }
 
+// ─────────────────────────────────────────────
+// Purchasing & Invoicing
+// ─────────────────────────────────────────────
 
+model PurchaseOrder {
+  id     String              @id @default(uuid())
+  status PurchaseOrderStatus @default(DRAFT)
+  notes  String?
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  branchId   String
+  branch     Branch   @relation(fields: [branchId], references: [id])
+
+  createdById  String
+  createdBy    User        @relation(fields: [createdById], references: [id])
+  stockAlertId String?     @unique
+  stockAlert   StockAlert? @relation(fields: [stockAlertId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items   PurchaseOrderItem[]
+  invoice Invoice?
+
+  @@index([supplierId])
+  @@index([branchId])
+  @@map("purchase_order")
+}
+
+model PurchaseOrderItem {
+  id        String  @id @default(uuid())
+  quantity  Int
+  unitCost  Decimal @db.Decimal(12, 4)
+  totalCost Decimal @db.Decimal(12, 4)
+
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@map("purchase_order_item")
+}
+
+model Invoice {
+  id          String        @id @default(uuid())
+  invoiceNo   String        @unique
+  status      InvoiceStatus @default(UNPAID)
+  totalAmount Decimal       @db.Decimal(12, 4)
+  issuedAt    DateTime      @default(now())
+  dueDate     DateTime?
+  paidAt      DateTime?
+  notes       String?
+
+  purchaseOrderId String        @unique
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("invoice")
+}
+
+// ─────────────────────────────────────────────
+// Inter-Branch Transfers
+// ─────────────────────────────────────────────
+
+model Transfer {
+  id     String         @id @default(uuid())
+  status TransferStatus @default(PENDING)
+  notes  String?
+
+  sourceBranchId      String
+  sourceBranch        Branch @relation("TransferSource", fields: [sourceBranchId], references: [id])
+  destinationBranchId String
+  destinationBranch   Branch @relation("TransferDestination", fields: [destinationBranchId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items TransferItem[]
+
+  @@index([sourceBranchId])
+  @@index([destinationBranchId])
+  @@map("transfer")
+}
+
+model TransferItem {
+  id       String @id @default(uuid())
+  quantity Int
+
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  transferId String
+  transfer   Transfer @relation(fields: [transferId], references: [id])
+
+  @@index([transferId])
+  @@map("transfer_item")
+}
+
+// ─────────────────────────────────────────────
+// Batch & Expiry Tracking
+// ─────────────────────────────────────────────
+
+model Batch {
+  id              String    @id @default(uuid())
+  batchNumber     String    @unique
+  manufactureDate DateTime?
+  expiryDate      DateTime?
+  quantity        Int
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([expiryDate])
+  @@map("batch")
+}

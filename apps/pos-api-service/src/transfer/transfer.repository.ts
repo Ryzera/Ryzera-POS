@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, PrismaService } from '@ryzera/pos-database';
 
 import { TransferQueryDto } from './transfer-query.schema';
@@ -91,10 +91,9 @@ export class TransferRepository {
     });
   }
 
-  // SHIPPED — deduct stock from source branch
   async shipTransfer(
-    transfer: NonNullable<Awaited<ReturnType<TransferRepository['findById']>>>,
-    userId: string,
+      transfer: NonNullable<Awaited<ReturnType<TransferRepository['findById']>>>,
+      userId: string,
   ) {
     return this.prisma.$transaction(async (tx) => {
       for (const item of transfer.items) {
@@ -108,8 +107,8 @@ export class TransferRepository {
         });
 
         if (!bp || bp.stockQty < item.quantity) {
-          throw new Error(
-            `Insufficient stock for product "${item.product.name}" in source branch`,
+          throw new BadRequestException(
+              `Insufficient stock for product "${item.product.name}" in source branch`,
           );
         }
 
@@ -130,7 +129,6 @@ export class TransferRepository {
           },
         });
 
-        // Trigger low stock alert if needed
         const product = await tx.product.findUnique({
           where: { id: item.productId },
           select: { minStock: true },
@@ -156,10 +154,9 @@ export class TransferRepository {
     });
   }
 
-  // RECEIVED — increment stock in destination branch
   async receiveTransfer(
-    transfer: NonNullable<Awaited<ReturnType<TransferRepository['findById']>>>,
-    userId: string,
+      transfer: NonNullable<Awaited<ReturnType<TransferRepository['findById']>>>,
+      userId: string,
   ) {
     return this.prisma.$transaction(async (tx) => {
       for (const item of transfer.items) {
