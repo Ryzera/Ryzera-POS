@@ -6,7 +6,10 @@ export class BillingRepository {
     constructor(private prisma: PrismaService) {}
 
     async createSale(data: any) {
-        return this.prisma.ryzera_pos_sale.create(data);
+        return this.prisma.ryzera_pos_sale.create({
+            data: data.data,
+            include: data.include,
+        });
     }
 
     async findSaleById(sale_id: number) {
@@ -27,9 +30,9 @@ export class BillingRepository {
         return this.prisma.ryzera_pos_payment.create({ data });
     }
 
-    async findAllSales(branch_id?: number) {
+    async findAllSales(branch_id?: string) {
         return this.prisma.ryzera_pos_sale.findMany({
-            where: branch_id ? { branch_id } : {},
+            where: branch_id ? { branch_id } : undefined,
             include: { sale_items: true, payments: true },
             orderBy: { created_at: 'desc' },
         });
@@ -56,7 +59,7 @@ export class BillingRepository {
             payment_id: result[0].payment_id,
             invoice_number: sale.invoice_number,
             amount_paid: result[0].amount_paid,
-            change: dto.amount_paid - sale.total_amount,
+            change: Number(dto.amount_paid) - Number(sale.total_amount),
             status: 'Payment Successful',
         };
     }

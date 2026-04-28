@@ -93,7 +93,7 @@ export class BillingService {
     return sale;
   }
 
-  async getAllSales(branch_id?: number) {
+  async getAllSales(branch_id?: string) {
     return this.billingRepository.findAllSales(branch_id);
   }
 }

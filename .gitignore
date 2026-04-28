@@ -6,8 +6,6 @@ node_modules
 .pnp.js
 
 # Keep environment variables out of version control
-.env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -39,3 +37,4 @@ yarn-error.log*
 # Prisma generated files
 packages/pos-database/src/generated/
 /generated/prisma
+config.bat
