@@ -17,6 +17,7 @@ import { ProfitLossModule } from './profit-loss/profit-loss.module';
 import { CategoryPerformanceModule } from './category-performance/category-performance.module';
 import { ProductPerformanceModule } from './product-performance/product-performance.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
+import { LookupModule } from './lookup/lookup.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AuditLogModule } from './audit-log/audit-log.module';
     CategoryPerformanceModule,
     ProductPerformanceModule,
     AuditLogModule,
+    LookupModule,
   ],
   controllers: [AppController],
   providers:   [AppService],

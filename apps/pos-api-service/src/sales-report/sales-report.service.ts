@@ -20,28 +20,18 @@ export class SalesReportService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly auditLogService: AuditLogService,
-        ) {}
+    ) {}
 
     // ─── Private Helpers ────────────────────────────────────────────────────────
 
-    /**
-     * Build a Prisma `where` fragment for ryzera_pos_sale.branchId (Int column).
-     * Returns empty object when no branchId is provided (= all branches).
-     */
     private buildSaleBranchFilter(branchId?: number): object {
         return branchId ? { branchId: Number(branchId) } : {};
     }
 
-    /**
-     * Build a Prisma `where` fragment for DailySummary.branchId (Int column).
-     */
     private buildSummaryBranchFilter(branchId?: number): object {
         return branchId != null ? { branchId: Number(branchId) } : {};
     }
 
-    /**
-     * Format a DailySummary record: convert Date fields to ISO strings.
-     */
     private formatSummaryRecord(record: Record<string, unknown>) {
         return {
             ...record,
@@ -64,39 +54,75 @@ export class SalesReportService {
         return parts.join(', ') || 'All';
     }
 
-    // ─── KPI Summary Cards ──────────────────────────────────────────────────────
     /**
-     * Returns the four top-bar KPI cards:
-     * Total Revenue | Total Transactions | Total Items | Average Sales
+     * ✅ SHARED where-clause builder used by getSalesTransactions, exportToCsv, exportToPdf.
+     * Applies all active filters: date range, branch, status, search, category, product.
+     * This ensures exports always match the filtered transaction table exactly.
      */
-    async getSummaryCards(dto: QuerySalesReportDto & { branchId?: number }) {
+    private buildSaleWhereClause(
+        dto: QuerySalesReportDto & { branchId?: number },
+    ): Record<string, unknown> {
         const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
         const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
+        dateTo.setHours(23, 59, 59, 999);
 
-        // Build optional sale_item filter for product-level drill-down
-        const itemFilter: Record<string, unknown> = {};
-        if (dto.product) {
-            itemFilter['product_name'] = { contains: dto.product, mode: 'insensitive' };
-        }
-
-        const saleWhere: Record<string, unknown> = {
+        const where: Record<string, unknown> = {
             sale_date: { gte: dateFrom, lte: dateTo },
             ...this.buildSaleBranchFilter(dto.branchId),
         };
 
-        if (dto.product) {
-            saleWhere['sale_items'] = { some: itemFilter };
+        if (dto.status) {
+            where['sale_status'] = dto.status;
         }
 
-        const sales = await this.prisma.ryzera_pos_sale.findMany({
-            where: saleWhere as any,
-            include: {
-                sale_items: {
-                    where: Object.keys(itemFilter).length > 0 ? (itemFilter as any) : undefined,
-                    select: {
-                        quantity:        true,
-                        total_amount:    true,
+        if (dto.search) {
+            where['invoice_number'] = {
+                contains: dto.search.trim(),
+                mode:     'insensitive',
+            };
+        }
+
+        // Category and/or product filters via nested sale_items relation
+        if (dto.category && dto.product) {
+            where['sale_items'] = {
+                some: {
+                    product_name: { contains: dto.product,  mode: 'insensitive' },
+                    product: {
+                        category: { name: { contains: dto.category, mode: 'insensitive' } },
                     },
+                },
+            };
+        } else if (dto.category) {
+            where['sale_items'] = {
+                some: {
+                    product: {
+                        category: { name: { contains: dto.category, mode: 'insensitive' } },
+                    },
+                },
+            };
+        } else if (dto.product) {
+            where['sale_items'] = {
+                some: { product_name: { contains: dto.product, mode: 'insensitive' } },
+            };
+        }
+
+        return where;
+    }
+
+    // ─── KPI Summary Cards ──────────────────────────────────────────────────────
+    async getSummaryCards(dto: QuerySalesReportDto & { branchId?: number }) {
+        // ✅ Use EXACT same where clause as getSalesTransactions
+        // Do NOT hardcode sale_status: 'Completed' here —
+        // let it follow whatever status filter the user applied (or none)
+        const where = this.buildSaleWhereClause(dto);
+
+        const sales = await this.prisma.ryzera_pos_sale.findMany({
+            where: where as any,
+            select: {
+                total_amount: true,
+                sale_status:  true,
+                sale_items: {
+                    select: { quantity: true },
                 },
             },
         });
@@ -105,28 +131,16 @@ export class SalesReportService {
             return { totalRevenue: 0, totalTransactions: 0, totalItems: 0, averageSales: 0 };
         }
 
-        let totalRevenue = 0;
-        let totalItems   = 0;
-
-        if (dto.product) {
-            // When filtering by product, only count matched items
-            for (const sale of sales) {
-                for (const item of sale.sale_items) {
-                    totalRevenue += Number(item.total_amount);
-                    totalItems   += item.quantity;
-                }
-            }
-        } else {
-            totalRevenue = sales.reduce((sum, s) => sum + Number(s.total_amount), 0);
-            totalItems   = sales.reduce(
-                (sum, s) => sum + s.sale_items.reduce((iSum, i) => iSum + i.quantity, 0),
-                0,
-            );
-        }
-
-        const totalTransactions = sales.length;
-        const averageSales      = totalTransactions > 0
-            ? parseFloat((totalRevenue / totalTransactions).toFixed(2))
+        // ✅ Revenue: only sum Completed sales (cancelled shouldn't count toward revenue)
+        // ✅ But totalTransactions counts ALL statuses shown in the table
+        const completedSales    = sales.filter(s => s.sale_status === 'Completed');
+        const totalRevenue      = completedSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
+        const totalItems        = completedSales.reduce(
+            (sum, s) => sum + s.sale_items.reduce((i, si) => i + si.quantity, 0), 0
+        );
+        const totalTransactions = sales.length; // all statuses, matches table row count
+        const averageSales      = completedSales.length > 0
+            ? parseFloat((totalRevenue / completedSales.length).toFixed(2))
             : 0;
 
         return {
@@ -138,13 +152,46 @@ export class SalesReportService {
     }
 
     // ─── Bar Chart Data ─────────────────────────────────────────────────────────
-    /**
-     * Returns day-by-day sales amounts from DailySummary for the bar chart.
-     */
+    // REPLACE the entire getChartData method:
     async getChartData(dto: QuerySalesReportDto & { branchId?: number }) {
         const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
         const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
+        dateTo.setHours(23, 59, 59, 999);
 
+        // If category/product filter is active, read from ryzera_pos_sale
+        // (DailySummary has no category breakdown)
+        if (dto.category || dto.product) {
+            const where = this.buildSaleWhereClause({
+                ...dto,
+                // Only completed sales count for chart
+            });
+            (where as any)['sale_status'] = 'Completed';
+
+            const sales = await this.prisma.ryzera_pos_sale.findMany({
+                where:   where as any,
+                select:  { sale_date: true, total_amount: true },
+                orderBy: { sale_date: 'asc' },
+            });
+
+            // Group by date
+            const grouped: Record<string, number> = {};
+            for (const s of sales) {
+                const date = s.sale_date.toISOString().slice(0, 10);
+                grouped[date] = (grouped[date] ?? 0) + Number(s.total_amount);
+            }
+
+            const data = Object.entries(grouped).map(([date, amount]) => ({
+                date,
+                amount:       parseFloat(amount.toFixed(2)),
+                transactions: 0,
+                netProfit:    0,
+                returns:      0,
+            }));
+
+            return { count: data.length, data };
+        }
+
+        // No category filter — use DailySummary as before
         const records = await this.prisma.dailySummary.findMany({
             where: {
                 summaryDate: { gte: dateFrom, lte: dateTo },
@@ -160,7 +207,6 @@ export class SalesReportService {
             orderBy: { summaryDate: 'asc' },
         });
 
-        // Transform to UI-friendly shape: { date: '2026-04-01', amount: 2638.30 }
         const data = records.map(r => ({
             date:         r.summaryDate.toISOString().slice(0, 10),
             amount:       parseFloat(Number(r.totalSales).toFixed(2)),
@@ -173,28 +219,67 @@ export class SalesReportService {
     }
 
     // ─── Payment Method Pie Chart ───────────────────────────────────────────────
-    /**
-     * Returns breakdown by payment type for the pie chart.
-     * Includes count, totalAmount, and percentage share.
-     */
+    // FIX: Filter payments by branchId via the sale relation properly.
+    //      When no payments exist, return empty data array (not a fake 100% entry).
+    // ─── Payment Method Pie Chart ───────────────────────────────────────────────
+// FIX: Filter payments by branchId via the sale relation properly.
+//      When no payments exist, return empty data array (not a fake 100% entry).
     async getPaymentMethodBreakdown(dto: QuerySalesReportDto & { branchId?: number }) {
         const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
         const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
+        dateTo.setHours(23, 59, 59, 999);
+
+        // Build sale conditions for branch + category filtering
+        const saleConditions: Record<string, unknown> = {};
+
+        if (dto.branchId != null) {
+            saleConditions['branchId'] = Number(dto.branchId);
+        }
+
+        if (dto.category && dto.product) {
+            saleConditions['sale_items'] = {
+                some: {
+                    product_name: { contains: dto.product, mode: 'insensitive' },
+                    product: {
+                        category: { name: { contains: dto.category, mode: 'insensitive' } },
+                    },
+                },
+            };
+        } else if (dto.category) {
+            saleConditions['sale_items'] = {
+                some: {
+                    product: {
+                        category: { name: { contains: dto.category, mode: 'insensitive' } },
+                    },
+                },
+            };
+        } else if (dto.product) {
+            saleConditions['sale_items'] = {
+                some: { product_name: { contains: dto.product, mode: 'insensitive' } },
+            };
+        }
+
+        const paymentWhere: Record<string, unknown> = {
+            payment_date:   { gte: dateFrom, lte: dateTo },
+            payment_status: 'Paid',
+        };
+
+        if (Object.keys(saleConditions).length > 0) {
+            paymentWhere['sale'] = saleConditions;
+        }
 
         const payments = await this.prisma.ryzera_pos_payment.findMany({
-            where: {
-                payment_date: { gte: dateFrom, lte: dateTo },
-                ...(dto.branchId
-                    ? { sale: { branchId: Number(dto.branchId) } }
-                    : {}),
-            } as any,
+            where: paymentWhere as any,
             select: {
                 payment_method: true,
                 amount_paid:    true,
             },
         });
 
-        // Group by method
+        if (payments.length === 0) {
+            return { totalTransactions: 0, data: [] };
+        }
+
         const grouped: Record<string, PaymentGroup> = {};
         for (const p of payments) {
             const method = p.payment_method;
@@ -216,66 +301,19 @@ export class SalesReportService {
                 : 0,
         }));
 
-        // Sort descending by count so the pie chart labels match the legend order
         data.sort((a, b) => b.count - a.count);
 
         return { totalTransactions: totalCount, data };
     }
 
     // ─── Transactions Table (Paginated) ────────────────────────────────────────
-    /**
-     * Returns paginated, searchable, filterable list of sales transactions.
-     * Matches the bottom table in the UI.
-     */
     async getSalesTransactions(dto: QuerySalesReportDto & { branchId?: number }) {
-        const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
-        const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
-        dateTo.setHours(23, 59, 59, 999); // include the full last day
-
         const page  = Number(dto.page)  || 1;
         const limit = Number(dto.limit) || 10;
         const skip  = (page - 1) * limit;
 
-        // Build dynamic where clause
-        const where: Record<string, unknown> = {
-            sale_date: { gte: dateFrom, lte: dateTo },
-            ...this.buildSaleBranchFilter(dto.branchId),
-        };
-
-        if (dto.status) {
-            where['sale_status'] = dto.status;
-        }
-
-        if (dto.search) {
-            where['invoice_number'] = {
-                contains: dto.search.trim(),
-                mode:     'insensitive',
-            };
-        }
-
-        // Category and/or product filters on nested sale_items
-        if (dto.category && dto.product) {
-            where['sale_items'] = {
-                some: {
-                    product_name: { contains: dto.product, mode: 'insensitive' },
-                    product: {
-                        category: { name: { contains: dto.category, mode: 'insensitive' } },
-                    },
-                },
-            };
-        } else if (dto.category) {
-            where['sale_items'] = {
-                some: {
-                    product: {
-                        category: { name: { contains: dto.category, mode: 'insensitive' } },
-                    },
-                },
-            };
-        } else if (dto.product) {
-            where['sale_items'] = {
-                some: { product_name: { contains: dto.product, mode: 'insensitive' } },
-            };
-        }
+        // ✅ Use the shared where-clause builder
+        const where = this.buildSaleWhereClause(dto);
 
         const [totalCount, sales] = await Promise.all([
             this.prisma.ryzera_pos_sale.count({ where: where as any }),
@@ -324,14 +362,10 @@ export class SalesReportService {
     }
 
     // ─── Per-Branch Report ──────────────────────────────────────────────────────
-    /**
-     * Returns one KPI block per active branch for the "Per Branch" tab.
-     */
     async getReportByBranch(dto: QuerySalesReportDto) {
-        // 'branch' matches the Prisma model 'Branch' (@@map is only for the SQL table name)
         const branches = await this.prisma.branch.findMany({
             where:  { is_active: true },
-            select: { branchId: true, name: true, city: true }, // branchId not branch_id
+            select: { branchId: true, name: true, city: true },
         });
 
         const results = await Promise.all(
@@ -354,6 +388,15 @@ export class SalesReportService {
         return { branches: results };
     }
 
+    // ─── Branch List for Sales Report Filter ────────────────────────────────────
+    async getBranchList() {
+        const branches = await this.prisma.branch.findMany({
+            where:   { is_active: true },
+            select:  { branchId: true, name: true, city: true },
+            orderBy: { name: 'asc' },
+        });
+        return branches;
+    }
     // ─── DailySummary CRUD ──────────────────────────────────────────────────────
 
     async createDailySummary(dto: CreateSummaryDto) {
@@ -450,53 +493,55 @@ export class SalesReportService {
             },
         });
 
-        return { message: 'Summary updated successfully.', data: this.formatSummaryRecord(updated as any) };
+        return { message: 'Summary updated.', data: this.formatSummaryRecord(updated as any) };
     }
 
     async deleteSummary(id: string) {
         const existing = await this.prisma.dailySummary.findUnique({ where: { id } });
         if (!existing) throw new NotFoundException(`Summary ${id} not found`);
-
         await this.prisma.dailySummary.delete({ where: { id } });
-
-        return {
-            message: `Summary for ${(existing.summaryDate as Date).toDateString()} deleted successfully.`,
-        };
+        return { message: 'Summary deleted.' };
     }
 
-    // ─── CSV Export ─────────────────────────────────────────────────────────────
-    async exportToCsv(dto: QuerySalesReportDto & { branchId?: number },user: JwtPayload): Promise<string> {
-        const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
-        const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
-        dateTo.setHours(23, 59, 59, 999);
+    // ─── Export CSV ─────────────────────────────────────────────────────────────
+    async exportToCsv(
+        dto: QuerySalesReportDto & { branchId?: number },
+        user: JwtPayload,
+    ): Promise<string> {
+        const where = this.buildSaleWhereClause(dto);
 
         const sales = await this.prisma.ryzera_pos_sale.findMany({
-            where: {
-                sale_date: { gte: dateFrom, lte: dateTo },
-                ...this.buildSaleBranchFilter(dto.branchId),
-            } as any,
+            where:   where as any,
             orderBy: { sale_date: 'desc' },
             include: {
-                payments: { select: { payment_method: true } },
+                payments: {
+                    select: { payment_method: true },
+                },
             },
         });
 
-        const headers = [
-            'Invoice Number', 'Sale Date', 'Payment Method',
-            'Subtotal', 'Discount Amount', 'Tax Amount',
-            'Total Amount', 'Sale Status', 'Payment Status',
+        const header = [
+            'Invoice Number',
+            'Sale Date',
+            'Payment Method',
+            'Subtotal',
+            'Discount',
+            'Tax',
+            'Total Amount',
+            'Sale Status',
+            'Payment Status',
         ].join(',');
 
-        const rows = sales.map(sale => [
-            sale.invoice_number,
-            sale.sale_date.toISOString().slice(0, 10),
-            sale.payments[0]?.payment_method ?? 'N/A',
-            Number(sale.subtotal).toFixed(2),
-            Number(sale.discount_amount).toFixed(2),
-            Number(sale.tax_amount).toFixed(2),
-            Number(sale.total_amount).toFixed(2),
-            sale.sale_status,
-            sale.payment_status,
+        const rows = sales.map(s => [
+            s.invoice_number,
+            s.sale_date.toISOString().slice(0, 10),
+            s.payments[0]?.payment_method ?? 'N/A',
+            Number(s.subtotal).toFixed(2),
+            Number(s.discount_amount).toFixed(2),
+            Number(s.tax_amount).toFixed(2),
+            Number(s.total_amount).toFixed(2),
+            s.sale_status,
+            s.payment_status,
         ].join(','));
 
         void this.auditLogService.record({
@@ -504,27 +549,28 @@ export class SalesReportService {
             username:    user.username,
             role:        user.role,
             action:      'Exported CSV',
-            reportType:  'Sales Report',   // ← change this label per report
+            reportType:  'Sales Report',
             filtersUsed: this.buildFilterSummary(dto),
-            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',
+        });
 
-        return [headers, ...rows].join('\n');
+        return [header, ...rows].join('\n');
     }
 
-    // ─── PDF Export ─────────────────────────────────────────────────────────────
-    async exportToPdf(dto: QuerySalesReportDto & { branchId?: number },user: JwtPayload): Promise<Buffer> {
-        const dateFrom = dto.dateFrom ? new Date(dto.dateFrom) : new Date('2026-01-01');
-        const dateTo   = dto.dateTo   ? new Date(dto.dateTo)   : new Date();
-        dateTo.setHours(23, 59, 59, 999);
+    // ─── Export PDF ─────────────────────────────────────────────────────────────
+    async exportToPdf(
+        dto: QuerySalesReportDto & { branchId?: number },
+        user: JwtPayload,
+    ): Promise<Buffer> {
+        const where = this.buildSaleWhereClause(dto);
 
         const sales = await this.prisma.ryzera_pos_sale.findMany({
-            where: {
-                sale_date: { gte: dateFrom, lte: dateTo },
-                ...this.buildSaleBranchFilter(dto.branchId),
-            } as any,
+            where:   where as any,
             orderBy: { sale_date: 'desc' },
             include: {
-                payments: { select: { payment_method: true } },
+                payments: {
+                    select: { payment_method: true },
+                },
             },
         });
 
@@ -567,9 +613,9 @@ export class SalesReportService {
             }
 
             correctedCols.forEach(col => {
-                const cellH  = isHeader ? headerH : rowHeight;
-                const value  = isHeader ? col.label : String(rowData[col.key] ?? '');
-                let textColor = isHeader ? '#FFFFFF' : '#1A1A1A';
+                const cellH     = isHeader ? headerH : rowHeight;
+                const value     = isHeader ? col.label : String(rowData[col.key] ?? '');
+                let   textColor = isHeader ? '#FFFFFF' : '#1A1A1A';
 
                 if (!isHeader && col.key === 'status') {
                     if (value === 'Completed') textColor = '#27AE60';
@@ -593,17 +639,21 @@ export class SalesReportService {
         const totalDiscount  = completedSales.reduce((s, r) => s + Number(r.discount_amount), 0);
         const totalTax       = completedSales.reduce((s, r) => s + Number(r.tax_amount),      0);
 
-        // Header banner
+        // ── Header banner ──────────────────────────────────────────────────────
         doc.rect(0, 0, pageWidth, 70).fill('#2C3E50');
         doc.fillColor('#FFFFFF').fontSize(20).font('Helvetica-Bold')
             .text('Sales Report', margin, 16, { align: 'center', width: tableWidth });
-        doc.fontSize(9).font('Helvetica').fillColor('#BDC3C7')
-            .text(
-                `Date Range: ${dateFrom.toDateString()}  –  ${dateTo.toDateString()}`,
-                margin, 44, { align: 'center', width: tableWidth },
-            );
 
-        // KPI strip
+        const filterLabel = [
+            dto.dateFrom && dto.dateTo ? `${dto.dateFrom} – ${dto.dateTo}` : null,
+            dto.category ? `Category: ${dto.category}` : null,
+            dto.product  ? `Product: ${dto.product}`   : null,
+        ].filter(Boolean).join('   |   ');
+
+        doc.fontSize(9).font('Helvetica').fillColor('#BDC3C7')
+            .text(filterLabel || 'All Records', margin, 44, { align: 'center', width: tableWidth });
+
+        // ── KPI strip ─────────────────────────────────────────────────────────
         doc.rect(0, 70, pageWidth, 36).fill('#1A252F');
         const kpis = [
             { label: 'Total Sales',    value: String(sales.length) },
@@ -621,7 +671,7 @@ export class SalesReportService {
                 .text(kpi.value, kx, 87, { width: kpiW, align: 'center' });
         });
 
-        // Table
+        // ── Table ─────────────────────────────────────────────────────────────
         let y = 118;
         drawRow(y, {} as any, true);
         y += headerH;
@@ -657,11 +707,12 @@ export class SalesReportService {
             username:    user.username,
             role:        user.role,
             action:      'Exported PDF',
-            reportType:  'Sales Report',   // ← change this label per report
+            reportType:  'Sales Report',
             filtersUsed: this.buildFilterSummary(dto),
-            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
+            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',
+        });
 
-        // Footer
+        // ── Footer ────────────────────────────────────────────────────────────
         const footerY = (doc.page.height as number) - 28;
         doc.moveTo(margin, footerY).lineTo(pageWidth - margin, footerY)
             .strokeColor('#CCCCCC').lineWidth(0.5).stroke();

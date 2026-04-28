@@ -1,50 +1,114 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================================
+   globals.css — Tailwind CSS v4 compatible  (FIXED)
+   File: pos-web-app/src/app/globals.css
 
-@media (prefers-color-scheme: dark) {
+   Fix: Radix UI portals (Popover, Dialog, Select dropdown) must
+        have explicit background-color so they are never transparent.
+   ============================================================ */
+
+@import "tailwindcss";
+
+/* ─── shadcn/ui CSS Variables ──────────────────────────────── */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background:             0 0% 100%;
+    --foreground:             222.2 84% 4.9%;
+    --card:                   0 0% 100%;
+    --card-foreground:        222.2 84% 4.9%;
+    --popover:                0 0% 100%;
+    --popover-foreground:     222.2 84% 4.9%;
+    --primary:                221.2 83.2% 53.3%;
+    --primary-foreground:     210 40% 98%;
+    --secondary:              210 40% 96.1%;
+    --secondary-foreground:   222.2 47.4% 11.2%;
+    --muted:                  210 40% 96.1%;
+    --muted-foreground:       215.4 16.3% 46.9%;
+    --accent:                 210 40% 96.1%;
+    --accent-foreground:      222.2 47.4% 11.2%;
+    --destructive:            0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border:                 214.3 31.8% 91.4%;
+    --input:                  214.3 31.8% 91.4%;
+    --ring:                   221.2 83.2% 53.3%;
+    --radius:                 0.5rem;
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.imgDark {
-  display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+/* ─── Base resets ───────────────────────────────────────────── */
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: hsl(var(--border));
   }
 
-  .imgLight {
-    display: none;
+  body {
+    background-color: #f1f5f9;
+    color:            hsl(var(--foreground));
+    font-family:      var(--font-sans, system-ui, sans-serif);
+    -webkit-font-smoothing:  antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering:          optimizeLegibility;
   }
-  .imgDark {
-    display: unset;
+
+  a {
+    color:           inherit;
+    text-decoration: none;
   }
+}
+
+/* ─── Custom thin scrollbars ────────────────────────────────── */
+::-webkit-scrollbar             { width: 5px; height: 5px; }
+::-webkit-scrollbar-track       { background: transparent; }
+::-webkit-scrollbar-thumb       { background-color: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+::-webkit-scrollbar-corner      { background: transparent; }
+*                               { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+/* ─── Recharts fixes ────────────────────────────────────────── */
+.recharts-tooltip-wrapper { outline: none !important; }
+.recharts-surface         { overflow: visible; }
+
+/* ─── Page fade-in ──────────────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.page-enter { animation: fadeSlideIn 0.22s ease both; }
+
+/* ─────────────────────────────────────────────────────────────
+   FIX: Radix UI Popover / Calendar / Select portals
+
+   Radix renders these in a portal at the body root.
+   Without explicit background they appear transparent and
+   bleed through whatever is underneath.
+   These rules guarantee solid white backgrounds on all
+   Radix-powered floating elements.
+   ───────────────────────────────────────────────────────────── */
+
+/* Popover content (Calendar date pickers) */
+[data-radix-popper-content-wrapper] > div,
+[role="dialog"][data-state],
+.rdp,
+[data-radix-popover-content] {
+  background-color: #ffffff !important;
+}
+
+/* Select dropdown */
+[role="listbox"],
+[data-radix-select-content] {
+  background-color: #ffffff !important;
+}
+
+/* Ensure calendar days have solid background when hovering */
+.rdp-day:hover,
+.rdp-day_selected,
+.rdp-day_today {
+  background-color: inherit;
+}
+
+/* ─── Extra: force any shadcn Calendar wrapper to be white ──── */
+/* This targets the PopoverContent div directly when Tailwind
+   bg-white isn't being honoured due to CSS variable resolution */
+[data-state="open"][data-side] {
+  background-color: #ffffff;
 }
