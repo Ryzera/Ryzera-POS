@@ -1,19 +1,54 @@
-import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';  // ← added BadRequestException
-import { PrismaService } from '@ryzera/pos-database';
+// ============================================================
+// Inventory Status Service
+// File: src/inventory-status/inventory-status.service.ts
+//
+// Data model overview:
+//  • All-branches view  → stock is SUMMED per product across all branches.
+//    A product that is low in one branch but has surplus in another may
+//    appear "In Stock" in the combined view. This is intentional: the
+//    All Branches tab shows network-wide inventory health.
+//
+//  • Per-branch view    → each branch is evaluated independently, so
+//    "Low Stock" counts correctly reflect that branch's own stock level
+//    against its own reorder threshold.
+//
+//  • Export routes:
+//    /export/csv  and /export/pdf         → all-branches or single-branch.
+//    /export/branch/csv and /export/branch/pdf → ONE specific InvBranch
+//    (identified by its UUID). Used by the per-branch tab so each branch
+//    table exports exactly its own matching data.
+//
+//  • Branch ID resolution: auth system uses integer IDs (Branch.branchId);
+//    inventory system uses UUID IDs (InvBranch.id). Resolution is done
+//    by name-based lookup — both tables share branch names.
+// ============================================================
+
+import {
+    Injectable,
+    InternalServerErrorException,
+    BadRequestException,
+    NotFoundException,
+} from '@nestjs/common';
+import { PrismaService }      from '@ryzera/pos-database';
 import type { QueryInventoryStatusDto } from './schemas/query-inventory-status.schema';
-import { AuditLogService } from '../audit-log/audit-log.service';
-import type { JwtPayload } from '../common/interfaces/jwt-payload.interface';
+import { AuditLogService }    from '../audit-log/audit-log.service';
+import type { JwtPayload }    from '../common/interfaces/jwt-payload.interface';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type StockStatus = 'InStock' | 'LowStock' | 'OutOfStock';
+
+// ─── Exported interfaces (consumed by controller / tests) ────────────────────
 
 export interface ClassifiedProduct {
-    product_name:   string;
+    productName:    string;
     category:       { name: string } | null;
     supplier:       { name: string } | null;
-    current_stock:  number;
-    reorder_level:  number;
-    cost_price:     number;
-    selling_price:  number;
-    computedStatus: 'InStock' | 'LowStock' | 'OutOfStock';
-    branchName?:    string;
+    currentStock:   number;
+    reorderLevel:   number;
+    costPrice:      number;
+    sellingPrice:   number;
+    computedStatus: StockStatus;
 }
 
 export interface InventoryDetailRow {
@@ -22,41 +57,71 @@ export interface InventoryDetailRow {
     supplier:      string;
     currentStock:  number;
     reorderLevel:  number;
-    currentStatus: string;
+    currentStatus: StockStatus;
+    /** Cost price × current stock, rounded to 2 d.p. */
     costValue:     number;
+    /** Selling price × current stock, rounded to 2 d.p. */
     sellingValue:  number;
+    /** Populated in the all-branches aggregated view. */
     branch?:       string;
 }
+
+export interface InventoryKpi {
+    totalProducts:       number;
+    inStock:             number;
+    lowStock:            number;
+    outOfStock:          number;
+    totalInventoryValue: number;
+}
+
+export interface InventoryBranchResult {
+    branch:           { id: string; name: string };
+    kpi:              InventoryKpi;
+    inventoryDetails: InventoryDetailRow[];
+}
+
+// ─── PDF column definitions ───────────────────────────────────────────────────
+
+const PDF_COLS = [
+    { label: 'Product Name',  key: 'productName',   width: 160 },
+    { label: 'Category',      key: 'category',      width: 100 },
+    { label: 'Supplier',      key: 'supplier',      width: 120 },
+    { label: 'Current Stock', key: 'currentStock',  width:  80 },
+    { label: 'Reorder Level', key: 'reorderLevel',  width:  80 },
+    { label: 'Status',        key: 'currentStatus', width:  80 },
+    { label: 'Cost Value',    key: 'costValue',     width:  90 },
+    { label: 'Selling Value', key: 'sellingValue',  width:  91 },
+] as const;
+
+const PDF_STATUS_COLORS: Record<StockStatus, string> = {
+    InStock:    '#27AE60',
+    LowStock:   '#E67E22',
+    OutOfStock: '#E74C3C',
+};
+
+// ─── Service ──────────────────────────────────────────────────────────────────
 
 @Injectable()
 export class InventoryStatusService {
 
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly prisma:          PrismaService,
         private readonly auditLogService: AuditLogService,
-        ) {}
+    ) {}
 
-    // ─── Maps auth branchId (integer) → inventory branchId (UUID) ────────────
-    private readonly branchIdMap: Record<number, string> = {
-        1: 'invb-0001-0000-0000-000000000001',  // Colombo
-        2: 'invb-0002-0000-0000-000000000002',  // Kandy
-        3: 'invb-0003-0000-0000-000000000003',  // Galle
-    };
+    // =========================================================================
+    // PRIVATE HELPERS
+    // =========================================================================
 
-    private resolveInventoryBranchId(authBranchId: number): string {
-        const uuid = this.branchIdMap[authBranchId];
-        if (!uuid) throw new BadRequestException(`Unknown branchId: ${authBranchId}`);
-        return uuid;
-    }
+    // ─── Stock status classifier ──────────────────────────────────────────────
 
-    private resolveStatus(
-        currentStock: number,
-        reorderLevel: number,
-    ): 'InStock' | 'LowStock' | 'OutOfStock' {
+    private resolveStatus(currentStock: number, reorderLevel: number): StockStatus {
         if (currentStock <= 0)            return 'OutOfStock';
         if (currentStock <= reorderLevel) return 'LowStock';
         return 'InStock';
     }
+
+    // ─── Shared Prisma include for BranchProduct queries ─────────────────────
 
     private readonly productInclude = {
         product: {
@@ -67,7 +132,10 @@ export class InventoryStatusService {
         },
     } as const;
 
+    // ─── Where-clause builder for BranchProduct ───────────────────────────────
+
     private buildBranchProductWhere(options: {
+        /** InvBranch UUID. Omit to query across all branches. */
         branchId?: string;
         category?: string;
     }) {
@@ -86,316 +154,320 @@ export class InventoryStatusService {
         };
     }
 
+    // ─── Branch ID resolution ─────────────────────────────────────────────────
+    //
+    // The auth system uses integer branch IDs (Branch.branchId).
+    // The inventory system uses UUID branch IDs (InvBranch.id).
+    // Both systems share branch *names*, so resolution is done by name lookup.
+
+    private async resolveInvBranchByAuthId(authBranchId: number): Promise<string> {
+        const authBranch = await this.prisma.branch.findUnique({
+            where:  { branchId: authBranchId },
+            select: { name: true },
+        });
+
+        if (!authBranch) {
+            throw new NotFoundException(`Auth branch ${authBranchId} not found.`);
+        }
+
+        const invBranch = await this.prisma.invBranch.findFirst({
+            where: {
+                name:   { equals: authBranch.name, mode: 'insensitive' },
+                status: 'ACTIVE',
+            },
+            select: { id: true },
+        });
+
+        if (!invBranch) {
+            throw new BadRequestException(
+                `No active inventory branch matching auth branch "${authBranch.name}".`,
+            );
+        }
+
+        return invBranch.id;
+    }
+
+    // ─── Product classification: single branch ────────────────────────────────
+
+    /**
+     * Fetch and classify BranchProduct rows for ONE specific InvBranch UUID.
+     * Each product's status is evaluated against its own reorder threshold for
+     * this branch only — no cross-branch aggregation.
+     */
     private async classifyByBranch(
-        branchId: string,   // ← UUID string
-        category?: string,
+        invBranchId: string,
+        category?:   string,
     ): Promise<ClassifiedProduct[]> {
         const rows = await this.prisma.branchProduct.findMany({
-            where:   this.buildBranchProductWhere({ branchId, category }),
+            where:   this.buildBranchProductWhere({ branchId: invBranchId, category }),
             include: this.productInclude,
             orderBy: { product: { name: 'asc' } },
         });
 
         return rows.map(bp => ({
-            product_name:   bp.product.name,
+            productName:    bp.product.name,
             category:       bp.product.category,
             supplier:       bp.product.supplier,
-            current_stock:  bp.stockQty,
-            reorder_level:  bp.product.minStock,
-            cost_price:     Number(bp.product.costPrice ?? 0),
-            selling_price:  Number(bp.product.price),
+            currentStock:   bp.stockQty,
+            reorderLevel:   bp.product.minStock,
+            costPrice:      Number(bp.product.costPrice ?? 0),
+            sellingPrice:   Number(bp.product.price),
             computedStatus: this.resolveStatus(bp.stockQty, bp.product.minStock),
         }));
     }
 
-    private async classifyAllBranches(
-        category?: string,
-    ): Promise<ClassifiedProduct[]> {
+    // ─── Product classification: all branches (aggregated) ───────────────────
+
+    /**
+     * Fetch all BranchProduct rows across every branch and AGGREGATE stock
+     * per product so the "All Branches" view shows combined network totals.
+     *
+     * ⚠️  Because stock is summed, a product that is low in one branch but
+     * has surplus in another will appear "In Stock" here. This is intentional —
+     * the All Branches view reflects network-wide health. Use the Per Branch
+     * tab to diagnose individual branch stock levels.
+     */
+    // ─── Product classification: all branches (Option B — worst-status wins) ─────
+
+    /**
+     * Fetch all BranchProduct rows across every branch and AGGREGATE stock
+     * per product for display totals.
+     *
+     * Option B behaviour: computedStatus is the WORST status any single branch
+     * has for this product. If ANY branch is LowStock or OutOfStock, the
+     * All Branches view reflects that — so the super admin's KPI cards and
+     * table always surface branch-level problems without needing to switch tabs.
+     *
+     * currentStock still shows the network total (sum across branches).
+     *
+     * Status priority: OutOfStock > LowStock > InStock
+     */
+    private async classifyAllBranches(category?: string): Promise<ClassifiedProduct[]> {
         const rows = await this.prisma.branchProduct.findMany({
             where:   this.buildBranchProductWhere({ category }),
             include: this.productInclude,
             orderBy: { product: { name: 'asc' } },
         });
 
+        // ── Status priority map (higher = worse) ─────────────────────────────
+        const STATUS_PRIORITY: Record<StockStatus, number> = {
+            InStock:    0,
+            LowStock:   1,
+            OutOfStock: 2,
+        };
+
         const productMap: Record<string, ClassifiedProduct> = {};
+
         for (const bp of rows) {
-            const pid = bp.productId;
+            const pid           = bp.productId;
+            const branchStatus  = this.resolveStatus(bp.stockQty, bp.product.minStock);
+
             if (!productMap[pid]) {
                 productMap[pid] = {
-                    product_name:   bp.product.name,
+                    productName:    bp.product.name,
                     category:       bp.product.category,
                     supplier:       bp.product.supplier,
-                    current_stock:  0,
-                    reorder_level:  bp.product.minStock,
-                    cost_price:     Number(bp.product.costPrice ?? 0),
-                    selling_price:  Number(bp.product.price),
-                    computedStatus: 'InStock',
+                    currentStock:   0,
+                    reorderLevel:   bp.product.minStock,
+                    costPrice:      Number(bp.product.costPrice ?? 0),
+                    sellingPrice:   Number(bp.product.price),
+                    computedStatus: 'InStock', // will be updated below
                 };
             }
-            productMap[pid].current_stock += bp.stockQty;
+
+            // Accumulate network total stock
+            productMap[pid].currentStock += bp.stockQty;
+
+            // Promote status if this branch is worse
+            if (
+                STATUS_PRIORITY[branchStatus] >
+                STATUS_PRIORITY[productMap[pid].computedStatus]
+            ) {
+                productMap[pid].computedStatus = branchStatus;
+            }
         }
 
-        return Object.values(productMap).map(p => ({
-            ...p,
-            computedStatus: this.resolveStatus(p.current_stock, p.reorder_level),
-        }));
+        return Object.values(productMap);
     }
 
-    private buildKpi(classified: ClassifiedProduct[]) {
-        const totalProducts       = classified.length;
-        const inStock             = classified.filter(p => p.computedStatus === 'InStock').length;
-        const lowStock            = classified.filter(p => p.computedStatus === 'LowStock').length;
-        const outOfStock          = classified.filter(p => p.computedStatus === 'OutOfStock').length;
-        const totalInventoryValue = parseFloat(
-            classified
-                .reduce((sum, p) => sum + p.cost_price * p.current_stock, 0)
-                .toFixed(2),
-        );
-        return { totalProducts, inStock, lowStock, outOfStock, totalInventoryValue };
-    }
+    // ─── KPI aggregator ───────────────────────────────────────────────────────
 
-    private toDetailRow(p: ClassifiedProduct): InventoryDetailRow {
+    private buildKpi(classified: ClassifiedProduct[]): InventoryKpi {
         return {
-            productName:   p.product_name,
-            category:      p.category?.name ?? 'Unknown',
-            supplier:      p.supplier?.name ?? 'Unknown',
-            currentStock:  p.current_stock,
-            reorderLevel:  p.reorder_level,
-            currentStatus: p.computedStatus,
-            costValue:     parseFloat((p.cost_price    * p.current_stock).toFixed(2)),
-            sellingValue:  parseFloat((p.selling_price * p.current_stock).toFixed(2)),
-            ...(p.branchName ? { branch: p.branchName } : {}),
+            totalProducts:       classified.length,
+            inStock:             classified.filter(p => p.computedStatus === 'InStock').length,
+            lowStock:            classified.filter(p => p.computedStatus === 'LowStock').length,
+            outOfStock:          classified.filter(p => p.computedStatus === 'OutOfStock').length,
+            totalInventoryValue: parseFloat(
+                classified
+                    .reduce((sum, p) => sum + p.costPrice * p.currentStock, 0)
+                    .toFixed(2),
+            ),
         };
     }
 
-    private buildFilterSummary(dto: { dateFrom?: string; dateTo?: string; category?: string; branchId?: number }): string {
+    // ─── Row mapper ───────────────────────────────────────────────────────────
+
+    private toDetailRow(p: ClassifiedProduct, branchName?: string): InventoryDetailRow {
+        return {
+            productName:   p.productName,
+            category:      p.category?.name  ?? 'Unknown',
+            supplier:      p.supplier?.name  ?? 'Unknown',
+            currentStock:  p.currentStock,
+            reorderLevel:  p.reorderLevel,
+            currentStatus: p.computedStatus,
+            costValue:     parseFloat((p.costPrice    * p.currentStock).toFixed(2)),
+            sellingValue:  parseFloat((p.sellingPrice * p.currentStock).toFixed(2)),
+            ...(branchName ? { branch: branchName } : {}),
+        };
+    }
+
+    // ─── Filter summary (for audit log) ──────────────────────────────────────
+
+    private buildFilterSummary(dto: {
+        category?:    string;
+        stockStatus?: string;
+    }): string {
         const parts: string[] = [];
-        if (dto.dateFrom && dto.dateTo) parts.push(`${dto.dateFrom} – ${dto.dateTo}`);
-        if (dto.category)               parts.push(dto.category);
+        if (dto.category)    parts.push(dto.category);
+        if (dto.stockStatus) parts.push(`Status: ${dto.stockStatus}`);
         return parts.join(', ') || 'All';
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // PUBLIC METHODS
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── Shared query helper: all-branches / single-branch ───────────────────
 
-    async getInventoryStatus(dto: QueryInventoryStatusDto) {
-        if (!dto.category || !dto.stockStatus) {
-            return {
-                message: 'Please select both category and stock status to generate the report.',
-                kpi:              null,
-                inventoryDetails: [],
-            };
-        }
-
-        const classified = dto.branchId
-            ? await this.classifyByBranch(
-                this.resolveInventoryBranchId(dto.branchId),  // ← FIX: map int → UUID
-                dto.category,
-            )
-            : await this.classifyAllBranches(dto.category);
-
-        const kpi = this.buildKpi(classified);
-
-        const inventoryDetails = classified
-            .filter(p => p.computedStatus === dto.stockStatus)
-            .map(p => this.toDetailRow(p));
-
-        return { kpi, inventoryDetails };
-    }
-
-    async getInventoryByBranch(dto: QueryInventoryStatusDto) {
-        if (!dto.category || !dto.stockStatus) {
-            return {
-                message: 'Please select both category and stock status to generate the report.',
-                branches: [],
-            };
-        }
-
-        const activeBranches = await this.prisma.branch.findMany({
-            where:   {
-                is_active: true,
-            },
-            orderBy: { name: 'asc' },
-        });
-
-        const branches = await Promise.all(
-            activeBranches.map(async branch => {
-                const classified = await this.classifyByBranch(
-                    this.resolveInventoryBranchId(branch.branchId),  // ← FIX: map branchId int → UUID
-                    dto.category,
-                );
-
-                const kpi = this.buildKpi(classified);
-
-                const inventoryDetails = classified
-                    .filter(p => p.computedStatus === dto.stockStatus)
-                    .map(p => this.toDetailRow(p));
-
-                return {
-                    branch: {
-                        id:   branch.branchId,    // ← FIX: branch.id not branch.branchId
-                        name: branch.name,
-                    },
-                    kpi,
-                    inventoryDetails,
-                };
-            }),
-        );
-
-        return { branches };
-    }
-
+    /**
+     * Shared by getInventoryStatus, exportCsv, and exportPdf.
+     * Returns KPI + filtered rows for the given DTO.
+     * Guarantees the table and its matching export always show identical data.
+     */
     private async getFilteredDetails(dto: QueryInventoryStatusDto): Promise<{
-        kpi: ReturnType<typeof this.buildKpi> | null;
+        kpi:              InventoryKpi | null;
         inventoryDetails: InventoryDetailRow[];
     }> {
-        if (!dto.category || !dto.stockStatus) {
+        if (!dto.category) {
             return { kpi: null, inventoryDetails: [] };
         }
 
         const classified = dto.branchId
             ? await this.classifyByBranch(
-                this.resolveInventoryBranchId(dto.branchId),  // ← FIX: map int → UUID
+                await this.resolveInvBranchByAuthId(dto.branchId),
                 dto.category,
             )
             : await this.classifyAllBranches(dto.category);
 
         const kpi = this.buildKpi(classified);
 
-        const inventoryDetails = classified
-            .filter(p => p.computedStatus === dto.stockStatus)
-            .map(p => this.toDetailRow(p));
+        const filtered = dto.stockStatus
+            ? classified.filter(p => p.computedStatus === dto.stockStatus)
+            : classified;
 
-        return { kpi, inventoryDetails };
+        return {
+            kpi,
+            inventoryDetails: filtered.map(p => this.toDetailRow(p)),
+        };
     }
 
-    // ─── exportCsv and exportPdf are unchanged — no edits needed ─────────────
-    async exportCsv(dto: QueryInventoryStatusDto,user: JwtPayload): Promise<Buffer> {
-        const { inventoryDetails } = await this.getFilteredDetails(dto);
+    // ─── Shared query helper: one specific InvBranch UUID ────────────────────
 
-        const headers = [
-            'Product Name', 'Category', 'Supplier',
-            'Current Stock', 'Reorder Level', 'Current Status',
-            'Cost Value', 'Selling Value',
-        ];
+    /**
+     * Returns KPI + filtered rows for ONE InvBranch, identified by its UUID.
+     * Used by the per-branch export endpoints — the UUID comes directly from
+     * the by-branch API response so no auth-ID resolution is needed.
+     */
+    private async getFilteredDetailsForInvBranch(
+        invBranchId: string,
+        dto:         QueryInventoryStatusDto,
+    ): Promise<{ branchName: string; kpi: InventoryKpi; inventoryDetails: InventoryDetailRow[] }> {
+        const invBranch = await this.prisma.invBranch.findUnique({
+            where:  { id: invBranchId },
+            select: { name: true },
+        });
 
-        const rows = inventoryDetails.map(row => [
-            row.productName,
-            row.category,
-            row.supplier,
-            row.currentStock,
-            row.reorderLevel,
-            row.currentStatus,
-            row.costValue,
-            row.sellingValue,
-        ]);
-
-        void this.auditLogService.record({
-            userId:      user.userId,
-            username:    user.username,
-            role:        user.role,
-            action:      'Exported CSV',
-            reportType:  'Inventory Status Report',   // ← change this label per report
-            filtersUsed: this.buildFilterSummary(dto),
-            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
-
-        const csv = [headers, ...rows]
-            .map(row => row.map(v => `"${v}"`).join(','))
-            .join('\n');
-
-        return Buffer.from(csv, 'utf-8');
-    }
-
-    async exportPdf(dto: QueryInventoryStatusDto,user: JwtPayload): Promise<Buffer> {
-        const { kpi, inventoryDetails } = await this.getFilteredDetails(dto);
-
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const PDFDocument = require('pdfkit');
-
-        if (!kpi || inventoryDetails.length === 0) {
-            const doc = new PDFDocument();
-            const buffers: Buffer[] = [];
-            doc.on('data', (chunk: Buffer) => buffers.push(chunk));
-            doc.text('No data available. Please select both category and stock status.');
-            doc.end();
-            return new Promise(resolve => {
-                doc.on('end', () => resolve(Buffer.concat(buffers)));
-            });
+        if (!invBranch) {
+            throw new NotFoundException(`Inventory branch ${invBranchId} not found.`);
         }
 
-        const PAGE_WIDTH  = 841.89;
-        const MARGIN      = 40;
-        const TABLE_WIDTH = PAGE_WIDTH - MARGIN * 2;
-        const ROW_HEIGHT  = 22;
-        const HEADER_H    = 26;
+        const classified = await this.classifyByBranch(invBranchId, dto.category);
+        const kpi        = this.buildKpi(classified);
 
-        const COLS = [
-            { label: 'Product Name',  key: 'productName',   width: 160 },
-            { label: 'Category',      key: 'category',      width: 100 },
-            { label: 'Supplier',      key: 'supplier',      width: 120 },
-            { label: 'Current Stock', key: 'currentStock',  width: 80  },
-            { label: 'Reorder Level', key: 'reorderLevel',  width: 80  },
-            { label: 'Status',        key: 'currentStatus', width: 80  },
-            { label: 'Cost Value',    key: 'costValue',     width: 90  },
-            { label: 'Selling Value', key: 'sellingValue',  width: 91  },
-        ] as const;
+        const filtered = dto.stockStatus
+            ? classified.filter(p => p.computedStatus === dto.stockStatus)
+            : classified;
 
-        const STATUS_COLORS: Record<string, string> = {
-            InStock:    '#27AE60',
-            LowStock:   '#E67E22',
-            OutOfStock: '#E74C3C',
+        return {
+            branchName:       invBranch.name,
+            kpi,
+            inventoryDetails: filtered.map(p => this.toDetailRow(p)),
         };
+    }
 
-        const doc     = new PDFDocument({ margin: MARGIN, size: 'A4', layout: 'landscape' });
+    // ─── PDF helpers ──────────────────────────────────────────────────────────
+
+    private readonly PDF_PAGE_WIDTH  = 841.89;
+    private readonly PDF_MARGIN      = 40;
+    private readonly PDF_TABLE_WIDTH = 841.89 - 40 * 2;
+    private readonly PDF_ROW_HEIGHT  = 22;
+    private readonly PDF_HEADER_H    = 26;
+
+    private createPdfDoc(): { doc: any; buffers: Buffer[] } {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const PDFDocument = require('pdfkit');
         const buffers: Buffer[] = [];
+        const doc = new PDFDocument({ margin: this.PDF_MARGIN, size: 'A4', layout: 'landscape' });
         doc.on('data', (chunk: Buffer) => buffers.push(chunk));
+        return { doc, buffers };
+    }
 
-        const drawRow = (
-            y: number,
-            rowData: Record<string, unknown>,
-            isHeader = false,
-            shaded   = false,
-        ) => {
-            let x = MARGIN;
-            if (isHeader) {
-                doc.rect(MARGIN, y, TABLE_WIDTH, HEADER_H).fill('#2C3E50');
-            } else if (shaded) {
-                doc.rect(MARGIN, y, TABLE_WIDTH, ROW_HEIGHT).fill('#F2F4F6');
-            }
-            for (const col of COLS) {
-                const cellH  = isHeader ? HEADER_H : ROW_HEIGHT;
-                const value  = isHeader ? col.label : String(rowData[col.key] ?? '');
-                const isStatusCell = !isHeader && col.key === 'currentStatus';
-                const textColor = isHeader
-                    ? '#FFFFFF'
-                    : isStatusCell
-                        ? (STATUS_COLORS[value] ?? '#1A1A1A')
-                        : '#1A1A1A';
-                doc.rect(x, y, col.width, cellH).strokeColor('#CCCCCC').lineWidth(0.5).stroke();
-                doc.fillColor(textColor).fontSize(isHeader ? 8.5 : 8)
-                    .font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
-                    .text(value, x + 5, y + (cellH - (isHeader ? 9 : 8)) / 2 + 1, {
-                        width: col.width - 10, ellipsis: true, lineBreak: false,
-                    });
-                x += col.width;
-            }
-        };
+    private drawPdfRow(
+        doc:      any,
+        y:        number,
+        rowData:  Record<string, string>,
+        isHeader: boolean,
+        shaded:   boolean,
+    ): void {
+        const { PDF_MARGIN, PDF_TABLE_WIDTH, PDF_ROW_HEIGHT, PDF_HEADER_H } = this;
 
-        doc.rect(0, 0, PAGE_WIDTH, 70).fill('#2C3E50');
+        if (isHeader) {
+            doc.rect(PDF_MARGIN, y, PDF_TABLE_WIDTH, PDF_HEADER_H).fill('#2C3E50');
+        } else if (shaded) {
+            doc.rect(PDF_MARGIN, y, PDF_TABLE_WIDTH, PDF_ROW_HEIGHT).fill('#F2F4F6');
+        }
+
+        let x = PDF_MARGIN;
+        for (const col of PDF_COLS) {
+            const cellH        = isHeader ? PDF_HEADER_H : PDF_ROW_HEIGHT;
+            const value        = isHeader ? col.label : String(rowData[col.key] ?? '');
+            const isStatusCell = !isHeader && col.key === 'currentStatus';
+            const textColor    = isHeader
+                ? '#FFFFFF'
+                : isStatusCell
+                    ? (PDF_STATUS_COLORS[value as StockStatus] ?? '#1A1A1A')
+                    : '#1A1A1A';
+
+            doc.rect(x, y, col.width, cellH).strokeColor('#CCCCCC').lineWidth(0.5).stroke();
+            doc.fillColor(textColor)
+                .fontSize(isHeader ? 8.5 : 8)
+                .font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
+                .text(value, x + 5, y + (cellH - (isHeader ? 9 : 8)) / 2 + 1, {
+                    width: col.width - 10, ellipsis: true, lineBreak: false,
+                });
+            x += col.width;
+        }
+    }
+
+    private drawPdfHeader(doc: any, kpi: InventoryKpi, subtitle: string): number {
+        const { PDF_PAGE_WIDTH, PDF_MARGIN, PDF_TABLE_WIDTH } = this;
+
+        doc.rect(0, 0, PDF_PAGE_WIDTH, 70).fill('#2C3E50');
         doc.fillColor('#FFFFFF').fontSize(20).font('Helvetica-Bold')
-            .text('Inventory Status Report', MARGIN, 16, { align: 'center', width: TABLE_WIDTH });
-
-        const subtitleParts = [
-            `Generated: ${new Date().toDateString()}`,
-            dto.category    ? `Category: ${dto.category}`   : null,
-            dto.stockStatus ? `Status: ${dto.stockStatus}`  : null,
-        ].filter(Boolean).join('   |   ');
-
+            .text('Inventory Status Report', PDF_MARGIN, 16, {
+                align: 'center', width: PDF_TABLE_WIDTH,
+            });
         doc.fontSize(9).font('Helvetica').fillColor('#BDC3C7')
-            .text(subtitleParts, MARGIN, 44, { align: 'center', width: TABLE_WIDTH });
+            .text(subtitle, PDF_MARGIN, 44, { align: 'center', width: PDF_TABLE_WIDTH });
 
-        doc.rect(0, 70, PAGE_WIDTH, 36).fill('#1A252F');
+        doc.rect(0, 70, PDF_PAGE_WIDTH, 36).fill('#1A252F');
         const kpiItems = [
             { label: 'Total Products',        value: String(kpi.totalProducts) },
             { label: 'In Stock',              value: String(kpi.inStock) },
@@ -403,59 +475,250 @@ export class InventoryStatusService {
             { label: 'Out of Stock',          value: String(kpi.outOfStock) },
             { label: 'Total Inventory Value', value: `Rs ${kpi.totalInventoryValue.toFixed(2)}` },
         ];
-        const kpiW = TABLE_WIDTH / kpiItems.length;
+        const kpiW = PDF_TABLE_WIDTH / kpiItems.length;
         kpiItems.forEach((k, i) => {
-            const kx = MARGIN + i * kpiW;
+            const kx = PDF_MARGIN + i * kpiW;
             doc.fillColor('#BDC3C7').fontSize(7).font('Helvetica')
                 .text(k.label, kx, 76, { width: kpiW, align: 'center' });
             doc.fillColor('#FFFFFF').fontSize(10).font('Helvetica-Bold')
                 .text(k.value, kx, 87, { width: kpiW, align: 'center' });
         });
 
-        let y = 118;
-        drawRow(y, {}, true);
-        y += HEADER_H;
+        return 118; // Y position where the table should start
+    }
 
-        for (const [i, row] of inventoryDetails.entries()) {
-            if (y + ROW_HEIGHT > doc.page.height - MARGIN) {
-                doc.addPage({ size: 'A4', layout: 'landscape', margin: MARGIN });
-                y = MARGIN;
-                drawRow(y, {}, true);
-                y += HEADER_H;
-            }
-            drawRow(y, {
-                productName:   row.productName,
-                category:      row.category,
-                supplier:      row.supplier,
-                currentStock:  String(row.currentStock),
-                reorderLevel:  String(row.reorderLevel),
-                currentStatus: row.currentStatus,
-                costValue:     row.costValue.toFixed(2),
-                sellingValue:  row.sellingValue.toFixed(2),
-            }, false, i % 2 === 0);
-            y += ROW_HEIGHT;
-        }
-
-        void this.auditLogService.record({
-            userId:      user.userId,
-            username:    user.username,
-            role:        user.role,
-            action:      'Exported PDF',
-            reportType:  'Inventory Status Report',   // ← change this label per report
-            filtersUsed: this.buildFilterSummary(dto),
-            branchName:  dto.branchId ? `Branch ${dto.branchId}` : 'All',        });
-
-        const footerY = doc.page.height - 28;
-        doc.moveTo(MARGIN, footerY).lineTo(PAGE_WIDTH - MARGIN, footerY)
+    private drawPdfFooter(doc: any): void {
+        const { PDF_MARGIN, PDF_PAGE_WIDTH, PDF_TABLE_WIDTH } = this;
+        const footerY = (doc.page.height as number) - 28;
+        doc.moveTo(PDF_MARGIN, footerY)
+            .lineTo(PDF_PAGE_WIDTH - PDF_MARGIN, footerY)
             .strokeColor('#CCCCCC').lineWidth(0.5).stroke();
         doc.fillColor('#999999').fontSize(7).font('Helvetica')
-            .text(`Generated: ${new Date().toDateString()}   |   Ryzera POS`,
-                MARGIN, footerY + 6, { align: 'center', width: TABLE_WIDTH });
+            .text(
+                `Generated: ${new Date().toDateString()}   |   Ryzera POS`,
+                PDF_MARGIN, footerY + 6, { align: 'center', width: PDF_TABLE_WIDTH },
+            );
+    }
 
+    private writeTableRows(doc: any, rows: InventoryDetailRow[], startY: number): void {
+        const { PDF_MARGIN, PDF_ROW_HEIGHT, PDF_HEADER_H } = this;
+        let y = startY;
+
+        this.drawPdfRow(doc, y, {} as Record<string, string>, true, false);
+        y += PDF_HEADER_H;
+
+        for (const [i, row] of rows.entries()) {
+            if (y + PDF_ROW_HEIGHT > (doc.page.height as number) - PDF_MARGIN) {
+                doc.addPage({ size: 'A4', layout: 'landscape', margin: PDF_MARGIN });
+                y = PDF_MARGIN;
+                this.drawPdfRow(doc, y, {} as Record<string, string>, true, false);
+                y += PDF_HEADER_H;
+            }
+            this.drawPdfRow(
+                doc, y,
+                {
+                    productName:   row.productName,
+                    category:      row.category,
+                    supplier:      row.supplier,
+                    currentStock:  String(row.currentStock),
+                    reorderLevel:  String(row.reorderLevel),
+                    currentStatus: row.currentStatus,
+                    costValue:     row.costValue.toFixed(2),
+                    sellingValue:  row.sellingValue.toFixed(2),
+                },
+                false, i % 2 === 0,
+            );
+            y += PDF_ROW_HEIGHT;
+        }
+    }
+
+    private finalisePdf(doc: any, buffers: Buffer[]): Promise<Buffer> {
         doc.end();
         return new Promise((resolve, reject) => {
             doc.on('end',   () => resolve(Buffer.concat(buffers)));
             doc.on('error', (err: Error) => reject(new InternalServerErrorException(err.message)));
         });
+    }
+
+    // =========================================================================
+    // PUBLIC METHODS
+    // =========================================================================
+
+    // ─── All-branches / single-branch summary + table ─────────────────────────
+
+    async getInventoryStatus(dto: QueryInventoryStatusDto) {
+        if (!dto.category) {
+            return {
+                message:          'Please select a category to generate the report.',
+                kpi:              null,
+                inventoryDetails: [],
+            };
+        }
+        const { kpi, inventoryDetails } = await this.getFilteredDetails(dto);
+        return { kpi, inventoryDetails };
+    }
+
+    // ─── Per-branch breakdown (SUPER_ADMIN only) ──────────────────────────────
+
+    async getInventoryByBranch(dto: QueryInventoryStatusDto) {
+        if (!dto.category) {
+            return { message: 'Please select a category to generate the report.', branches: [] };
+        }
+
+        const invBranches = await this.prisma.invBranch.findMany({
+            where:   { status: 'ACTIVE' },
+            select:  { id: true, name: true },
+            orderBy: { name: 'asc' },
+        });
+
+        const branches = await Promise.all(
+            invBranches.map(async invBranch => {
+                const classified = await this.classifyByBranch(invBranch.id, dto.category);
+                const kpi        = this.buildKpi(classified);
+                const filtered   = dto.stockStatus
+                    ? classified.filter(p => p.computedStatus === dto.stockStatus)
+                    : classified;
+                return {
+                    branch:           { id: invBranch.id, name: invBranch.name },
+                    kpi,
+                    inventoryDetails: filtered.map(p => this.toDetailRow(p)),
+                };
+            }),
+        );
+
+        return { branches };
+    }
+
+    // ─── All-branches / single-branch CSV export ──────────────────────────────
+
+    /** Matches getInventoryStatus exactly. */
+    async exportCsv(dto: QueryInventoryStatusDto, user: JwtPayload): Promise<Buffer> {
+        const { inventoryDetails } = await this.getFilteredDetails(dto);
+
+        const headers = [
+            'Product Name', 'Category', 'Supplier',
+            'Current Stock', 'Reorder Level', 'Current Status',
+            'Cost Value (Rs)', 'Selling Value (Rs)',
+        ];
+        const rows = inventoryDetails.map(r =>
+            [r.productName, r.category, r.supplier, r.currentStock, r.reorderLevel,
+                r.currentStatus, r.costValue.toFixed(2), r.sellingValue.toFixed(2)]
+                .map(v => `"${v}"`).join(','),
+        );
+
+        void this.auditLogService.record({
+            userId: user.userId, username: user.username, role: user.role,
+            action: 'Exported CSV', reportType: 'Inventory Status Report',
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName: dto.branchId ? `Branch ${dto.branchId}` : 'All',
+        });
+
+        return Buffer.from([headers.join(','), ...rows].join('\n'), 'utf-8');
+    }
+
+    // ─── All-branches / single-branch PDF export ──────────────────────────────
+
+    /** Matches getInventoryStatus exactly. */
+    async exportPdf(dto: QueryInventoryStatusDto, user: JwtPayload): Promise<Buffer> {
+        const { doc, buffers } = this.createPdfDoc();
+        const { kpi, inventoryDetails } = await this.getFilteredDetails(dto);
+
+        const subtitle = [
+            `Generated: ${new Date().toDateString()}`,
+            dto.category    ? `Category: ${dto.category}`    : null,
+            dto.stockStatus ? `Status: ${dto.stockStatus}`   : null,
+        ].filter(Boolean).join('   |   ');
+
+        if (!kpi || inventoryDetails.length === 0) {
+            doc.text('No data available. Please select a category.');
+        } else {
+            const startY = this.drawPdfHeader(doc, kpi, subtitle);
+            this.writeTableRows(doc, inventoryDetails, startY);
+            this.drawPdfFooter(doc);
+        }
+
+        void this.auditLogService.record({
+            userId: user.userId, username: user.username, role: user.role,
+            action: 'Exported PDF', reportType: 'Inventory Status Report',
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName: dto.branchId ? `Branch ${dto.branchId}` : 'All',
+        });
+
+        return this.finalisePdf(doc, buffers);
+    }
+
+    // ─── Per-branch CSV export (one specific InvBranch UUID) ─────────────────
+
+    /**
+     * Exports data for ONE InvBranch, identified by its UUID (taken from the
+     * by-branch API response on the frontend). Matches that branch's table exactly.
+     */
+    async exportBranchCsv(
+        invBranchId: string,
+        dto:         QueryInventoryStatusDto,
+        user:        JwtPayload,
+    ): Promise<Buffer> {
+        const { branchName, inventoryDetails } =
+            await this.getFilteredDetailsForInvBranch(invBranchId, dto);
+
+        const headers = [
+            'Product Name', 'Category', 'Supplier',
+            'Current Stock', 'Reorder Level', 'Current Status',
+            'Cost Value (Rs)', 'Selling Value (Rs)',
+        ];
+        const rows = inventoryDetails.map(r =>
+            [r.productName, r.category, r.supplier, r.currentStock, r.reorderLevel,
+                r.currentStatus, r.costValue.toFixed(2), r.sellingValue.toFixed(2)]
+                .map(v => `"${v}"`).join(','),
+        );
+
+        void this.auditLogService.record({
+            userId: user.userId, username: user.username, role: user.role,
+            action: 'Exported CSV', reportType: 'Inventory Status Report',
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName,
+        });
+
+        return Buffer.from([headers.join(','), ...rows].join('\n'), 'utf-8');
+    }
+
+    // ─── Per-branch PDF export (one specific InvBranch UUID) ─────────────────
+
+    /**
+     * Exports data for ONE InvBranch, identified by its UUID. Matches that
+     * branch's table exactly — correct stock levels, correct Low Stock status.
+     */
+    async exportBranchPdf(
+        invBranchId: string,
+        dto:         QueryInventoryStatusDto,
+        user:        JwtPayload,
+    ): Promise<Buffer> {
+        const { doc, buffers } = this.createPdfDoc();
+        const { branchName, kpi, inventoryDetails } =
+            await this.getFilteredDetailsForInvBranch(invBranchId, dto);
+
+        const subtitle = [
+            `Branch: ${branchName}`,
+            `Generated: ${new Date().toDateString()}`,
+            dto.category    ? `Category: ${dto.category}`    : null,
+            dto.stockStatus ? `Status: ${dto.stockStatus}`   : null,
+        ].filter(Boolean).join('   |   ');
+
+        if (inventoryDetails.length === 0) {
+            doc.text(`No inventory data available for ${branchName}.`);
+        } else {
+            const startY = this.drawPdfHeader(doc, kpi, subtitle);
+            this.writeTableRows(doc, inventoryDetails, startY);
+            this.drawPdfFooter(doc);
+        }
+
+        void this.auditLogService.record({
+            userId: user.userId, username: user.username, role: user.role,
+            action: 'Exported PDF', reportType: 'Inventory Status Report',
+            filtersUsed: this.buildFilterSummary(dto),
+            branchName,
+        });
+
+        return this.finalisePdf(doc, buffers);
     }
 }
