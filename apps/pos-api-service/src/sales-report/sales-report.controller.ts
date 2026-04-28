@@ -76,6 +76,12 @@ export class SalesReportController {
         return this.salesReportService.getSummaryCards({ ...query, branchId });
     }
 
+    // ─── GET /reports/sales/branches ─────────────────────────────────────────────
+    @Get('branches')
+    getSalesBranches() {
+        return this.salesReportService.getBranchList();
+    }
+
     // ─── GET /reports/sales/chart ─────────────────────────────────────────────
     // Bar chart: daily sales amounts from DailySummary table
     @Get('chart')
