@@ -1,7 +1,3 @@
-// ============================================================
-// Inventory Status — Constants
-// File: pos-web-app/src/constants/inventory-status.constants.ts
-// ============================================================
 
 // Sentinel values for "no selection" in dropdowns
 export const ALL_CATEGORIES_INV_VALUE = 'ALL';

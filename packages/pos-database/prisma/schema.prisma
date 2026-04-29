@@ -7,10 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ═════════════════════════════════════════════════════════════════
-//  ENUMS
-// ═════════════════════════════════════════════════════════════════
-
 enum SaleStatus {
   Pending
   Completed
@@ -123,9 +119,7 @@ enum SettingScope {
   BRANCH
 }
 
-// ═════════════════════════════════════════════════════════════════
 //  SECTION 1 — BILLING TABLES
-// ═════════════════════════════════════════════════════════════════
 
 model ryzera_pos_sale {
   sale_id         Int        @id @default(autoincrement())
@@ -214,9 +208,7 @@ model ryzera_pos_return_item {
   sale_item  ryzera_pos_sale_item @relation(fields: [saleItemId], references: [sale_item_id])
 }
 
-// ═════════════════════════════════════════════════════════════════
 //  SECTION 2 — AUTHENTICATION & USER TABLES
-// ═════════════════════════════════════════════════════════════════
 
 model Company {
   company_id Int      @id @default(autoincrement())
@@ -402,9 +394,7 @@ model AuthSyncLog {
   @@map("ryzera_pos_sync_log")
 }
 
-// ═════════════════════════════════════════════════════════════════
 //  SECTION 3 — REPORTING TABLES
-// ═════════════════════════════════════════════════════════════════
 
 model DailySummary {
   id                String   @id @default(uuid())
@@ -428,8 +418,6 @@ model DailySummary {
   @@unique([summaryDate, branchId])
 }
 
-// Legacy scheduled report table — kept for backward compatibility.
-// New schedules use ReportSchedule below.
 model ryzera_pos_scheduled_report {
   id            Int      @id @default(autoincrement())
   report_name   String
@@ -466,8 +454,7 @@ model KpiTarget {
 }
 
 // ─── Reports Hub: Saved Configurations ───────────────────────────
-// Named filter presets that a user can reload quickly from the UI.
-// e.g. "Weekly Dairy Sales — Colombo"
+
 model SavedReportConfig {
   id         String   @id @default(uuid())
   configName String   @db.VarChar(100)
@@ -487,7 +474,6 @@ model SavedReportConfig {
 }
 
 // ─── Reports Hub: Automated Schedules ────────────────────────────
-// Recurring report deliveries sent via email (DAILY / WEEKLY / MONTHLY).
 model ReportSchedule {
   id             String    @id @default(uuid())
   scheduleName   String    @db.VarChar(100)
@@ -511,7 +497,6 @@ model ReportSchedule {
 }
 
 // ─── Reports Hub: Delivery History ───────────────────────────────
-// Immutable audit log of every report email attempt.
 model ReportDelivery {
   id             String   @id @default(uuid())
   recipientEmail String   @db.VarChar(255)
@@ -613,9 +598,7 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-// ═════════════════════════════════════════════════════════════════
 //  SECTION 4 — INVENTORY TABLES
-// ═════════════════════════════════════════════════════════════════
 
 model InvBranch {
   id      String       @id @default(uuid())

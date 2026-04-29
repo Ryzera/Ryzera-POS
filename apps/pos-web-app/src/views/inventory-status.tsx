@@ -1,31 +1,5 @@
 'use client';
 
-// ============================================================
-// Inventory Status Report View
-// File: pos-web-app/src/views/inventory-status.tsx
-//
-// Role behaviour:
-//  SUPER_ADMIN    → branch dropdown (All Branches / specific branch).
-//                   "All Branches" + "Per Branch" tabs visible ONLY when
-//                   the dropdown is set to "All Branches".
-//                   Specific branch selected → single-view, no tabs.
-//  BRANCH_MANAGER → no dropdown; shows own branch only; no tabs.
-//
-// Export behaviour:
-//  All Branches tab  → calls /export/csv|pdf (aggregated).
-//  Single-branch tab → calls /export/csv|pdf with branchId in queryParams.
-//  Per Branch tab    → each branch table has its OWN export handler that
-//                      calls /export/branch/csv|pdf with that branch's
-//                      invBranchId (UUID). This mirrors the sales report's
-//                      PerBranchSection pattern and guarantees the exported
-//                      file always matches exactly what the table shows.
-//
-// All-branches vs per-branch Low Stock (expected behaviour):
-//  All Branches sums stock across branches before computing status.
-//  A product low in one branch but with surplus in another may show
-//  "In Stock" on the All tab but "Low Stock" per branch. This is by design.
-// ============================================================
-
 import { useState, useMemo, useCallback } from 'react';
 import {
     Package,

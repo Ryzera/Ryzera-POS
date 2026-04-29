@@ -1,7 +1,3 @@
-// ============================================================
-// Daily Summary — React Query Hooks
-// File: pos-web-app/src/hooks/useDailySummary.ts
-// ============================================================
 
 import { useQuery } from '@tanstack/react-query';
 import {

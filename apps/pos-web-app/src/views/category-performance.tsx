@@ -1,22 +1,4 @@
 'use client';
-// ============================================================
-// Category Performance Report View
-// File: pos-web-app/src/views/category-performance.tsx
-//
-// Role behaviour:
-// SUPER_ADMIN  — branch dropdown visible, All Branches + Per Branch tabs
-// BRANCH_MANAGER — branch dropdown hidden, only own branch data, no tabs
-//
-// Fixes in this version (v5):
-// 1. Top Categories (Per Branch tab) — compact numbered list style matching design spec
-// 2. Branch switching — NO setGenerated(false). Mirrors Sales Report exactly:
-//    selectedBranchId state updates → queryParams useMemo recalculates →
-//    React Query sees a new cache key → refetches immediately while showing
-//    the current data (no empty state flash).
-// 3. selectedBranchId stored as string ('' = All Branches, '2' = Branch 2)
-//    matching Sales Report. String values survive JSON.stringify in query keys.
-// 4. Per-branch section heading uses same blue uppercase style as grid headers.
-// ============================================================
 
 import { useState, useMemo, useCallback } from 'react';
 import { format } from 'date-fns';
@@ -644,14 +626,6 @@ export default function CategoryPerformancePage() {
     const { data: pieResp,   isLoading: pieLoading   } = useCategoryPieChart(queryParams, isAllEnabled);
     const { data: tableResp, isLoading: tableLoading } = useCategoryTable(queryParams, isAllEnabled);
     const { data: bbResp,    isLoading: bbLoading    } = useCategoryByBranch(queryParams, isPerBranchEnabled);
-
-    console.log('🔍 DEBUG', {
-        selectedBranchId,
-        queryParamsBranchId: queryParams.branchId,
-        kpiData: kpiResp?.topCategories?.[0]?.category,
-        isAllEnabled,
-        kpiLoading,
-    });
 
     const isLoading = kpiLoading || barLoading || pieLoading || tableLoading;
 

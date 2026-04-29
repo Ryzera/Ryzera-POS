@@ -1,27 +1,5 @@
 'use client';
 
-// ============================================================
-// Daily Summary View  —  FIXED
-// File: pos-web-app/src/views/daily-summary.tsx
-//
-// ROOT-CAUSE FIX (Per-Branch tab shows only 1 branch):
-//   The backend /all-branches endpoint previously returned only
-//   branches that HAD a DailySummary record for the selected date.
-//   After the backend fix (getAllBranchesSummary in service),
-//   it now returns ALL active branches with hasData:boolean.
-//
-//   Frontend changes in this file:
-//   1. PerBranchTab — uses `allBranches.branches` directly as the
-//      merged list (backend now guarantees all branches appear).
-//      Falls back to knownBranches only when allBranches is absent.
-//   2. BranchSummaryCard — reads `branch.hasData` (from backend)
-//      instead of re-computing it from the summary nullability.
-//   3. PerBranchDetailSection — enabled flag uses `branch.hasData`
-//      (same source of truth as the card).
-//   4. Empty-state messages added to every chart / table / P&L
-//      section so "no data" branches render cleanly.
-// ============================================================
-
 import { useState, useMemo, useCallback } from 'react';
 import {
     DollarSign,

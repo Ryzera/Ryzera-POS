@@ -1,7 +1,4 @@
-// ============================================================
-// Daily Summary — API Functions
-// File: pos-web-app/src/api/daily-summary.api.ts
-// ============================================================
+
 
 import apiClient from '@/lib/axios';
 import type {

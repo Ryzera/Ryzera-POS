@@ -1,7 +1,3 @@
-// ============================================================
-// Inventory Status — React Query Hooks
-// File: pos-web-app/src/hooks/useInventoryStatus.ts
-// ============================================================
 
 import { useQuery } from '@tanstack/react-query';
 import {

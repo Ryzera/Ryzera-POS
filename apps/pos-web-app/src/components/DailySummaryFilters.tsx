@@ -1,10 +1,5 @@
 'use client';
 
-// ============================================================
-// Daily Summary Filters
-// File: pos-web-app/src/components/DailySummaryFilters.tsx
-// ============================================================
-
 import { useState }                from 'react';
 import { format }                  from 'date-fns';
 import { CalendarIcon, RefreshCw } from 'lucide-react';

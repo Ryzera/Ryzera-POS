@@ -1,8 +1,3 @@
-// ============================================================
-// Dashboard — API Functions
-// File: src/api/dashboard.api.ts
-// ============================================================
-
 import apiClient from '@/lib/axios';
 import type {
     DashboardKpiData,

@@ -1,11 +1,3 @@
-/* ============================================================
-   globals.css — Tailwind CSS v4 compatible  (FIXED)
-   File: pos-web-app/src/app/globals.css
-
-   Fix: Radix UI portals (Popover, Dialog, Select dropdown) must
-        have explicit background-color so they are never transparent.
-   ============================================================ */
-
 @import "tailwindcss";
 
 /* ─── shadcn/ui CSS Variables ──────────────────────────────── */

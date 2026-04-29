@@ -1,8 +1,3 @@
-// ============================================================
-// Category Performance — Constants
-// File: pos-web-app/src/constants/category-performance.constants.ts
-// ============================================================
-
 import { format, subDays } from 'date-fns';
 
 // Default date range: last 10 days (consistent with sales report)

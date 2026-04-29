@@ -1,8 +1,3 @@
-// ============================================================
-// Dashboard Layout
-// File: apps/pos-web-app/src/app/dashboard/layout.tsx
-// ============================================================
-
 'use client';
 
 import { useEffect }  from 'react';

@@ -1,27 +1,3 @@
-// ============================================================
-// Category Performance — React Query Hooks
-// File: pos-web-app/src/hooks/useCategoryPerformance.ts
-//
-// Root cause of the "same values on branch switch" bug — TWO compounding issues:
-//
-// ISSUE 1 — Query key collapse (previously fixed):
-//   { branchId: undefined } serialises to {} via JSON.stringify, identical to
-//   { branchId: 2 } → {} — React Query thought the key never changed.
-//   Fix: explicit primitives in key, p.branchId ?? 'all' so undefined is 'all'.
-//
-// ISSUE 2 — placeholderData + staleTime (THIS is why it still showed old data):
-//   TanStack Query v5 default: when a key changes to one with no cached entry,
-//   the hook KEEPS returning the previous `data` value as a placeholder while
-//   the new fetch runs silently in the background. This is "keepPreviousData"
-//   behaviour that is ON by default in v5. Combined with staleTime: 5 min,
-//   if the new key happens to have cached data too (same dates, first branch
-//   then all-branches), it serves that immediately with no fetch at all.
-//
-//   Fix A: placeholderData: undefined  — clears `data` the moment the key
-//           changes, showing skeletons while the new branch data loads.
-//   Fix B: staleTime: 0  — treats every key as immediately stale so a fresh
-//           network request always fires when the branch changes.
-// ============================================================
 
 import { useQuery } from '@tanstack/react-query';
 import {

@@ -1,7 +1,3 @@
-// ============================================================
-// Dashboard — Type Definitions
-// File: src/types/dashboard.types.ts
-// ============================================================
 
 export interface DashboardKpiData {
     todaySales:        number;

@@ -6,7 +6,6 @@ import {
 import { PrismaService } from '@ryzera/pos-database';
 import type { RecordAuditDto, QueryAuditLogDto, ExportAuditLogDto } from './schemas/audit-log.schema';
 
-// pdfkit is already installed — no new dependency needed
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const PDFDocument = require('pdfkit');
 
@@ -140,7 +139,6 @@ export class AuditLogService {
                 hour: '2-digit', minute: '2-digit', hour12: true,
             });
 
-            // Wrap each field in double-quotes to safely handle commas in values
             const escape = (val: string) => `"${String(val).replace(/"/g, '""')}"`;
 
             return [

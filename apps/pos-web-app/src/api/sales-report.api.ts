@@ -1,8 +1,3 @@
-// ============================================================
-// Sales Report — API Functions
-// File: apps/pos-web-app/src/api/sales-report.api.ts
-// ============================================================
-
 import apiClient from '@/lib/axios';
 import type {
     SalesCardsData,

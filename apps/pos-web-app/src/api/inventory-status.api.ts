@@ -1,8 +1,3 @@
-// ============================================================
-// Inventory Status — API Functions
-// File: pos-web-app/src/api/inventory-status.api.ts
-// ============================================================
-
 import apiClient from '@/lib/axios';
 import type {
     InventoryStatusQueryParams,

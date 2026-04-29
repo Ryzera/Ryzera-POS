@@ -1,10 +1,3 @@
-// ============================================================
-// Auth — Type Definitions
-// File: apps/pos-web-app/src/types/auth.types.ts
-//
-// Mirrors the JWT payload shape emitted by mock-auth.service.ts.
-// Role values MUST match the backend role names exactly.
-// ============================================================
 
 // Roles that exist in the backend DB (ryzera_pos_role table)
 export type UserRole = 'SUPER_ADMIN' | 'BRANCH_MANAGER' | 'CASHIER';

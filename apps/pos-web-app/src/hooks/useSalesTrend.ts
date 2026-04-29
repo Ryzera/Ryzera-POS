@@ -1,7 +1,3 @@
-// ============================================================
-// Sales Trend Hook
-// File: src/hooks/useSalesTrend.ts
-// ============================================================
 
 import { useEffect, useState }  from 'react';
 import { fetchSalesTrend }      from '@/api/dashboard.api';

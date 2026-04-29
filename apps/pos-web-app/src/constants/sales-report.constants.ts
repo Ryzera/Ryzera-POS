@@ -1,7 +1,3 @@
-// ============================================================
-// Sales Report — Constants
-// File: pos-web-app/src/constants/sales-report.constants.ts
-// ============================================================
 
 import { format, subDays } from 'date-fns';
 

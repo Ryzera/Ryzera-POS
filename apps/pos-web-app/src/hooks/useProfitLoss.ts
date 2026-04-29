@@ -1,7 +1,3 @@
-// ============================================================
-// Profit & Loss Report — TanStack Query Hooks
-// File: pos-web-app/src/hooks/useProfitLoss.ts
-// ============================================================
 
 import { useQuery } from '@tanstack/react-query';
 import {

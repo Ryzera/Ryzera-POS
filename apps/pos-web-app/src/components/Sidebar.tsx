@@ -1,14 +1,5 @@
 'use client';
 
-// ============================================================
-// Sidebar Component — UPDATED
-// File: pos-web-app/src/components/Sidebar.tsx
-//
-// Dark navy sidebar (#1e293b) matching expected UI.
-// Active item: white/14% background + white text + blue-400 icon.
-// Moon icon top-right of brand area (dark mode toggle placeholder).
-// ============================================================
-
 import Link            from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -26,18 +17,17 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// ─── Navigation items ─────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-    { label: 'Dashboard',            href: '/dashboard',                    icon: LayoutDashboard },
-    { label: 'Reports Hub',          href: '/reports',                      icon: BarChart2       },
-    { label: 'Sales Report',         href: '/reports/sales',                icon: TrendingUp      },
-    { label: 'Product Performance',  href: '/reports/product-performance',  icon: LineChart       },
-    { label: 'Inventory Status',     href: '/reports/inventory-status',     icon: Package         },
-    { label: 'Profit & Loss',        href: '/reports/profit-loss',          icon: DollarSign      },
-    { label: 'Category Performance', href: '/reports/category-performance', icon: Tag             },
-    { label: 'Daily Summary',        href: '/reports/daily-summary',        icon: CalendarDays    },
-    { label: 'KPI Settings',         href: '/reports/kpi-settings',         icon: Settings        },
-    { label: 'Audit Log',            href: '/reports/audit-log',            icon: ClipboardList   },
+    { label: 'Dashboard',            href: '/dashboard',                              icon: LayoutDashboard },
+    { label: 'Reports Hub',          href: '/dashboard/reports',                      icon: BarChart2       },
+    { label: 'Sales Report',         href: '/dashboard/reports/sales',                icon: TrendingUp      },
+    { label: 'Product Performance',  href: '/dashboard/reports/product-performance',  icon: LineChart       },
+    { label: 'Inventory Status',     href: '/dashboard/reports/inventory-status',     icon: Package         },
+    { label: 'Profit & Loss',        href: '/dashboard/reports/profit-loss',          icon: DollarSign      },
+    { label: 'Category Performance', href: '/dashboard/reports/category-performance', icon: Tag             },
+    { label: 'Daily Summary',        href: '/dashboard/reports/daily-summary',        icon: CalendarDays    },
+    { label: 'KPI Settings',         href: '/dashboard/reports/kpi-settings',         icon: Settings        },
+    { label: 'Audit Log',            href: '/dashboard/reports/audit-log',            icon: ClipboardList   },
 ] as const;
 
 export function Sidebar() {
@@ -56,7 +46,6 @@ export function Sidebar() {
                     </p>
                     <p className="text-white/40 text-[11px] mt-0.5 font-medium">Reports &amp; Analytics</p>
                 </div>
-                {/* Moon icon — matches expected UI top-right */}
                 <button
                     title="Toggle dark mode"
                     className="mt-0.5 p-1.5 rounded-lg text-white/30 hover:text-white/60
@@ -69,11 +58,7 @@ export function Sidebar() {
             {/* ── Navigation ─────────────────────────────────────── */}
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-                    // Exact match for /reports hub to avoid it matching sub-routes
-                    const isActive =
-                        href === '/reports'
-                            ? pathname === href
-                            : pathname === href || pathname.startsWith(href + '/');
+                    const isActive = pathname === href;
 
                     return (
                         <Link

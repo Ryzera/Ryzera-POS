@@ -1,10 +1,5 @@
 'use client';
 
-// ============================================================
-// Profit & Loss Filters
-// File: pos-web-app/src/components/ProfitLossFilters.tsx
-// ============================================================
-
 import { useState, useEffect, useRef } from 'react';
 import { format }                       from 'date-fns';
 import { CalendarIcon, RefreshCw }      from 'lucide-react';

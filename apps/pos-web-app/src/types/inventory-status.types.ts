@@ -1,7 +1,3 @@
-// ============================================================
-// Inventory Status — Type Definitions
-// File: pos-web-app/src/types/inventory-status.types.ts
-// ============================================================
 
 // ─── Query params sent to the backend ────────────────────────
 export interface InventoryStatusQueryParams {

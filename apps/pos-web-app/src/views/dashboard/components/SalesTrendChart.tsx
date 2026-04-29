@@ -1,7 +1,3 @@
-// ============================================================
-// Sales Trend Line Chart (last 7 days)
-// File: src/views/dashboard/components/SalesTrendChart.tsx
-// ============================================================
 
 'use client';
 

@@ -1,7 +1,3 @@
-// ============================================================
-// Sales Report — React Query Hooks
-// File: apps/pos-web-app/src/hooks/useSalesReport.ts
-// ============================================================
 
 import { useQuery } from '@tanstack/react-query';
 import {

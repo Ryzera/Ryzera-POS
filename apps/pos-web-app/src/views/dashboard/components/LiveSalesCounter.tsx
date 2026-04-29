@@ -1,7 +1,3 @@
-// ============================================================
-// Live Sales Counter Card
-// File: src/views/dashboard/components/LiveSalesCounter.tsx
-// ============================================================
 
 'use client';
 

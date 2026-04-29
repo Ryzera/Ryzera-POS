@@ -1,7 +1,3 @@
-// ============================================================
-// Product Performance — Constants
-// File: pos-web-app/src/constants/product-performance.constants.ts
-// ============================================================
 
 import { format, subDays } from 'date-fns';
 

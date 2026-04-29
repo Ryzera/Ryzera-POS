@@ -1,8 +1,3 @@
-// ============================================================
-// Root Page — redirects to login
-// File: apps/pos-web-app/src/app/page.tsx
-// ============================================================
-
 import { redirect } from 'next/navigation';
 
 export default function RootPage() {

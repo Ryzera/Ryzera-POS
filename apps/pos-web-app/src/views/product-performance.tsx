@@ -1,15 +1,5 @@
 'use client';
 
-// ============================================================
-// Product Performance Report View
-// File: pos-web-app/src/views/product-performance.tsx
-//
-// Fix applied:
-//  - Branch manager now sees their own branch name pill in the
-//    page header (identical to the sales report "Kandy Branch"
-//    pill). Added headerBranchLabel useMemo + JSX pill.
-// ============================================================
-
 import { useState, useMemo, useCallback } from 'react';
 import {
     Package,

@@ -1,14 +1,5 @@
 'use client';
 
-// ============================================================
-// Profit & Loss Report View
-// File: pos-web-app/src/views/profit-loss.tsx
-//
-// Role behaviour:
-//   SUPER_ADMIN    → branch dropdown, two tabs (All Branches / Per Branch)
-//   BRANCH_MANAGER → static branch pill, no tabs, own branch only
-// ============================================================
-
 import { useState, useMemo, useCallback } from 'react';
 import {
     TrendingUp,

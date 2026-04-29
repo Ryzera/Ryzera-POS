@@ -11,7 +11,6 @@ export const AuditAction = {
 export type AuditActionType = (typeof AuditAction)[keyof typeof AuditAction];
 
 // ─── Schema: Record an audit event (used internally by other services) ────────
-// This is NOT exposed as a REST endpoint body — it is called from service code.
 export const RecordAuditSchema = z.object({
     userId:      z.number().int().positive(),
     username:    z.string().min(1).max(100),

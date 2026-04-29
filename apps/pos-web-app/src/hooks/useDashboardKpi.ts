@@ -1,7 +1,3 @@
-// ============================================================
-// Dashboard KPI Hook
-// File: src/hooks/useDashboardKpi.ts
-// ============================================================
 
 import { useEffect, useState } from 'react';
 import { fetchKpiCards }       from '@/api/dashboard.api';

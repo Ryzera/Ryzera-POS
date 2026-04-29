@@ -1,11 +1,3 @@
-// ============================================================
-// Profit & Loss Report — Constants
-// File: pos-web-app/src/constants/profit-loss.constants.ts
-//
-// Centralises all magic values, styles, and config used across
-// the P&L report view, hooks, and components.
-// Mirror of: src/constants/sales-report.constants.ts
-// ============================================================
 
 import { format, subDays } from 'date-fns';
 

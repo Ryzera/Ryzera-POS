@@ -1,14 +1,3 @@
-// ============================================================
-// Category Performance — Type Definitions
-// File: pos-web-app/src/types/category-performance.types.ts
-//
-// Mirrors the backend response shapes from:
-//   GET /category-performance/kpi
-//   GET /category-performance/bar-chart
-//   GET /category-performance/pie-chart
-//   GET /category-performance/table
-//   GET /category-performance/by-branch
-// ============================================================
 
 // ─── Query Params sent to the backend ────────────────────────────────────────
 // branchId is a number because the backend Zod schema coerces it via z.coerce.number()

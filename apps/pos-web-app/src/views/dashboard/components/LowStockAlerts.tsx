@@ -1,7 +1,3 @@
-// ============================================================
-// Low Stock Alerts Card
-// File: src/views/dashboard/components/LowStockAlerts.tsx
-// ============================================================
 
 import { TriangleAlert } from 'lucide-react';
 import type { LowStockItem } from '@/types/dashboard.types';

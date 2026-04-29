@@ -1,7 +1,3 @@
-// ============================================================
-// Shared Formatting Utilities
-// File: src/lib/formatters.ts
-// ============================================================
 
 /**
  * Formats a number as a currency string without the 'Rs' prefix.

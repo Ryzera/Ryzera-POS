@@ -1,8 +1,3 @@
-// ============================================================
-// Profit & Loss Report — API Functions
-// File: pos-web-app/src/api/profit-loss.api.ts
-// ============================================================
-
 import apiClient from '@/lib/axios';
 import type {
     ProfitLossCards,

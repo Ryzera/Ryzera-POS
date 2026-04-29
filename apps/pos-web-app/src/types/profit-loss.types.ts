@@ -1,7 +1,3 @@
-// ============================================================
-// Profit & Loss Report — Type Definitions
-// File: pos-web-app/src/types/profit-loss.types.ts
-// ============================================================
 
 // ─── Query params sent to the backend ────────────────────────────────────────
 export interface ProfitLossQueryParams {

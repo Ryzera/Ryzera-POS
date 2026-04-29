@@ -1,7 +1,3 @@
-// ============================================================
-// Live Sales Hook — polls every 30 seconds
-// File: src/hooks/useLiveSales.ts
-// ============================================================
 
 import { useEffect, useState, useCallback } from 'react';
 import { fetchLiveSales }                   from '@/api/dashboard.api';

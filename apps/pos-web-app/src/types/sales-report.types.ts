@@ -1,7 +1,3 @@
-// ============================================================
-// Sales Report — Type Definitions
-// File: pos-web-app/src/types/sales-report.types.ts
-// ============================================================
 
 // ─── Filter shape used internally in the UI ──────────────────────────────────
 // categoryId / productId hold the display NAME (not UUID) because the backend

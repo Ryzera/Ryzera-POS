@@ -1,8 +1,3 @@
-// ============================================================
-// Auth — API Functions
-// File: apps/pos-web-app/src/api/auth.api.ts
-// ============================================================
-
 import apiClient from '@/lib/axios';
 import type { LoginRequest, LoginResponse } from '@/types/auth.types';
 

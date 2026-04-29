@@ -1,7 +1,3 @@
-// ============================================================
-// Low Stock Alerts Hook
-// File: src/hooks/useLowStockAlerts.ts
-// ============================================================
 
 import { useEffect, useState }    from 'react';
 import { fetchLowStockAlerts }    from '@/api/dashboard.api';

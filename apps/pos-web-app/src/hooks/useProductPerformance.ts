@@ -1,7 +1,3 @@
-// ============================================================
-// Product Performance — React Query Hooks
-// File: pos-web-app/src/hooks/useProductPerformance.ts
-// ============================================================
 
 import { useQuery } from '@tanstack/react-query';
 import {

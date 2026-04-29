@@ -20,7 +20,6 @@ import { QueryAuditLogSchema, ExportAuditLogSchema } from './schemas/audit-log.s
 import type { QueryAuditLogDto, ExportAuditLogDto }  from './schemas/audit-log.schema';
 
 // ─── Reusable Swagger decorators — shared between GET and export endpoints ─────
-// Defined once to avoid duplication across both methods
 const ApiQueryUsername  = () => ApiQuery({ name: 'username',   required: false, example: 'sarahj',       description: 'Filter by username (partial match)'                              });
 const ApiQueryDate      = () => ApiQuery({ name: 'date',       required: false, example: '2026-04-23',   description: 'Filter by calendar day (YYYY-MM-DD)'                             });
 const ApiQueryAction    = () => ApiQuery({ name: 'action',     required: false, example: 'Exported PDF', description: 'Filter by action: Generated | Exported PDF | Exported CSV'        });
@@ -29,11 +28,11 @@ const ApiQueryPage      = () => ApiQuery({ name: 'page',       required: false, 
 const ApiQueryLimit     = () => ApiQuery({ name: 'limit',      required: false, example: 50,             description: 'Records per page — default 50'                                   });
 const ApiQueryFormat    = () => ApiQuery({ name: 'format',     required: true,  example: 'csv',          description: 'Export format: "csv" or "pdf"'                                   });
 
-@ApiTags('AuditLog')           // ← shows as "AuditLog" section in Swagger
+@ApiTags('AuditLog')
 @ApiBearerAuth()               // ← shows the 🔒 lock icon and sends Authorization header
 @Controller('audit-log')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('SUPER_ADMIN')          // ← matches your existing role string convention
+@Roles('SUPER_ADMIN')
 export class AuditLogController {
     constructor(private readonly auditLogService: AuditLogService) {}
 

@@ -1,19 +1,5 @@
 'use client';
 
-// ============================================================
-// Sales Report View — FULLY FIXED
-// File: pos-web-app/src/views/sales-report.tsx
-//
-// Fixes applied:
-//  1. Branch label: removed "#" from fallback string
-//  2. Branch selector: fixed so selecting any branch after
-//     Generate immediately re-fetches all data
-//  3. Calendar: PopoverContent has solid white bg + z-[200]
-//     so it never overlaps/bleeds through other elements
-//  4. Bar chart: branchId is now always included in paramsWithPage
-//     so Kandy/Galle charts fetch correctly
-// ============================================================
-
 import { useState, useMemo, useCallback } from 'react';
 import {
     TrendingUp,

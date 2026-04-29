@@ -1,11 +1,3 @@
-// ============================================================
-// Reports Layout
-// File: apps/pos-web-app/src/app/reports/layout.tsx
-//
-// Wraps all /reports/* pages with the sidebar.
-// Guards unauthenticated users — redirects to /login.
-// ============================================================
-
 'use client';
 
 import { useEffect } from 'react';

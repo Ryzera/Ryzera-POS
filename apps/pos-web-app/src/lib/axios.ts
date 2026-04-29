@@ -1,9 +1,3 @@
-// ============================================================
-// Axios Instance
-// File: apps/pos-web-app/src/lib/axios.ts
-//
-// Centralises base URL, auth header injection, and error handling.
-// ============================================================
 
 import axios from 'axios';
 

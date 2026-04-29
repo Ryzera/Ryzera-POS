@@ -1,7 +1,3 @@
-// ============================================================
-// Sales Target Progress Bar
-// File: src/views/dashboard/components/SalesTargetBar.tsx
-// ============================================================
 
 interface SalesTargetBarProps {
     currentRevenue: number;  // month-to-date revenue

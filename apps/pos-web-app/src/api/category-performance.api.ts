@@ -1,10 +1,3 @@
-// ============================================================
-// Category Performance — API Functions
-// File: pos-web-app/src/api/category-performance.api.ts
-//
-// All endpoints hit /category-performance/* on the NestJS backend.
-// Branch list is reused from /reports/sales/branches (same table).
-// ============================================================
 
 import apiClient from '@/lib/axios';
 import type {
@@ -15,7 +8,7 @@ import type {
     CategoryTableResponse,
     CategoryByBranchResponse,
 } from '@/types/category-performance.types';
-import type { Branch } from '@/types/sales-report.types'; // reuse — same shape
+import type { Branch } from '@/types/sales-report.types';
 
 // ─── Param Mapper ─────────────────────────────────────────────────────────────
 // Converts the internal query params to backend-safe query string values.
