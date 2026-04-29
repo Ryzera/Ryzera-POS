@@ -120,224 +120,139 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.SyncCompanyScalarFieldEnum = {
+exports.Prisma.CompanyScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
   email: 'email',
   phone: 'phone',
   address: 'address',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SyncBranchScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  name: 'name',
-  code: 'code',
-  address: 'address',
-  phone: 'phone',
-  adminEmail: 'adminEmail',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SyncLogScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  branchId: 'branchId',
-  entity: 'entity',
-  status: 'status',
-  payload: 'payload',
-  error: 'error',
-  attempts: 'attempts',
-  syncedAt: 'syncedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SyncSettingScalarFieldEnum = {
-  id: 'id',
-  key: 'key',
-  value: 'value',
-  description: 'description',
-  scope: 'scope',
-  companyId: 'companyId',
-  branchId: 'branchId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SyncBackupScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  branchId: 'branchId',
-  status: 'status',
-  fileName: 'fileName',
-  notes: 'notes',
-  createdAt: 'createdAt'
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.BranchScalarFieldEnum = {
   id: 'id',
+  company_id: 'company_id',
   name: 'name',
+  code: 'code',
   address: 'address',
   phone: 'phone',
-  status: 'status',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  email: 'email',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  email: 'email',
+  username: 'username',
   password: 'password',
-  branchId: 'branchId'
+  company_id: 'company_id',
+  branch_id: 'branch_id',
+  user_type: 'user_type',
+  status: 'status',
+  failed_login_attempts: 'failed_login_attempts',
+  last_failed_login: 'last_failed_login',
+  account_locked_until: 'account_locked_until',
+  last_login_at: 'last_login_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
-exports.Prisma.SupplierScalarFieldEnum = {
+exports.Prisma.UserInfoScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone_number: 'phone_number',
+  address: 'address',
+  profile_picture: 'profile_picture'
+};
+
+exports.Prisma.RoleScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  contactName: 'contactName',
-  email: 'email',
-  phone: 'phone',
-  address: 'address',
-  leadTimeDays: 'leadTimeDays',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  description: 'description'
 };
 
-exports.Prisma.CategoryScalarFieldEnum = {
+exports.Prisma.AuthorityScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.UserRoleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  roleId: 'roleId'
+};
+
+exports.Prisma.RoleAuthorityScalarFieldEnum = {
+  id: 'id',
+  roleId: 'roleId',
+  authorityId: 'authorityId'
+};
+
+exports.Prisma.UserLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  branch_id: 'branch_id',
+  action: 'action',
+  status: 'status',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  device_info: 'device_info',
+  created_at: 'created_at'
 };
 
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  sku: 'sku',
-  barcode: 'barcode',
+  code: 'code',
   description: 'description',
   price: 'price',
-  costPrice: 'costPrice',
-  minStock: 'minStock',
-  unit: 'unit',
-  status: 'status',
-  categoryId: 'categoryId',
-  supplierId: 'supplierId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.BranchProductScalarFieldEnum = {
-  id: 'id',
-  stockQty: 'stockQty',
-  reservedQty: 'reservedQty',
-  branchId: 'branchId',
-  productId: 'productId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.InventoryLogScalarFieldEnum = {
-  id: 'id',
-  action: 'action',
-  changeQty: 'changeQty',
-  description: 'description',
-  userId: 'userId',
-  productId: 'productId',
-  branchId: 'branchId',
-  branchProductId: 'branchProductId',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.StockAlertScalarFieldEnum = {
-  id: 'id',
-  status: 'status',
-  stockQty: 'stockQty',
-  minStock: 'minStock',
-  productId: 'productId',
-  branchId: 'branchId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.PurchaseOrderScalarFieldEnum = {
-  id: 'id',
-  status: 'status',
-  notes: 'notes',
-  supplierId: 'supplierId',
-  branchId: 'branchId',
-  createdById: 'createdById',
-  stockAlertId: 'stockAlertId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.PurchaseOrderItemScalarFieldEnum = {
-  id: 'id',
+  cost_price: 'cost_price',
   quantity: 'quantity',
-  unitCost: 'unitCost',
-  totalCost: 'totalCost',
-  productId: 'productId',
-  purchaseOrderId: 'purchaseOrderId'
+  min_quantity: 'min_quantity',
+  company_id: 'company_id',
+  branch_id: 'branch_id',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
-exports.Prisma.InvoiceScalarFieldEnum = {
+exports.Prisma.BillScalarFieldEnum = {
   id: 'id',
-  invoiceNo: 'invoiceNo',
+  bill_number: 'bill_number',
+  company_id: 'company_id',
+  branch_id: 'branch_id',
+  cashier_id: 'cashier_id',
   status: 'status',
-  totalAmount: 'totalAmount',
-  issuedAt: 'issuedAt',
-  dueDate: 'dueDate',
-  paidAt: 'paidAt',
+  payment_method: 'payment_method',
+  subtotal: 'subtotal',
+  discount: 'discount',
+  tax: 'tax',
+  total: 'total',
   notes: 'notes',
-  purchaseOrderId: 'purchaseOrderId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
-exports.Prisma.TransferScalarFieldEnum = {
+exports.Prisma.BillItemScalarFieldEnum = {
   id: 'id',
-  status: 'status',
-  notes: 'notes',
-  sourceBranchId: 'sourceBranchId',
-  destinationBranchId: 'destinationBranchId',
-  createdById: 'createdById',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.TransferItemScalarFieldEnum = {
-  id: 'id',
+  bill_id: 'bill_id',
+  product_id: 'product_id',
   quantity: 'quantity',
-  productId: 'productId',
-  transferId: 'transferId'
-};
-
-exports.Prisma.BatchScalarFieldEnum = {
-  id: 'id',
-  batchNumber: 'batchNumber',
-  manufactureDate: 'manufactureDate',
-  expiryDate: 'expiryDate',
-  quantity: 'quantity',
-  productId: 'productId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  unit_price: 'unit_price',
+  total: 'total'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
-};
-
-exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -349,110 +264,58 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
-exports.Prisma.JsonNullValueFilter = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
-};
-exports.SyncStatus = exports.$Enums.SyncStatus = {
-  PENDING: 'PENDING',
-  SYNCED: 'SYNCED',
-  FAILED: 'FAILED'
+exports.UserType = exports.$Enums.UserType = {
+  ADMIN: 'ADMIN',
+  STAFF: 'STAFF'
 };
 
-exports.SyncSettingScope = exports.$Enums.SyncSettingScope = {
-  GLOBAL: 'GLOBAL',
-  BRANCH: 'BRANCH'
-};
-
-exports.SyncBackupStatus = exports.$Enums.SyncBackupStatus = {
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  PARTIAL: 'PARTIAL'
-};
-
-exports.BranchStatus = exports.$Enums.BranchStatus = {
+exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
   SUSPENDED: 'SUSPENDED'
 };
 
-exports.UnitOfMeasure = exports.$Enums.UnitOfMeasure = {
-  PCS: 'PCS',
-  KG: 'KG',
-  PACK: 'PACK',
-  LTR: 'LTR',
-  BOX: 'BOX',
-  MTR: 'MTR'
+exports.LogAction = exports.$Enums.LogAction = {
+  LOGIN: 'LOGIN',
+  LOGOUT: 'LOGOUT',
+  CREATE_USER: 'CREATE_USER',
+  UPDATE_USER: 'UPDATE_USER',
+  DELETE_USER: 'DELETE_USER',
+  ROLE_ASSIGNED: 'ROLE_ASSIGNED',
+  PASSWORD_CHANGED: 'PASSWORD_CHANGED'
 };
 
-exports.ProductStatus = exports.$Enums.ProductStatus = {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE',
-  DISCONTINUED: 'DISCONTINUED'
+exports.LogStatus = exports.$Enums.LogStatus = {
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED'
 };
 
-exports.InventoryAction = exports.$Enums.InventoryAction = {
-  CREATE: 'CREATE',
-  UPDATE: 'UPDATE',
-  SALE: 'SALE',
-  RESTOCK: 'RESTOCK',
-  DELETE: 'DELETE',
-  TRANSFER: 'TRANSFER',
-  ADJUSTMENT: 'ADJUSTMENT',
-  STOCK_TAKE: 'STOCK_TAKE',
-  RETURN_FROM_CUSTOMER: 'RETURN_FROM_CUSTOMER',
-  RETURN_TO_SUPPLIER: 'RETURN_TO_SUPPLIER',
-  WASTE_DAMAGED: 'WASTE_DAMAGED'
-};
-
-exports.AlertStatus = exports.$Enums.AlertStatus = {
+exports.BillStatus = exports.$Enums.BillStatus = {
   PENDING: 'PENDING',
-  SEEN: 'SEEN',
-  RESOLVED: 'RESOLVED'
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
 };
 
-exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
-  DRAFT: 'DRAFT',
-  SENT: 'SENT',
-  RECEIVED: 'RECEIVED',
-  CANCELLED: 'CANCELLED'
-};
-
-exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
-  UNPAID: 'UNPAID',
-  PAID: 'PAID',
-  CANCELLED: 'CANCELLED'
-};
-
-exports.TransferStatus = exports.$Enums.TransferStatus = {
-  PENDING: 'PENDING',
-  SHIPPED: 'SHIPPED',
-  RECEIVED: 'RECEIVED',
-  CANCELLED: 'CANCELLED'
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  CASH: 'CASH',
+  CARD: 'CARD',
+  ONLINE: 'ONLINE'
 };
 
 exports.Prisma.ModelName = {
-  SyncCompany: 'SyncCompany',
-  SyncBranch: 'SyncBranch',
-  SyncLog: 'SyncLog',
-  SyncSetting: 'SyncSetting',
-  SyncBackup: 'SyncBackup',
+  Company: 'Company',
   Branch: 'Branch',
   User: 'User',
-  Supplier: 'Supplier',
-  Category: 'Category',
+  UserInfo: 'UserInfo',
+  Role: 'Role',
+  Authority: 'Authority',
+  UserRole: 'UserRole',
+  RoleAuthority: 'RoleAuthority',
+  UserLog: 'UserLog',
   Product: 'Product',
-  BranchProduct: 'BranchProduct',
-  InventoryLog: 'InventoryLog',
-  StockAlert: 'StockAlert',
-  PurchaseOrder: 'PurchaseOrder',
-  PurchaseOrderItem: 'PurchaseOrderItem',
-  Invoice: 'Invoice',
-  Transfer: 'Transfer',
-  TransferItem: 'TransferItem',
-  Batch: 'Batch'
+  Bill: 'Bill',
+  BillItem: 'BillItem'
 };
 
 /**
