@@ -1,8 +1,24 @@
-import {Controller, Get, Query, Res, UseGuards, BadRequestException} from '@nestjs/common';
+// ============================================================
+// Daily Summary — Controller
+// File: apps/pos-api-service/src/daily-summary/daily-summary.controller.ts
+//
+// No logic changes required vs original.
+// parseAndEnrichQuery correctly locks non-SUPER_ADMIN to their JWT branchId.
+// All fixes are in the service layer.
+// ============================================================
+
+import {
+    Controller,
+    Get,
+    Query,
+    Res,
+    UseGuards,
+    BadRequestException,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiQuery, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { DailySummaryService }      from './daily-summary.service';
-import {QueryDailySummarySchema, QueryDailySummaryInput} from './schemas/daily-summary.schema';
+import { QueryDailySummarySchema, QueryDailySummaryInput } from './schemas/daily-summary.schema';
 import { JwtAuthGuard }             from '../common/guards/jwt-auth.guard';
 import { RolesGuard }               from '../common/guards/roles.guard';
 import { BranchGuard }              from '../common/guards/branch.guard';
@@ -21,12 +37,19 @@ export class DailySummaryController {
         private readonly dailySummaryService: DailySummaryService,
     ) {}
 
-    // ─── Validate + enrich query with role-based branchId ───────────
+    // ─── Validate + enrich query with role-based branchId ────────────────────
+    /**
+     * Parses the raw query string through Zod and enforces role-based branch access.
+     * SUPER_ADMIN: can pass any branchId or none (= All Branches).
+     * All other roles: branchId is always overridden with their JWT branchId,
+     *   so they can only ever see their own branch data.
+     */
     private parseAndEnrichQuery(
         user: JwtPayload,
         rawQuery: Record<string, string>,
     ): QueryDailySummaryInput {
         let parsed: QueryDailySummaryInput;
+
         try {
             parsed = QueryDailySummarySchema.parse(rawQuery);
         } catch (err) {
@@ -37,14 +60,15 @@ export class DailySummaryController {
             throw err;
         }
 
-        // Non-SUPER_ADMIN users are always locked to their own branch
+        // Non-SUPER_ADMIN users are always locked to their own branch from JWT
         if (user.role !== 'SUPER_ADMIN') {
             parsed.branchId = user.branchId ?? undefined;
         }
+
         return parsed;
     }
 
-    // GET /daily-summary/cards?date=YYYY-MM-DD&branchId=N
+    // ── GET /daily-summary/cards?date=YYYY-MM-DD&branchId=N ──────────────────
     @Get('cards')
     @ApiQuery({ name: 'date',     required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
     @ApiQuery({ name: 'branchId', required: false, example: '1',          description: 'Branch ID — SUPER_ADMIN only; other roles are locked to their branch' })
@@ -56,7 +80,7 @@ export class DailySummaryController {
         return this.dailySummaryService.getKpiCards(dto);
     }
 
-    // GET /daily-summary/hourly-chart?date=YYYY-MM-DD&branchId=N
+    // ── GET /daily-summary/hourly-chart?date=YYYY-MM-DD&branchId=N ───────────
     @Get('hourly-chart')
     @ApiQuery({ name: 'date',     required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
     @ApiQuery({ name: 'branchId', required: false, example: '1',          description: 'Branch ID — SUPER_ADMIN only' })
@@ -68,7 +92,7 @@ export class DailySummaryController {
         return this.dailySummaryService.getHourlySales(dto);
     }
 
-    // GET /daily-summary/payment-methods?date=YYYY-MM-DD&branchId=N
+    // ── GET /daily-summary/payment-methods?date=YYYY-MM-DD&branchId=N ────────
     @Get('payment-methods')
     @ApiQuery({ name: 'date',     required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
     @ApiQuery({ name: 'branchId', required: false, example: '1',          description: 'Branch ID — SUPER_ADMIN only' })
@@ -80,7 +104,7 @@ export class DailySummaryController {
         return this.dailySummaryService.getPaymentMethods(dto);
     }
 
-    // GET /daily-summary/details?date=YYYY-MM-DD&branchId=N
+    // ── GET /daily-summary/details?date=YYYY-MM-DD&branchId=N ────────────────
     @Get('details')
     @ApiQuery({ name: 'date',     required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
     @ApiQuery({ name: 'branchId', required: false, example: '1',          description: 'Branch ID — SUPER_ADMIN only' })
@@ -92,7 +116,7 @@ export class DailySummaryController {
         return this.dailySummaryService.getDailySummaryDetails(dto);
     }
 
-    // GET /daily-summary/all-branches?date=YYYY-MM-DD  (SUPER_ADMIN only)
+    // ── GET /daily-summary/all-branches?date=YYYY-MM-DD (SUPER_ADMIN only) ───
     @Get('all-branches')
     @Roles('SUPER_ADMIN')
     @ApiQuery({ name: 'date', required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
@@ -104,7 +128,7 @@ export class DailySummaryController {
         return this.dailySummaryService.getAllBranchesSummary(dto);
     }
 
-    // GET /daily-summary/export/csv?date=YYYY-MM-DD&branchId=N
+    // ── GET /daily-summary/export/csv?date=YYYY-MM-DD&branchId=N ─────────────
     @Get('export/csv')
     @ApiQuery({ name: 'date',     required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
     @ApiQuery({ name: 'branchId', required: false, example: '1',          description: 'Branch ID — SUPER_ADMIN only' })
@@ -113,14 +137,14 @@ export class DailySummaryController {
         @Query() rawQuery: Record<string, string>,
         @Res() res: Response,
     ) {
-        const dto = this.parseAndEnrichQuery(user, rawQuery);
-        const buffer = await this.dailySummaryService.exportCsv(dto,user);
+        const dto    = this.parseAndEnrichQuery(user, rawQuery);
+        const buffer = await this.dailySummaryService.exportCsv(dto, user);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="daily-summary.csv"');
         res.send(buffer);
     }
 
-    // GET /daily-summary/export/pdf?date=YYYY-MM-DD&branchId=N
+    // ── GET /daily-summary/export/pdf?date=YYYY-MM-DD&branchId=N ─────────────
     @Get('export/pdf')
     @ApiQuery({ name: 'date',     required: false, example: '2026-04-01', description: 'Date in YYYY-MM-DD format' })
     @ApiQuery({ name: 'branchId', required: false, example: '1',          description: 'Branch ID — SUPER_ADMIN only' })
@@ -129,8 +153,8 @@ export class DailySummaryController {
         @Query() rawQuery: Record<string, string>,
         @Res() res: Response,
     ) {
-        const dto = this.parseAndEnrichQuery(user, rawQuery);
-        const buffer = await this.dailySummaryService.exportPdf(dto,user);
+        const dto    = this.parseAndEnrichQuery(user, rawQuery);
+        const buffer = await this.dailySummaryService.exportPdf(dto, user);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="daily-summary.pdf"');
         res.send(buffer);
