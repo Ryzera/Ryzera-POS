@@ -5,16 +5,17 @@ import pg from 'pg';
 
 const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+        checkServerIdentity: () => undefined,
+    },
 });
-const adapter = new PrismaPg(pool);
 
-// Global instance — type assertion fix
+const adapter = new PrismaPg(pool);
 const prismaInstance = new (PrismaClient as any)({ adapter });
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
-
-    // Proxy all prisma calls
     user = prismaInstance.user;
     userInfo = prismaInstance.userInfo;
     company = prismaInstance.company;
