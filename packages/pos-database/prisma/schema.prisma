@@ -157,9 +157,7 @@ enum ReturnStatus {
   @@map("return_status")
 }
 
-// ====================================================
 // CORE — COMPANY & BRANCH (AUTH MODULE BASE)
-// ====================================================
 
 model Company {
   id         Int      @id @default(autoincrement()) @map("company_id")
@@ -177,7 +175,7 @@ model Company {
   products Product[]
   bills    Bill[]
 
-  @@map("ryzera_pos_company")
+  @@map("company")
 }
 
 model Branch {
@@ -220,12 +218,10 @@ model Branch {
   dailySummaries DailySummary[]
 
   @@unique([company_id, code])
-  @@map("ryzera_pos_branch")
+  @@map("branch")
 }
 
-// ====================================================
 // USER MANAGEMENT (AUTH MODULE)
-// ====================================================
 
 model User {
   id                    Int        @id @default(autoincrement()) @map("user_id")
@@ -261,7 +257,7 @@ model User {
   reportSchedules ReportSchedule[]
   auditLogs       AuditLog[]
 
-  @@map("ryzera_pos_user")
+  @@map("user")
 }
 
 model UserInfo {
@@ -276,12 +272,10 @@ model UserInfo {
 
   user User @relation(fields: [user_id], references: [id])
 
-  @@map("ryzera_pos_user_info")
+  @@map("user_info")
 }
 
-// ====================================================
 // ROLE & PERMISSIONS (AUTH MODULE)
-// ====================================================
 
 model Role {
   id          Int    @id @default(autoincrement()) @map("role_id")
@@ -291,7 +285,7 @@ model Role {
   userRoles   UserRole[]
   authorities RoleAuthority[]
 
-  @@map("ryzera_pos_role")
+  @@map("role")
 }
 
 model Authority {
@@ -301,7 +295,7 @@ model Authority {
 
   roles RoleAuthority[]
 
-  @@map("ryzera_pos_authority")
+  @@map("authority")
 }
 
 model UserRole {
@@ -313,7 +307,7 @@ model UserRole {
   role Role @relation(fields: [roleId], references: [id])
 
   @@unique([userId, roleId])
-  @@map("ryzera_pos_user_role")
+  @@map("user_role")
 }
 
 model RoleAuthority {
@@ -325,7 +319,7 @@ model RoleAuthority {
   authority Authority @relation(fields: [authorityId], references: [id])
 
   @@unique([roleId, authorityId])
-  @@map("ryzera_pos_role_authority")
+  @@map("role_authority")
 }
 
 model UserLog {
@@ -342,12 +336,10 @@ model UserLog {
   user   User    @relation(fields: [userId], references: [id])
   branch Branch? @relation(fields: [branch_id], references: [id])
 
-  @@map("ryzera_pos_user_log")
+  @@map("user_log")
 }
 
-// ====================================================
 // INVENTORY MODULE
-// ====================================================
 
 model Supplier {
   id          Int     @id @default(autoincrement())
@@ -365,7 +357,7 @@ model Supplier {
   purchaseOrders PurchaseOrder[]
 
   @@index([name])
-  @@map("ryzera_pos_supplier")
+  @@map("supplier")
 }
 
 model Category {
@@ -373,7 +365,7 @@ model Category {
   name     String    @unique
   products Product[]
 
-  @@map("ryzera_pos_category")
+  @@map("category")
 }
 
 model Product {
@@ -411,7 +403,7 @@ model Product {
   batches        Batch[]
   saleItems      SaleItem[]
 
-  @@map("ryzera_pos_product")
+  @@map("product")
 }
 
 model BranchProduct {
@@ -429,7 +421,7 @@ model BranchProduct {
   inventoryLogs InventoryLog[]
 
   @@unique([branch_id, product_id])
-  @@map("ryzera_pos_branch_product")
+  @@map("branch_product")
 }
 
 model InventoryLog {
@@ -449,7 +441,7 @@ model InventoryLog {
 
   created_at DateTime @default(now())
 
-  @@map("ryzera_pos_inventory_log")
+  @@map("inventory_log")
 }
 
 model StockAlert {
@@ -467,7 +459,7 @@ model StockAlert {
   updated_at    DateTime       @updatedAt
   purchaseOrder PurchaseOrder?
 
-  @@map("ryzera_pos_stock_alert")
+  @@map("stock_alert")
 }
 
 model PurchaseOrder {
@@ -490,7 +482,7 @@ model PurchaseOrder {
   items   PurchaseOrderItem[]
   invoice PurchaseInvoice?
 
-  @@map("ryzera_pos_purchase_order")
+  @@map("purchase_order")
 }
 
 model PurchaseOrderItem {
@@ -504,7 +496,7 @@ model PurchaseOrderItem {
   product       Product       @relation(fields: [product_id], references: [id])
   purchaseOrder PurchaseOrder @relation(fields: [purchaseOrder_id], references: [id])
 
-  @@map("ryzera_pos_purchase_order_item")
+  @@map("purchase_order_item")
 }
 
 model PurchaseInvoice {
@@ -523,7 +515,7 @@ model PurchaseInvoice {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("ryzera_pos_purchase_invoice")
+  @@map("purchase_invoice")
 }
 
 model Transfer {
@@ -542,7 +534,7 @@ model Transfer {
   updated_at DateTime @updatedAt
   items      TransferItem[]
 
-  @@map("ryzera_pos_transfer")
+  @@map("transfer")
 }
 
 model TransferItem {
@@ -554,7 +546,7 @@ model TransferItem {
   product  Product  @relation(fields: [product_id], references: [id])
   transfer Transfer @relation(fields: [transfer_id], references: [id])
 
-  @@map("ryzera_pos_transfer_item")
+  @@map("transfer_item")
 }
 
 model Batch {
@@ -570,12 +562,10 @@ model Batch {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("ryzera_pos_batch")
+  @@map("batch")
 }
 
-// ====================================================
 // BILLING MODULE
-// ====================================================
 
 model Bill {
   id             Int               @id @default(autoincrement()) @map("bill_id")
@@ -598,7 +588,7 @@ model Bill {
   cashier User     @relation("CashierBills", fields: [cashier_id], references: [id])
   items   BillItem[]
 
-  @@map("ryzera_pos_bill")
+  @@map("bill")
 }
 
 model BillItem {
@@ -612,7 +602,7 @@ model BillItem {
   bill    Bill    @relation(fields: [bill_id], references: [id])
   product Product @relation(fields: [product_id], references: [id])
 
-  @@map("ryzera_pos_bill_item")
+  @@map("bill_item")
 }
 
 model Sale {
@@ -633,7 +623,7 @@ model Sale {
   payments  Payment[]
   returns   Return[]
 
-  @@map("ryzera_pos_sale")
+  @@map("sale")
 }
 
 model SaleItem {
@@ -657,7 +647,7 @@ model SaleItem {
   product     Product      @relation(fields: [product_id], references: [id])
   returnItems ReturnItem[]
 
-  @@map("ryzera_pos_sale_item")
+  @@map("sale_item")
 }
 
 model Payment {
@@ -672,7 +662,7 @@ model Payment {
 
   sale Sale @relation(fields: [sale_id], references: [id])
 
-  @@map("ryzera_pos_payment")
+  @@map("payment")
 }
 
 model Return {
@@ -690,7 +680,7 @@ model Return {
   sale        Sale         @relation(fields: [sale_id], references: [id])
   returnItems ReturnItem[]
 
-  @@map("ryzera_pos_return")
+  @@map("return")
 }
 
 model ReturnItem {
@@ -706,12 +696,10 @@ model ReturnItem {
   return   Return   @relation(fields: [return_id], references: [id])
   saleItem SaleItem @relation(fields: [sale_item_id], references: [id])
 
-  @@map("ryzera_pos_return_item")
+  @@map("return_item")
 }
 
-// ====================================================
 // SYNC MODULE
-// ====================================================
 
 model SyncLog {
   id        Int       @id @default(autoincrement())
@@ -730,7 +718,7 @@ model SyncLog {
 
   @@index([branch_id, status])
   @@index([status])
-  @@map("ryzera_pos_sync_log")
+  @@map("sync_log")
 }
 
 model SyncDevice {
@@ -745,7 +733,7 @@ model SyncDevice {
 
   branch Branch @relation(fields: [branch_id], references: [id])
 
-  @@map("ryzera_pos_sync_device")
+  @@map("sync_device")
 }
 
 model SyncSetting {
@@ -761,7 +749,7 @@ model SyncSetting {
   branch Branch? @relation(fields: [branch_id], references: [id])
 
   @@unique([branch_id, key])
-  @@map("ryzera_pos_sync_setting")
+  @@map("sync_setting")
 }
 
 model SyncConflict {
@@ -778,7 +766,7 @@ model SyncConflict {
 
   syncLog SyncLog @relation(fields: [syncLog_id], references: [id])
 
-  @@map("ryzera_pos_sync_conflict")
+  @@map("sync_conflict")
 }
 
 model SyncBackup {
@@ -790,7 +778,7 @@ model SyncBackup {
 
   branch Branch @relation(fields: [branch_id], references: [id])
 
-  @@map("ryzera_pos_sync_backup")
+  @@map("sync_backup")
 }
 
 model SyncBackupSchedule {
@@ -802,7 +790,7 @@ model SyncBackupSchedule {
 
   branch Branch @relation(fields: [branch_id], references: [id])
 
-  @@map("ryzera_pos_sync_backup_schedule")
+  @@map("sync_backup_schedule")
 }
 
 model SyncHealthMetric {
@@ -815,7 +803,7 @@ model SyncHealthMetric {
 
   branch Branch @relation(fields: [branch_id], references: [id])
 
-  @@map("ryzera_pos_sync_health_metric")
+  @@map("sync_health_metric")
 }
 
 model SyncAuditLog {
@@ -827,12 +815,10 @@ model SyncAuditLog {
   details    Json?
   created_at DateTime @default(now())
 
-  @@map("ryzera_pos_sync_audit_log")
+  @@map("sync_audit_log")
 }
 
-// ====================================================
 // REPORTING MODULE
-// ====================================================
 
 model DailySummary {
   id                Int      @id @default(autoincrement())
@@ -854,7 +840,7 @@ model DailySummary {
   branch Branch? @relation(fields: [branch_id], references: [id])
 
   @@unique([summaryDate, branch_id])
-  @@map("ryzera_pos_daily_summary")
+  @@map("daily_summary")
 }
 
 model SavedReportConfig {
@@ -871,7 +857,7 @@ model SavedReportConfig {
 
   user User @relation(fields: [user_id], references: [id])
 
-  @@map("ryzera_pos_saved_report_config")
+  @@map("saved_report_config")
 }
 
 model ReportSchedule {
@@ -890,7 +876,7 @@ model ReportSchedule {
   user       User             @relation(fields: [user_id], references: [id])
   deliveries ReportDelivery[]
 
-  @@map("ryzera_pos_report_schedule")
+  @@map("report_schedule")
 }
 
 model ReportDelivery {
@@ -904,7 +890,7 @@ model ReportDelivery {
 
   schedule ReportSchedule @relation(fields: [schedule_id], references: [id])
 
-  @@map("ryzera_pos_report_delivery")
+  @@map("report_delivery")
 }
 
 model AuditLog {
@@ -920,7 +906,7 @@ model AuditLog {
 
   user User @relation(fields: [user_id], references: [id])
 
-  @@map("ryzera_pos_audit_log")
+  @@map("audit_log")
 }
 
 model KpiTarget {
@@ -930,7 +916,7 @@ model KpiTarget {
   target_amount Decimal @db.Decimal(12, 2)
 
   @@unique([period_type, branch_id])
-  @@map("ryzera_pos_kpi_target")
+  @@map("kpi_target")
 }
 
 model KpiMarginTarget {
@@ -940,7 +926,7 @@ model KpiMarginTarget {
   target_net_margin   Decimal @db.Decimal(5, 2)
 
   @@unique([branch_id])
-  @@map("ryzera_pos_kpi_margin_target")
+  @@map("kpi_margin_target")
 }
 
 model KpiInventoryThreshold {
@@ -951,7 +937,7 @@ model KpiInventoryThreshold {
   zero_sales_hours      Int @default(24)
 
   @@unique([branch_id])
-  @@map("ryzera_pos_kpi_inventory_threshold")
+  @@map("kpi_inventory_threshold")
 }
 
 model KpiNotificationRule {
@@ -968,7 +954,7 @@ model KpiNotificationRule {
   check_frequency_minutes    Int     @default(5)
 
   @@unique([branch_id])
-  @@map("ryzera_pos_kpi_notification_rule")
+  @@map("kpi_notification_rule")
 }
 
 model KpiReportDefault {
@@ -979,7 +965,7 @@ model KpiReportDefault {
   show_target_progress Boolean @default(true)
 
   @@unique([branch_id])
-  @@map("ryzera_pos_kpi_report_default")
+  @@map("kpi_report_default")
 }
 
 model Notification {
@@ -993,7 +979,7 @@ model Notification {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("ryzera_pos_notification")
+  @@map("notification")
 }
 
 model ScheduledReport {
@@ -1008,5 +994,5 @@ model ScheduledReport {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  @@map("ryzera_pos_scheduled_report")
+  @@map("scheduled_report")
 }

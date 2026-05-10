@@ -199,7 +199,7 @@ async function main() {
 
         // Raw SQL use කරමු — table name exact match
         await prisma.$executeRaw`
-      INSERT INTO "ryzera_pos_user_info" 
+      INSERT INTO "user_info" 
         ("user_id", "first_name", "last_name", "email", "phone_number")
       VALUES 
         (${user.id}, ${data.first_name}, ${data.last_name}, ${data.email}, ${data.phone_number})
@@ -287,7 +287,7 @@ async function main() {
     for (const p of products) {
         try {
             await prisma.$executeRawUnsafe(
-                `INSERT INTO "ryzera_pos_product" 
+                `INSERT INTO "product" 
           (name, code, price, cost_price, quantity, min_quantity, company_id, branch_id, is_active, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW(), NOW())`,
                 p.name, p.code, p.price, p.cost_price,
