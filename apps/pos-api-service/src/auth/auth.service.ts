@@ -1,172 +1,168 @@
 import {
     Injectable,
     UnauthorizedException,
-    ConflictException,
     BadRequestException,
+    ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
-import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { TokenBlacklistService } from './token-blacklist.service';
+import * as bcrypt from 'bcrypt';
+import { UsersRepository } from '../users/users.repository';
+import { UserLogRepository } from '../users/user-log.repository';
+import { LoginDto, ChangePasswordDto, JwtPayload } from '@ryzera/pos-schema';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private prisma: PrismaService,
-        private jwtService: JwtService,
-        private tokenBlacklistService: TokenBlacklistService,
+        private readonly usersRepository: UsersRepository,
+        private readonly userLogRepository: UserLogRepository,
+        private readonly jwtService: JwtService,
     ) {}
 
-    async register(dto: RegisterDto) {
-        const existing = await this.prisma.user.findUnique({
-            where: { username: dto.username },
-        });
-        if (existing) throw new ConflictException('Username already exists');
+    // ─── Login ───────────────────────────────────────────
+    async login(dto: LoginDto, ip?: string, userAgent?: string) {
+        // 1. User find කරන්න
+        const user = await this.usersRepository.findByUsername(dto.username);
 
-        const role = await this.prisma.role.findUnique({
-            where: { name: dto.role ?? 'CASHIER' },
-        });
-        if (!role) throw new BadRequestException(`Role not found`);
-
-        const hashedPassword = await bcrypt.hash(dto.password, 12);
-
-        const user = await this.prisma.user.create({
-            data: {
-                username: dto.username,
-                password: hashedPassword,
-                company_id: dto.company_id,
-                branch_id: dto.branch_id,
-                user_type: dto.user_type ?? 'STAFF',
-                status: 'ACTIVE',
-                info: {
-                    create: {
-                        first_name: dto.firstName,
-                        last_name: dto.lastName,
-                        email: dto.email,
-                        phone: dto.phone,
-                    },
-                },
-                userRoles: {
-                    create: { roleId: role.id },
-                },
-            },
-            include: { info: true, userRoles: { include: { role: true } } },
-        });
-
-        const { password, ...result } = user;
-        return result;
-    }
-
-    async login(dto: LoginDto, ipAddress?: string, userAgent?: string) {
-        const user = await this.prisma.user.findUnique({
-            where: { username: dto.username },
-            include: {
-                userRoles: { include: { role: true } },
-                info: true,
-            },
-        });
-
-        if (!user || user.status !== 'ACTIVE') {
-            await this.logAction(user?.user_id, user?.branch_id, 'LOGIN', 'FAILED', ipAddress, userAgent);
+        if (!user) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
+        // 2. Account locked check
+        if (user.account_locked_until && user.account_locked_until > new Date()) {
+            const minutesLeft = Math.ceil(
+                (user.account_locked_until.getTime() - Date.now()) / 60000,
+            );
+            throw new ForbiddenException(
+                `Account locked. Try again in ${minutesLeft} minutes`,
+            );
+        }
+
+        // 3. Status check
+        if (user.status === 'INACTIVE') {
+            throw new ForbiddenException('Account is inactive. Contact admin');
+        }
+
+        // 4. Password verify
         const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+
         if (!isPasswordValid) {
-            await this.logAction(user.user_id, user.branch_id, 'LOGIN', 'FAILED', ipAddress, userAgent);
-            throw new UnauthorizedException('Invalid credentials');
+            // Failed attempt track කරන්න
+            const attempts = (user.failed_login_attempts || 0) + 1;
+            await this.usersRepository.updateLoginFailed(user.id, attempts);
+
+            // Log failed attempt
+            await this.userLogRepository.create({
+                userId: user.id,
+                branch_id: user.branch_id ?? undefined,
+                action: 'LOGIN',
+                status: 'FAILED',
+                ip_address: ip,
+                user_agent: userAgent,
+            });
+
+            const remaining = 5 - attempts;
+            if (remaining > 0) {
+                throw new UnauthorizedException(
+                    `Invalid credentials. ${remaining} attempts remaining`,
+                );
+            } else {
+                throw new ForbiddenException(
+                    'Account locked for 30 minutes due to too many failed attempts',
+                );
+            }
         }
 
-        await this.logAction(user.user_id, user.branch_id, 'LOGIN', 'SUCCESS', ipAddress, userAgent);
+        // 5. Login success — reset failed attempts
+        await this.usersRepository.updateLoginSuccess(user.id);
 
-        await this.prisma.user.update({
-            where: { user_id: user.user_id },
-            data: { last_login_at: new Date() },
-        });
-
+        // 6. Extract roles
         const roles = user.userRoles.map((ur) => ur.role.name);
-        const token = this.jwtService.sign({
-            sub: user.user_id,
-            username: user.username,
+
+        // 7. Build JWT payload
+        const payload: JwtPayload = {
+            userId: user.id,
+            companyId: user.company_id,
+            branchId: user.branch_id ?? null,
             roles,
+            userType: user.user_type,
+        };
+
+        // 8. Generate token
+        const token = this.jwtService.sign(payload);
+
+        // 9. Log success
+        await this.userLogRepository.create({
+            userId: user.id,
+            branch_id: user.branch_id ?? undefined,
+            action: 'LOGIN',
+            status: 'SUCCESS',
+            ip_address: ip,
+            user_agent: userAgent,
         });
 
+        // 10. Return response
         return {
-            accessToken: token,
+            access_token: token,
             user: {
-                id: user.user_id,
+                id: user.id,
                 username: user.username,
+                user_type: user.user_type,
+                company_id: user.company_id,
+                branch_id: user.branch_id,
                 roles,
-                firstName: user.info?.first_name,
-                lastName: user.info?.last_name,
+                info: user.info,
             },
         };
     }
 
-    async logout(userId: number, token?: string, ipAddress?: string, userAgent?: string) {
-        if (token) {
-            this.tokenBlacklistService.blacklist(token);
-        }
-        const user = await this.prisma.user.findUnique({
-            where: { user_id: userId },
-        });
-        if (user) {
-            await this.logAction(userId, user.branch_id, 'LOGOUT', 'SUCCESS', ipAddress, userAgent);
-        }
-        return { message: 'Logged out successfully' };
-    }
-
+    // ─── Get Profile ──────────────────────────────────────
     async getProfile(userId: number) {
-        const user = await this.prisma.user.findUnique({
-            where: { user_id: userId },
-            include: {
-                info: true,
-                userRoles: {
-                    include: {
-                        role: {
-                            include: {
-                                roleAuthorities: { include: { authority: true } },
-                            },
-                        },
-                    },
-                },
-            },
-        });
+        const user = await this.usersRepository.findById(userId);
+        if (!user) throw new UnauthorizedException('User not found');
 
-        if (!user) throw new UnauthorizedException();
-
-        return {
-            id: user.user_id,
-            username: user.username,
-            status: user.status,
-            roles: user.userRoles.map((ur) => ur.role.name),
-            authorities: user.userRoles.flatMap((ur) =>
-                ur.role.roleAuthorities.map((ra) => ra.authority.name),
-            ),
-            info: user.info,
-        };
+        const { password, ...safeUser } = user;
+        return safeUser;
     }
 
-    private async logAction(
-        userId: number | undefined,
-        branchId: number | undefined,
-        action: string,
-        status: string,
-        ipAddress?: string,
-        userAgent?: string,
-    ) {
-        if (!userId || !branchId) return;
-        await this.prisma.userLog.create({
-            data: {
-                userId,
-                branch_id: branchId,
-                action,
-                status,
-                ipAddress,
-                device_info: userAgent,
-            },
+    // ─── Change Password ─────────────────────────────────
+    async changePassword(userId: number, dto: ChangePasswordDto) {
+        const user = await this.usersRepository.findById(userId);
+        if (!user) throw new UnauthorizedException('User not found');
+
+        // Current password verify
+        const isValid = await bcrypt.compare(dto.currentPassword, user.password);
+        if (!isValid) {
+            throw new BadRequestException('Current password is incorrect');
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(dto.newPassword, 12);
+        await this.usersRepository.updatePassword(userId, hashedPassword);
+
+        // Log password change
+        await this.userLogRepository.create({
+            userId,
+            branch_id: user.branch_id ?? undefined,
+            action: 'PASSWORD_CHANGED',
+            status: 'SUCCESS',
         });
+
+        return { message: 'Password changed successfully' };
+    }
+
+    // ─── Logout Log ───────────────────────────────────────
+    async logout(userId: number, ip?: string, userAgent?: string) {
+        const user = await this.usersRepository.findById(userId);
+
+        await this.userLogRepository.create({
+            userId,
+            branch_id: user?.branch_id ?? undefined,
+            action: 'LOGOUT',
+            status: 'SUCCESS',
+            ip_address: ip,
+            user_agent: userAgent,
+        });
+
+        return { message: 'Logged out successfully' };
     }
 }
