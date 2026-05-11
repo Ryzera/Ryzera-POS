@@ -1,65 +1,109 @@
 import {
-    Controller, Get, Post, Patch, Delete,
-    Body, Param, UseGuards,
+    Controller,
+    Get,
+    Post,
+    Put,
+    Delete,
+    Body,
+    Param,
+    Query,
+    ParseIntPipe,
+    UseGuards,
+    HttpCode,
+    HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guards';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import {
+    CreateUserSchema,
+    UpdateUserSchema,
+    AssignRoleSchema,
+    UserFilterSchema,
+    JwtPayload,
+} from '@ryzera/pos-schema';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)   // ← JWT + Roles දෙකම
 export class UsersController {
-    constructor(private usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) {}
 
-    // POST /users  → Admin only
-    @Roles('ADMIN')
+    // POST /users  — ADMIN only
     @Post()
-    create(@Body() dto: CreateUserDto) {
+    @Roles('ADMIN')
+    async create(@Body() body: unknown) {
+        const dto = CreateUserSchema.parse(body);
         return this.usersService.create(dto);
     }
 
-    // GET /users  → Admin only
-    @Roles('ADMIN')
+    // GET /users  — ADMIN, MANAGER
     @Get()
-    findAll() {
-        return this.usersService.findAll();
+    @Roles('ADMIN', 'MANAGER')
+    async findAll(@Query() query: unknown) {
+        const filters = UserFilterSchema.parse(query);
+        return this.usersService.findAll(filters);
     }
 
-    // GET /users/:id  → Admin only
-    @Roles('ADMIN')
+    // GET /users/:id  — ADMIN, MANAGER
     @Get(':id')
-    findOne(@Param('id') id: number) {
+    @Roles('ADMIN', 'MANAGER')
+    async findOne(@Param('id', ParseIntPipe) id: number) {
         return this.usersService.findOne(id);
     }
 
-    // PATCH /users/:id  → Admin only
+    // PUT /users/:id  — ADMIN only
+    @Put(':id')
     @Roles('ADMIN')
-    @Patch(':id')
-    update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() body: unknown,
+    ) {
+        const dto = UpdateUserSchema.parse(body);
         return this.usersService.update(id, dto);
     }
 
-    // PATCH /users/:id/role  → Admin only
-    @Roles('ADMIN')
-    @Patch(':id/role')
-    assignRole(@Param('id') id: number, @Body('role') role: string) {
-        return this.usersService.assignRole(id, role);
-    }
-
-    // DELETE /users/:id  → Soft deactivate, Admin only
-    @Roles('ADMIN')
+    // DELETE /users/:id  — ADMIN only
     @Delete(':id')
-    deactivate(@Param('id') id: number) {
-        return this.usersService.deactivate(id);
+    @Roles('ADMIN')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        return this.usersService.remove(id);
     }
 
-    // GET /users/:id/logs  → Admin only
+    // POST /users/:id/roles  — ADMIN only
+    @Post(':id/roles')
     @Roles('ADMIN')
+    async assignRole(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() body: unknown,
+    ) {
+        const dto = AssignRoleSchema.parse(body);
+        return this.usersService.assignRole(id, dto.roleId);
+    }
+
+    // DELETE /users/:id/roles/:roleId  — ADMIN only
+    @Delete(':id/roles/:roleId')
+    @Roles('ADMIN')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async removeRole(
+        @Param('id', ParseIntPipe) id: number,
+        @Param('roleId', ParseIntPipe) roleId: number,
+    ) {
+        return this.usersService.removeRole(id, roleId);
+    }
+
+    // GET /users/:id/logs  — ADMIN, MANAGER
     @Get(':id/logs')
-    getLogs(@Param('id') id: number) {
-        return this.usersService.getUserLogs(id);
+    @Roles('ADMIN', 'MANAGER')
+    async getLogs(@Param('id', ParseIntPipe) id: number) {
+        return this.usersService.getLogs(id);
+    }
+
+    // GET /users/me  — any logged user
+    @Get('me/profile')
+    async getMyProfile(@CurrentUser() user: JwtPayload) {
+        return this.usersService.findOne(user.userId);
     }
 }

@@ -1,2 +1,3 @@
-export * from '@prisma/client';
-export { PrismaService } from './src/prisma.service';
+export * from './generated/prisma';
+export { PrismaService } from './prisma.service';
+export { DatabaseModule } from './database.module';

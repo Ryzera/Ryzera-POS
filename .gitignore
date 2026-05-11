@@ -39,3 +39,6 @@ yarn-error.log*
 # Prisma generated files
 packages/pos-database/src/generated/
 /generated/prisma
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
