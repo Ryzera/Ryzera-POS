@@ -55,17 +55,29 @@ export class SettingsService {
     });
   }
 
-  /** Get setting by key. throws NotFoundException if missing. */
+  /** 
+   * Get setting by key with hierarchy support (v2.0)
+   * Step 1: Search for branch-specific override
+   * Step 2: Fallback to global company-wide setting
+   */
   async findByKey(key: string, companyId?: string, branchId?: string) {
-    const where: any = { key };
-    if (companyId) where.companyId = companyId;
-    if (branchId) where.branchId = branchId;
-    
-    const setting = await this.prisma.syncSetting.findFirst({ where });
-    if (!setting) {
-      throw new NotFoundException(`Setting with key "${key}" not found`);
+    // 1. Try to find branch-specific override
+    if (branchId) {
+      const branchSetting = await this.prisma.syncSetting.findFirst({
+        where: { key, branchId }
+      });
+      if (branchSetting) return branchSetting;
     }
-    return setting;
+
+    // 2. Fallback to global setting (branchId is null)
+    const where: any = { key, branchId: null };
+    if (companyId) where.companyId = companyId;
+    
+    const globalSetting = await this.prisma.syncSetting.findFirst({ where });
+    if (!globalSetting) {
+      throw new NotFoundException(`Setting with key "${key}" not found in branch or global scope`);
+    }
+    return globalSetting;
   }
 
   /** Update setting value. throws NotFoundException if missing. */

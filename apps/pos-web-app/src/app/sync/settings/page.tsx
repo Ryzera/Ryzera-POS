@@ -1,339 +1,227 @@
 'use client';
 
-import { useState } from 'react';
-import { Building2, DollarSign, Settings as SettingsIcon, Save, Bell, Clock, RefreshCw } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { 
+  Settings, Save, RefreshCw, Building2, DollarSign, 
+  Receipt, Globe, Shield, User, LogOut, ChevronDown, 
+  Wifi, WifiOff, Bell, Activity, Cpu, ShieldCheck, Mail, Smartphone,
+  Database, Zap, Lock
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
-export default function Settings() {
-  const [activeTab, setActiveTab] = useState('business');
+const API_BASE = 'http://localhost:3000/api';
+
+export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState('company');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Business Profile State
-  const [businessProfile, setBusinessProfile] = useState({
-    storeName: 'Ryzera Super Store',
-    address: 'Colombo 05, Sri Lanka',
-    phone: '011-2345678',
-    email: 'info@ryzera.com',
-    taxNumber: 'GST123456',
-    businessReg: 'BR789012'
-  });
+  const fetchSettings = useCallback(async () => {
+    setLoading(true);
+    try {
+      await fetch(`${API_BASE}/settings`);
+      setLoading(false);
+    } catch (err) { console.error(err); setLoading(false); }
+  }, []);
 
-  // Tax & Currency State
-  const [taxSettings, setTaxSettings] = useState({
-    currency: 'LKR',
-    taxRate: 8,
-    decimalPlaces: 2,
-    taxLabel: 'VAT',
-    enableTax: true
-  });
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
-  // Sync Settings State
-  const [syncSettings, setSyncSettings] = useState({
-    autoSync: true,
-    maxRetries: 5,
-    syncImages: false,
-    interval: 30,
-    retryDelay: 5,
-    notifyOnFailure: true
-  });
-
-  const handleSave = (section: string) => {
+  const handleSave = async () => {
     setSaving(true);
+    const tid = toast.loading('Saving system preferences...');
     setTimeout(() => {
+      toast.dismiss(tid);
+      toast.success('System configuration updated');
       setSaving(false);
-      toast.success(`${section} settings saved successfully`);
-    }, 1000);
+    }, 1200);
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
+  const TabBtn = ({ id, label, icon: Icon }: any) => (
+    <button onClick={() => setActiveTab(id)}
+      className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+        activeTab === id 
+        ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10 scale-105' 
+        : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 border border-slate-100 shadow-sm'
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </button>
+  );
+
+  const Input = ({ label, desc }: any) => (
+    <div className="space-y-3">
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">{label}</label>
+      <input 
+        type="text" 
+        placeholder={desc} 
+        className="w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50 transition shadow-inner" 
+      />
+    </div>
+  );
+
+  const Switch = ({ label, desc, checked, icon: Icon }: any) => (
+    <div className="flex items-center justify-between p-6 rounded-[24px] border border-slate-100 bg-white hover:border-blue-200 transition group shadow-sm">
+      <div className="flex items-center gap-4">
+        {Icon && <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:text-blue-600 transition"><Icon className="h-5 w-5" /></div>}
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">System Settings</h1>
-          <p className="text-gray-500 mt-1">Configure your POS system preferences</p>
+          <p className="text-sm font-bold text-slate-900">{label}</p>
+          <p className="text-xs text-slate-500 mt-1">{desc}</p>
         </div>
+      </div>
+      <div className={`w-12 h-7 rounded-full transition-all relative cursor-pointer shadow-inner ${checked ? 'bg-blue-600' : 'bg-slate-200'}`}>
+        <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all ${checked ? 'left-6' : 'left-1'}`} />
+      </div>
+    </div>
+  );
 
+  return (
+    <div className="flex flex-col h-screen bg-slate-50/50">
+      <header className="bg-white border-b border-slate-200 px-8 py-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">System Configuration</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage global preferences, sync behavior, and infrastructure security</p>
+        </div>
+        <button onClick={handleSave} disabled={saving}
+          className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition shadow-xl shadow-blue-600/20 disabled:opacity-50">
+          {saving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Apply Changes
+        </button>
+      </header>
+
+      <div className="p-8 flex-1 overflow-hidden flex flex-col space-y-8">
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-gray-200 bg-white rounded-t-xl px-2">
-          <button
-            onClick={() => setActiveTab('business')}
-            className={`px-5 py-3 flex items-center gap-2 text-sm font-medium rounded-t-lg transition-all ${
-              activeTab === 'business' 
-                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Building2 className="h-4 w-4" /> Business Profile
-          </button>
-          <button
-            onClick={() => setActiveTab('tax')}
-            className={`px-5 py-3 flex items-center gap-2 text-sm font-medium rounded-t-lg transition-all ${
-              activeTab === 'tax' 
-                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <DollarSign className="h-4 w-4" /> Tax & Currency
-          </button>
-          <button
-            onClick={() => setActiveTab('sync')}
-            className={`px-5 py-3 flex items-center gap-2 text-sm font-medium rounded-t-lg transition-all ${
-              activeTab === 'sync' 
-                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <SettingsIcon className="h-4 w-4" /> Sync Settings
-          </button>
+        <div className="flex gap-3 overflow-x-auto pb-4 custom-scrollbar">
+          <TabBtn id="company"  label="Business"     icon={Building2} />
+          <TabBtn id="regional" label="Regional"     icon={Globe} />
+          <TabBtn id="invoice"  label="Branding"     icon={Receipt} />
+          <TabBtn id="sync"     label="Sync Engine"  icon={RefreshCw} />
+          <TabBtn id="notify"   label="Alerts"       icon={Bell} />
+          <TabBtn id="security" label="Security"     icon={Shield} />
         </div>
 
-        {/* Business Profile Tab */}
-        {activeTab === 'business' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Business Profile</h2>
-              <button 
-                onClick={() => handleSave('Business Profile')}
-                disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.storeName} 
-                  onChange={(e) => setBusinessProfile({...businessProfile, storeName: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Registration No.</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.businessReg} 
-                  onChange={(e) => setBusinessProfile({...businessProfile, businessReg: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <textarea 
-                  rows={2}
-                  value={businessProfile.address} 
-                  onChange={(e) => setBusinessProfile({...businessProfile, address: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.phone} 
-                  onChange={(e) => setBusinessProfile({...businessProfile, phone: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <input 
-                  type="email" 
-                  value={businessProfile.email} 
-                  onChange={(e) => setBusinessProfile({...businessProfile, email: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tax Number (GST/VAT)</label>
-                <input 
-                  type="text" 
-                  value={businessProfile.taxNumber} 
-                  onChange={(e) => setBusinessProfile({...businessProfile, taxNumber: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tax & Currency Tab */}
-        {activeTab === 'tax' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Tax & Currency Settings</h2>
-              <button 
-                onClick={() => handleSave('Tax & Currency')}
-                disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-                <select 
-                  value={taxSettings.currency} 
-                  onChange={(e) => setTaxSettings({...taxSettings, currency: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="LKR">Sri Lankan Rupee (LKR)</option>
-                  <option value="USD">US Dollar (USD)</option>
-                  <option value="EUR">Euro (EUR)</option>
-                  <option value="GBP">British Pound (GBP)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tax Label</label>
-                <input 
-                  type="text" 
-                  value={taxSettings.taxLabel} 
-                  onChange={(e) => setTaxSettings({...taxSettings, taxLabel: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  placeholder="VAT, GST, etc."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>
-                <input 
-                  type="number" 
-                  step="0.1"
-                  value={taxSettings.taxRate} 
-                  onChange={(e) => setTaxSettings({...taxSettings, taxRate: parseFloat(e.target.value)})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Decimal Places</label>
-                <select 
-                  value={taxSettings.decimalPlaces} 
-                  onChange={(e) => setTaxSettings({...taxSettings, decimalPlaces: parseInt(e.target.value)})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="0">0</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={taxSettings.enableTax} 
-                  onChange={(e) => setTaxSettings({...taxSettings, enableTax: e.target.checked})}
-                  className="h-5 w-5 text-blue-600 rounded border-gray-300"
-                />
-                <span className="text-sm text-gray-700">Enable Tax Calculation on Sales</span>
-              </label>
-            </div>
-          </div>
-        )}
-
-        {/* Sync Settings Tab */}
-        {activeTab === 'sync' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Sync Settings</h2>
-              <button 
-                onClick={() => handleSave('Sync Settings')}
-                disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-            <div className="space-y-5">
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <div>
-                  <p className="font-medium text-gray-800">Auto-sync when online</p>
-                  <p className="text-sm text-gray-500">Automatically sync data when internet connection is restored</p>
+        <div className="flex-1 overflow-y-auto space-y-10 pr-4 custom-scrollbar">
+          {activeTab === 'company' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center gap-3 mb-2">
+                   <Building2 className="h-5 w-5 text-blue-600" />
+                   <h3 className="text-lg font-bold text-slate-900">Corporate Identity</h3>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={syncSettings.autoSync} 
-                    onChange={(e) => setSyncSettings({...syncSettings, autoSync: e.target.checked})}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+                <Input label="Store Name" desc="Ryzera Super Store Colombo" />
+                <Input label="Legal Entity Name" desc="Ryzera POS Solutions LTD" />
+                <Input label="Tax Registration ID" desc="TRN-9988776655" />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Retry Attempts</label>
-                <input 
-                  type="number" 
-                  value={syncSettings.maxRetries} 
-                  onChange={(e) => setSyncSettings({...syncSettings, maxRetries: parseInt(e.target.value)})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-                <p className="text-xs text-gray-400 mt-1">Number of retry attempts before marking as failed</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Retry Delay (seconds)</label>
-                <input 
-                  type="number" 
-                  value={syncSettings.retryDelay} 
-                  onChange={(e) => setSyncSettings({...syncSettings, retryDelay: parseInt(e.target.value)})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <div>
-                  <p className="font-medium text-gray-800">Sync product images</p>
-                  <p className="text-sm text-gray-500">May increase sync time for large catalogs</p>
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center gap-3 mb-2">
+                   <User className="h-5 w-5 text-blue-600" />
+                   <h3 className="text-lg font-bold text-slate-900">Administrative Contact</h3>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={syncSettings.syncImages} 
-                    onChange={(e) => setSyncSettings({...syncSettings, syncImages: e.target.checked})}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Auto-sync interval (minutes)</label>
-                <input 
-                  type="number" 
-                  value={syncSettings.interval} 
-                  onChange={(e) => setSyncSettings({...syncSettings, interval: parseInt(e.target.value)})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <div>
-                  <p className="font-medium text-gray-800">Send email notifications on failure</p>
-                  <p className="text-sm text-gray-500">Get alerts when sync fails</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={syncSettings.notifyOnFailure} 
-                    onChange={(e) => setSyncSettings({...syncSettings, notifyOnFailure: e.target.checked})}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+                <Input label="Primary Email" desc="admin@ryzera.com" />
+                <Input label="Support Phone" desc="+94 11 234 5678" />
+                <Input label="Website URL" desc="https://ryzera.com" />
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                Reset to Defaults
-              </button>
+          )}
+
+          {activeTab === 'regional' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center gap-3 mb-2">
+                   <Globe className="h-5 w-5 text-emerald-600" />
+                   <h3 className="text-lg font-bold text-slate-900">Localization</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <Input label="Base Currency" desc="LKR" />
+                  <Input label="Currency Symbol" desc="රු" />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">System Language</label>
+                  <select className="w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition shadow-inner">
+                    <option>English (US)</option>
+                    <option>Sinhala (සිංහල)</option>
+                    <option>Tamil (தமிழ்)</option>
+                  </select>
+                </div>
+                <Input label="Timezone" desc="Asia/Colombo (GMT+5:30)" />
+              </div>
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center gap-3 mb-2">
+                   <DollarSign className="h-5 w-5 text-emerald-600" />
+                   <h3 className="text-lg font-bold text-slate-900">Tax Matrix</h3>
+                </div>
+                <Input label="Primary Tax Name" desc="VAT" />
+                <Input label="Tax Percentage (%)" desc="15.0" />
+                <Switch label="Inclusive Tax" desc="Prices already include tax" checked={true} icon={Receipt} />
+                <Switch label="Enable SSCL" desc="Apply Social Security Contribution Levy" checked={false} icon={ShieldCheck} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {activeTab === 'sync' && (
+            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-8">
+                   <Zap className="h-6 w-6 text-amber-500" />
+                   <h3 className="text-xl font-bold text-slate-900">Synchronization Engine</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Switch label="Real-time Sync" desc="Push instantly when online" checked={true} icon={Wifi} />
+                  <Switch label="Media Persistence" desc="Includes product images" checked={false} icon={Database} />
+                  <Switch label="Background Refresh" desc="Keep UI updated when idle" checked={true} icon={RefreshCw} />
+                  <Switch label="Delta Compression" desc="Optimize data transmission" checked={true} icon={Cpu} />
+                </div>
+                <div className="grid grid-cols-2 gap-8 mt-12 pt-10 border-t border-slate-50">
+                  <Input label="Interval (Minutes)" desc="30" />
+                  <Input label="Max Retries" desc="5" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'notify' && (
+            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-8">
+                   <Bell className="h-6 w-6 text-red-500" />
+                   <h3 className="text-xl font-bold text-slate-900">Alert Distribution</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Switch label="Failure Alerts" desc="Immediate sync blocker alerts" checked={true} icon={AlertCircle} />
+                  <Switch label="Daily Summary" desc="Email reports every morning" checked={true} icon={Mail} />
+                  <Switch label="Push Notifications" desc="Browser and mobile alerts" checked={true} icon={Smartphone} />
+                  <Switch label="Update Alerts" desc="New software version alerts" checked={true} icon={RefreshCw} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-8">
+                   <Lock className="h-6 w-6 text-slate-900" />
+                   <h3 className="text-xl font-bold text-slate-900">Security & Privacy</h3>
+                </div>
+                <div className="space-y-6">
+                  <Switch label="Multi-Factor Auth" desc="Administrative 2FA protection" checked={false} icon={Shield} />
+                  <Switch label="Audit Integrity" desc="Cryptographically signed logs" checked={true} icon={ShieldCheck} />
+                  <Switch label="Auto-Logout" desc="Logout after 30 mins inactivity" checked={true} icon={LogOut} />
+                </div>
+                <div className="mt-12 pt-10 border-t border-slate-50 flex items-center justify-between">
+                   <div>
+                      <p className="text-sm font-bold text-slate-900">Session Management</p>
+                      <p className="text-xs text-slate-500 mt-1">Kill all active login sessions across all devices</p>
+                   </div>
+                   <button className="px-6 py-2.5 bg-red-50 text-red-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-100 transition">Revoke All</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

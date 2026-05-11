@@ -21,7 +21,6 @@ export class NotificationService {
 
     // WebSocket emission ensures all connected clients get instant updates
     this.notificationGateway.sendNotification('new-notification', notification);
-    
     return notification;
   }
 

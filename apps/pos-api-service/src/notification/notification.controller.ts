@@ -64,4 +64,21 @@ export class NotificationController {
   deleteAll(@Query('userId') userId?: string) {
     return this.notificationService.deleteAll(userId);
   }
+
+  /** Admin broadcast endpoint - sends notification to all users. @example POST /api/notifications/broadcast */
+  @Post('broadcast')
+  // @Roles('ADMIN')
+  async broadcast(@Body() body: { title: string; message: string; type?: string }) {
+    const allowedTypes = ['INFO', 'WARNING', 'ERROR', 'CRITICAL'];
+    const notificationType = body.type && allowedTypes.includes(body.type.toUpperCase()) 
+      ? body.type.toUpperCase() as 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
+      : 'INFO';
+    
+    return this.notificationService.create({
+      title: body.title,
+      message: body.message,
+      type: notificationType,
+      userId: null,
+    });
+  }
 }

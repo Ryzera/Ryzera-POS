@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Offline - Ryzera POS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .offline-container {
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    .offline-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 32px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .offline-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1E3A8A;
+      margin-bottom: 12px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: #6B7280;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    
+    .small-text {
+      font-size: 13px;
+      color: #9CA3AF;
+      margin-top: 16px;
+    }
+    
+    .retry-button {
+      margin-top: 32px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px 0 rgba(30, 58, 138, 0.4);
+    }
+    
+    .retry-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px 0 rgba(30, 58, 138, 0.5);
+    }
+    
+    .retry-button:active {
+      transform: translateY(1px);
+    }
+    
+    .status-badge {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 8px 16px;
+      background: #FEF3C7;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #D97706;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-card">
+      <div class="offline-icon">📡</div>
+      <h1>You're Offline</h1>
+      <p>No internet connection detected.</p>
+      <p>Please check your network settings.</p>
+      <div class="small-text">Ryzera POS will automatically sync when you're back online.</div>
+      <button class="retry-button" onclick="location.reload()">
+        🔄 Try Again
+      </button>
+      <div class="status-badge">
+        ⚡ Offline Mode - Sales will be saved locally
+      </div>
+    </div>
+  </div>
+</body>
+</html>

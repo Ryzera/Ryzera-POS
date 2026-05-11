@@ -1,353 +1,213 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
-  RefreshCw, 
-  AlertCircle, 
-  Eye, 
-  XCircle, 
-  RotateCw, 
-  Download, 
-  CheckCircle,
-  Clock,
-  FileText,
-  AlertTriangle
+  AlertCircle, RefreshCw, Search, RotateCw, Trash2, 
+  CheckCircle2, XCircle, MoreVertical, Download, 
+  AlertTriangle, Eye, X, MapPin, Database, ArrowUpRight
 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
-// Mock data - Replace with actual API calls
-const mockFailedRecords = [
-  {
-    id: '1',
-    orderId: 'INV-001',
-    entity: 'Order #INV-001',
-    product: 'Wireless Mouse',
-    quantity: 5,
-    error: 'Product SKU invalid',
-    attempts: 3,
-    maxAttempts: 5,
-    createdAt: '2024-03-20T10:30:15Z',
-    status: 'failed',
-    details: 'SKU "MS-123" not found in database'
-  },
-  {
-    id: '2',
-    orderId: 'INV-002',
-    entity: 'Order #INV-002',
-    product: 'Sugar',
-    quantity: 10,
-    error: 'Customer email missing',
-    attempts: 2,
-    maxAttempts: 5,
-    createdAt: '2024-03-20T09:45:00Z',
-    status: 'failed',
-    details: 'Customer email address is required for invoice'
-  },
-  {
-    id: '3',
-    orderId: 'INV-003',
-    entity: 'Order #INV-003',
-    product: 'Headphone',
-    quantity: 2,
-    error: 'Invalid tax rate',
-    attempts: 5,
-    maxAttempts: 5,
-    createdAt: '2024-03-19T14:30:00Z',
-    status: 'failed',
-    details: 'Tax rate 8% not configured for this product category'
-  },
-];
+const API_BASE = 'http://localhost:3000/api';
 
-const mockErrorLogs = [
-  { id: 'ERR-001', time: '2024-03-20 10:30:15', type: 'Validation Error', details: 'SKU "MS-123" not found in database' },
-  { id: 'ERR-002', time: '2024-03-20 09:45:00', type: 'Missing Data', details: 'Customer email address is required' },
-  { id: 'ERR-003', time: '2024-03-19 14:30:00', type: 'Configuration Error', details: 'Tax rate not configured' },
-  { id: 'ERR-004', time: '2024-03-19 11:15:00', type: 'Network Error', details: 'Connection timeout while syncing' },
-];
+export default function ErrorsPage() {
+  const [errors, setErrors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedError, setSelectedError] = useState<any>(null);
 
-export default function SyncErrors() {
-  const [failedRecords, setFailedRecords] = useState(mockFailedRecords);
-  const [errorLogs, setErrorLogs] = useState(mockErrorLogs);
-  const [loading, setLoading] = useState(false);
-  const [retrying, setRetrying] = useState<string | null>(null);
-  const [selectedError, setSelectedError] = useState<string | null>(null);
-  const [filter, setFilter] = useState('all');
-
-  const handleRefresh = () => {
+  const fetchErrors = useCallback(async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast.success('Error list refreshed');
-    }, 1000);
-  };
+    try {
+      const res = await fetch(`${API_BASE}/sync/check-queue`);
+      const data = await res.json();
+      const failed = (data.queue || []).filter((item: any) => item.status === 'FAILED');
+      setErrors(failed);
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    fetchErrors();
+  }, [fetchErrors]);
 
   const handleRetry = async (id: string) => {
-    setRetrying(id);
-    setTimeout(() => {
-      toast.success(`Retry initiated for record ${id}`);
-      setFailedRecords(prev => prev.filter(record => record.id !== id));
-      setRetrying(null);
-    }, 1500);
+    try {
+      await fetch(`${API_BASE}/sync/retry/${id}`, { method: 'POST' });
+      toast.success('Retry triggered');
+      fetchErrors();
+    } catch (err) { toast.error('Retry failed'); }
   };
 
-  const handleRetryAll = () => {
-    toast.loading('Retrying all failed records...', { duration: 2000 });
-    setTimeout(() => {
-      toast.dismiss();
-      toast.success('All retries initiated');
-      setFailedRecords([]);
-    }, 2000);
+  const handleBatchRetry = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await fetch(`${API_BASE}/sync/batch-retry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds })
+      });
+      toast.success(`Retrying ${selectedIds.length} errors`);
+      setSelectedIds([]);
+      fetchErrors();
+    } catch (err) { toast.error('Batch retry failed'); }
   };
 
-  const handleExportLogs = () => {
-    toast.success('Error logs exported successfully');
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm('Are you sure you want to delete selected errors?')) return;
+    try {
+      await fetch(`${API_BASE}/sync/batch-delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds })
+      });
+      toast.success(`Deleted ${selectedIds.length} records`);
+      setSelectedIds([]);
+      fetchErrors();
+    } catch (err) { toast.error('Batch delete failed'); }
   };
 
-  const handleIgnore = (id: string) => {
-    toast.success(`Record ${id} ignored`);
-    setFailedRecords(prev => prev.filter(record => record.id !== id));
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
-
-  const getAttemptsProgress = (attempts: number, maxAttempts: number) => {
-    return (attempts / maxAttempts) * 100;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  const filteredRecords = filter === 'all' 
-    ? failedRecords 
-    : failedRecords.filter(record => record.status === filter);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Sync Errors</h1>
-            <p className="text-gray-500 mt-1">Failed transactions that need attention</p>
-          </div>
-          <div className="flex gap-3">
-            <button 
-              onClick={handleRefresh}
-              disabled={loading}
-              className="px-4 py-2 bg-white border border-gray-200 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
-            <button 
-              onClick={handleExportLogs}
-              className="px-4 py-2 bg-white border border-gray-200 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
-            >
-              <Download className="h-4 w-4" />
-              Export Logs
-            </button>
-          </div>
+    <div className="flex flex-col h-screen bg-slate-50/50">
+      <header className="bg-white border-b border-slate-200 px-8 py-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Sync Errors</h1>
+          <p className="text-sm text-slate-500 mt-1">Review and resolve failed data synchronizations</p>
         </div>
-
-        {/* Failed Count Card */}
-        <div className="bg-red-50 border border-red-200 rounded-xl p-5">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 bg-red-100 rounded-full flex items-center justify-center">
-              <AlertCircle className="h-7 w-7 text-red-600" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-red-600">{failedRecords.length}</p>
-              <p className="text-red-700 font-medium">Failed Transactions</p>
-              <p className="text-sm text-red-500">Requires manual intervention or retry</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Filter Bar */}
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-          >
-            All ({failedRecords.length})
+        <div className="flex items-center gap-3">
+          <button onClick={fetchErrors} className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-slate-50 rounded-xl transition">
+            <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
-          <button 
-            onClick={() => setFilter('failed')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'failed' ? 'bg-red-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-          >
-            Failed ({failedRecords.length})
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 transition shadow-sm">
+             <Download className="h-4 w-4" /> Export Report
           </button>
         </div>
+      </header>
 
-        {/* Failed Records List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-800">Failed Transactions</h2>
-            {failedRecords.length > 0 && (
-              <button 
-                onClick={handleRetryAll}
-                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <RotateCw className="h-4 w-4" />
-                Retry All
-              </button>
-            )}
+      <div className="p-8 flex-1 overflow-hidden flex flex-col space-y-6">
+        {/* Action Bar */}
+        <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex items-center justify-between">
+          <div className="flex items-center gap-6 flex-1">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input type="text" placeholder="Search error messages..." className="w-full pl-12 pr-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10" />
+            </div>
+            <div className="h-8 w-[1.5px] bg-slate-100" />
+            <div className="flex items-center gap-2">
+               <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+               <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">{errors.length} Unresolved Issues</p>
+            </div>
           </div>
-          <div className="divide-y divide-gray-100">
-            {loading ? (
-              <div className="p-8 text-center text-gray-500">Loading...</div>
-            ) : filteredRecords.length === 0 ? (
-              <div className="p-12 text-center">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
-                <p className="text-gray-500">No failed transactions</p>
-                <p className="text-sm text-gray-400">All sync operations completed successfully</p>
+          
+          <div className={`flex items-center gap-3 transition-all duration-300 ${selectedIds.length > 0 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}>
+            <button onClick={handleBatchRetry} className="flex items-center gap-2 px-5 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-100 transition">
+              <RotateCw className="h-3.5 w-3.5" /> Batch Retry
+            </button>
+            <button onClick={handleBatchDelete} className="flex items-center gap-2 px-5 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition">
+              <Trash2 className="h-3.5 w-3.5" /> Batch Purge
+            </button>
+          </div>
+        </div>
+
+        {/* Errors List */}
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+          {errors.length === 0 ? (
+            <div className="py-20 text-center bg-white rounded-[32px] border border-slate-100 border-dashed">
+              <div className="h-20 w-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="h-10 w-10" />
               </div>
-            ) : (
-              filteredRecords.map((record) => (
-                <div key={record.id} className="p-5 hover:bg-gray-50 transition-colors">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-3">
+              <h3 className="text-xl font-bold text-slate-900">System Healthy</h3>
+              <p className="text-sm text-slate-500 mt-2">Zero synchronization failures detected.</p>
+            </div>
+          ) : errors.map(error => (
+            <div key={error.id} className={`bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm transition hover:shadow-md group ${selectedIds.includes(error.id) ? 'ring-2 ring-blue-500 border-transparent' : ''}`}>
+              <div className="flex items-start gap-6">
+                <div className="mt-1">
+                   <input type="checkbox" checked={selectedIds.includes(error.id)} onChange={() => toggleSelect(error.id)}
+                    className="h-5 w-5 rounded-lg border-slate-200 text-blue-600 focus:ring-blue-500 transition cursor-pointer" />
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-6">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-800">{record.entity}</h3>
-                        <span className="px-2 py-0.5 text-xs bg-red-100 text-red-700 rounded-full">FAILED</span>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:text-blue-600 transition">
+                           <Database className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 capitalize">{error.entity}</h3>
+                        <span className="text-[10px] font-black text-slate-300 font-mono uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-lg">{error.id.split('-')[0]}</span>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">{record.product} x {record.quantity}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(record.createdAt)}
+                      <p className="text-[11px] text-slate-400 font-medium mt-2 flex items-center gap-4">
+                        <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> {error.branchId || 'Main HQ'}</span>
+                        <span className="flex items-center gap-1.5"><RotateCw className="h-3 w-3" /> Attempt {error.attempts}/5</span>
                       </p>
                     </div>
-                  </div>
-
-                  {/* Error Message */}
-                  <div className="mb-3 p-3 bg-red-50 rounded-lg border border-red-100">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5" />
-                      <div>
-                        <p className="text-sm text-red-700 font-medium">{record.error}</p>
-                        <p className="text-xs text-red-500 mt-1">{record.details}</p>
-                      </div>
+                    <div className="text-right">
+                       <p className="text-xs font-bold text-slate-900">{new Date(error.createdAt).toLocaleTimeString()}</p>
+                       <p className="text-[10px] text-slate-400 mt-1 uppercase font-black">{new Date(error.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
-                  <div className="mb-3">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>Attempts: {record.attempts}/{record.maxAttempts}</span>
-                      <span>{Math.round(getAttemptsProgress(record.attempts, record.maxAttempts))}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-red-500 h-2 rounded-full transition-all" 
-                        style={{ width: `${getAttemptsProgress(record.attempts, record.maxAttempts)}%` }}
-                      ></div>
+                  <div className="bg-red-50/30 p-6 rounded-2xl border border-red-100/30 mb-6 flex items-start gap-4">
+                    <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                       <p className="text-xs font-black text-red-400 uppercase tracking-widest mb-1">Error Trace</p>
+                       <p className="text-sm text-red-900 font-bold leading-relaxed">{error.error || 'The synchronization engine encountered a fatal connection timeout during transmission.'}</p>
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => handleRetry(record.id)}
-                      disabled={retrying === record.id}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
-                    >
-                      <RotateCw className={`h-4 w-4 ${retrying === record.id ? 'animate-spin' : ''}`} />
-                      {retrying === record.id ? 'Retrying...' : 'Retry'}
-                    </button>
-                    <button 
-                      onClick={() => setSelectedError(selectedError === record.id ? null : record.id)}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View Details
-                    </button>
-                    <button 
-                      onClick={() => handleIgnore(record.id)}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm"
-                    >
-                      <XCircle className="h-4 w-4" />
-                      Ignore
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-3">
+                      <button onClick={() => handleRetry(error.id)} className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-md">
+                        <RotateCw className="h-3.5 w-3.5" /> Retry Sync
+                      </button>
+                      <button onClick={() => setSelectedError(error)} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 transition">
+                        <Eye className="h-3.5 w-3.5" /> View Payload
+                      </button>
+                    </div>
+                    <button className="p-2.5 text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-xl transition opacity-0 group-hover:opacity-100">
+                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
-
-                  {/* Expanded Details */}
-                  {selectedError === record.id && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Error Details</h4>
-                      <pre className="text-xs text-gray-600 bg-white p-3 rounded border overflow-x-auto">
-                        {JSON.stringify({
-                          id: record.id,
-                          orderId: record.orderId,
-                          product: record.product,
-                          quantity: record.quantity,
-                          error: record.error,
-                          details: record.details,
-                          attempts: record.attempts,
-                          timestamp: record.createdAt
-                        }, null, 2)}
-                      </pre>
-                    </div>
-                  )}
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Bulk Actions Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Bulk Actions</h3>
-          <div className="flex flex-wrap gap-3">
-            <button 
-              onClick={handleRetryAll}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <RotateCw className="h-4 w-4" />
-              Sync All - Try everything again
-            </button>
-            <button 
-              onClick={handleExportLogs}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
-            >
-              <FileText className="h-4 w-4" />
-              Export Error Report
-            </button>
-          </div>
-        </div>
-
-        {/* Error Log Preview */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-            <h2 className="text-lg font-semibold text-gray-800">Error Log Preview</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Error ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {errorLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-mono text-gray-700">{log.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{log.time}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">{log.type}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">{log.details}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Payload Modal */}
+      {selectedError && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-[40px] w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-white/20">
+            <div className="p-10 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900">Transaction Payload</h3>
+                <p className="text-sm text-slate-500 mt-1 uppercase font-black tracking-widest">Entity: {selectedError.entity}</p>
+              </div>
+              <button onClick={() => setSelectedError(null)} className="p-3 hover:bg-slate-50 rounded-2xl transition">
+                <X className="h-6 w-6 text-slate-400" />
+              </button>
+            </div>
+            <div className="p-10 bg-slate-50/30">
+              <div className="bg-slate-900 rounded-[32px] p-8 overflow-hidden shadow-inner">
+                <pre className="text-blue-400 text-xs font-mono overflow-auto max-h-[400px] custom-scrollbar leading-relaxed">
+                  {JSON.stringify(selectedError.payload || { message: 'No payload attached' }, null, 2)}
+                </pre>
+              </div>
+            </div>
+            <div className="p-10 bg-white border-t border-slate-100 flex justify-end">
+              <button onClick={() => setSelectedError(null)} className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-900/20">Close Preview</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

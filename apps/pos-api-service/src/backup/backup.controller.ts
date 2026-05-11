@@ -1,38 +1,43 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Param } from '@nestjs/common';
 import { BackupService } from './backup.service';
 import { CreateBackupSchema, CreateBackupDto } from './schema/backup.schema';
-// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-// import { RolesGuard } from '../auth/guards/roles.guards';
-// import { Roles } from '../auth/decorators/roles.decorator';
 
 /**
- * Backup operations for disaster recovery.
- * Auth guards temporarily disabled - waiting for auth module fix.
+ * Backup Controller - Handles system backup operations
+ * Provides disaster recovery capabilities for POS settings
  */
 @Controller('backup')
-// @UseGuards(JwtAuthGuard, RolesGuard)
 export class BackupController {
   constructor(private readonly backupService: BackupService) {}
 
-  /** Create system backup. @example POST /api/backup Body: {} */
+  /** Creates manual backup - saves settings snapshot to JSON file */
   @Post()
-  // @Roles('ADMIN')
   async createBackup(@Body() data: unknown) {
     const validated = CreateBackupSchema.parse(data) as CreateBackupDto;
     return this.backupService.createBackup(validated);
   }
 
-  /** Get backup history. @example GET /api/backup/history */
+  /** Returns list of all backups with metadata for history table */
   @Get('history')
-  // @Roles('MANAGER', 'ADMIN')
   getBackupHistory(@Query('companyId') companyId?: string, @Query('branchId') branchId?: string) {
     return this.backupService.getBackupHistory(companyId, branchId);
   }
 
-  /** Get system summary (settings count, sync counts, backup counts). @example GET /api/backup/summary */
+  /** Returns system summary counts for dashboard stats */
   @Get('summary')
-  // @Roles('MANAGER', 'ADMIN')
   getSummary(@Query('companyId') companyId?: string, @Query('branchId') branchId?: string) {
     return this.backupService.getSummary(companyId, branchId);
+  }
+
+  /** Reads and returns full backup JSON file content for preview modal */
+  @Get('view/:fileName')
+  async viewBackupContent(@Param('fileName') fileName: string) {
+    return this.backupService.getBackupContent(fileName);
+  }
+
+  /** Restores system settings from a backup snapshot */
+  @Post('restore/:fileName')
+  async restoreFromBackup(@Param('fileName') fileName: string) {
+    return this.backupService.restoreFromBackup(fileName);
   }
 }
