@@ -1,395 +1,174 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Eye, XCircle } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { getAllSales, cancelSale } from '@/lib/api';
+import { useSalesStore, Sale } from '@/store/cartstore';
+import { cancelSale as cancelSaleApi } from '@/lib/api';
 
-// ── Types ─────────────────────────────────────────────
-interface SaleItem {
-    id: number;
-    product_name: string;
-    quantity: number;
-    unit_price: number;
-    subtotal: number;
-}
-
-interface Sale {
-    id: number;
-    invoice_no: string;
-    total_amount: number;
-    discount_amount: number;
-    tax_amount: number;
-    payment_method: string;  //Cash | Card | Split;
-    status: string; // 'completed' | 'cancelled';
-    created_at: string;
-    items: SaleItem[];
-}
-
-// ── Mock data
-const MOCK_SALES: Sale[] = [
-    {
-        id: 1,
-        invoice_no: 'INV-2026-8380',
-        total_amount: 3080,
-        discount_amount: 0,
-        tax_amount: 0,
-        payment_method: 'Cash',
-        status: 'completed',
-        created_at: new Date().toISOString(),
-        items: [
-            { id: 1, product_name: 'Basmati Rice 5kg',   quantity: 1, unit_price: 1200, subtotal: 1200 },
-            { id: 2, product_name: 'Full Cream Milk 1L', quantity: 2, unit_price: 480,  subtotal: 960  },
-            { id: 3, product_name: 'Green Tea Bags x20', quantity: 3, unit_price: 320,  subtotal: 960  },
-        ],
-    },
-    {
-        id: 2,
-        invoice_no: 'INV-2026-7241',
-        total_amount: 6150,
-        discount_amount: 350,
-        tax_amount: 0,
-        payment_method: 'Card',
-        status: 'completed',
-        created_at: new Date(Date.now() - 3600000).toISOString(),
-        items: [
-            { id: 4, product_name: 'Wireless Earbuds', quantity: 1, unit_price: 4500, subtotal: 4500 },
-            { id: 5, product_name: 'USB-C Cable 2m',   quantity: 2, unit_price: 650,  subtotal: 1300 },
-        ],
-    },
-    {
-        id: 3,
-        invoice_no: 'INV-2026-5512',
-        total_amount: 4700,
-        discount_amount: 0,
-        tax_amount: 0,
-        payment_method: 'Cash',
-        status: 'cancelled',
-        created_at: new Date(Date.now() - 7200000).toISOString(),
-        items: [
-            { id: 6, product_name: 'Slim Fit Jeans', quantity: 1, unit_price: 3200, subtotal: 3200 },
-            { id: 7, product_name: 'Polo Shirt XL',  quantity: 1, unit_price: 1800, subtotal: 1800 },
-        ],
-    },
-    {
-        id: 4,
-        invoice_no: 'INV-2026-3309',
-        total_amount: 1850,
-        discount_amount: 0,
-        tax_amount: 280,
-        payment_method: 'Split',
-        status: 'completed',
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        items: [
-            { id: 8, product_name: 'Coconut Oil 1L',    quantity: 2, unit_price: 580, subtotal: 1160 },
-            { id: 9, product_name: 'Dish Soap 500ml',   quantity: 2, unit_price: 190, subtotal: 380  },
-            { id: 10, product_name: 'Floor Cleaner 1L', quantity: 1, unit_price: 275, subtotal: 275  },
-        ],
-    },
-];
-
-const PAYMENT_COLORS: Record<string, string> = {
-    Cash:  'bg-green-50 text-green-700',
-    Card:  'bg-blue-50 text-blue-700',
-    Split: 'bg-purple-50 text-purple-700',
+const PAYMENT_STYLE: Record<string, { background: string; color: string }> = {
+    Cash:  { background: '#f0fdf4', color: '#15803d' },
+    Card:  { background: '#eff6ff', color: '#1d4ed8' },
+    Split: { background: '#faf5ff', color: '#7e22ce' },
 };
 
 export default function AllSalesPage() {
-    const [sales, setSales]           = useState<Sale[]>(MOCK_SALES);
+    const { sales, cancelSale } = useSalesStore();
     const [search, setSearch]         = useState('');
     const [statusFilter, setStatus]   = useState<'all' | 'completed' | 'cancelled'>('all');
     const [selectedSale, setSelected] = useState<Sale | null>(null);
     const [cancelling, setCancelling] = useState<number | null>(null);
 
-    // ── Real API fetch ────────────────────────────────
-    useEffect(() => {
-        async function fetchSales() {
-            try {
-                const data = await getAllSales();
-                if (data && data.length > 0) {
-                    const mapped= data.map((s: any) => ({
-                        id:              s.sale_id,
-                        invoice_no:      s.invoice_number,
-                        total_amount:    parseFloat(s.total_amount),
-                        discount_amount: parseFloat(s.discount_amount),
-                        tax_amount:      parseFloat(s.tax_amount),
-                        payment_method:  s.payments?.[0]?.payment_method ?? 'Cash',
-                        status:          s.sale_status === 'Completed' ? 'completed'
-                            : s.sale_status === 'Cancelled' ? 'cancelled'
-                                : 'completed',
-                        created_at:      s.created_at,
-                        items: s.sale_items?.map((i: any) => ({
-                            id:           i.sale_item_id,
-                            product_name: i.product_name,
-                            quantity:     parseFloat(i.quantity),
-                            unit_price:   parseFloat(i.unit_price),
-                            subtotal:     parseFloat(i.subtotal),
-                        })) ?? [],
-                    }));
-                    setSales(mapped);
-                }
-            } catch {
-                console.warn('API not reachable — using mock data');
-            }
-        }
-        fetchSales();
-    }, []);
-
-    // ── Filter ────────────────────────────────────────
     const filtered = sales.filter(s => {
         const matchSearch = s.invoice_no.toLowerCase().includes(search.toLowerCase());
         const matchStatus = statusFilter === 'all' || s.status === statusFilter;
         return matchSearch && matchStatus;
     });
 
-    // ── Stats ─────────────────────────────────────────
     const completedSales = sales.filter(s => s.status === 'completed');
     const totalRevenue   = completedSales.reduce((sum, s) => sum + s.total_amount, 0);
     const cancelledCount = sales.filter(s => s.status === 'cancelled').length;
 
-    // ── Cancel sale ───────────────────────────────────
     async function handleCancel(id: number) {
         if (!confirm('Cancel this sale?')) return;
         setCancelling(id);
-        try {
-            await cancelSale(id);
-            setSales(prev =>
-                prev.map(s => s.id === id ? { ...s, status: 'cancelled' } : s)
-            );
-            if (selectedSale?.id === id) {
-                setSelected(prev => prev ? { ...prev, status: 'cancelled' } : null);
-            }
-        } catch {
-            console.warn('Cancel failed');
-        } finally {
-            setCancelling(null);
-        }
+        try { await cancelSaleApi(id); } catch {}
+        cancelSale(id);
+        if (selectedSale?.id === id) setSelected(prev => prev ? { ...prev, status: 'cancelled' } : null);
+        setCancelling(null);
     }
 
     function formatDate(iso: string) {
-        return new Date(iso).toLocaleString('en-US', {
-            month: 'short', day: '2-digit', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-        });
+        return new Date(iso).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
     return (
-        <div className="flex h-full bg-gray-50 overflow-hidden">
-
-            {/* ── Left: Sales list ── */}
-            <div className="flex-1 flex flex-col overflow-hidden p-6">
-
-                {/* Header */}
-                <div className="flex items-center justify-between mb-5">
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900">All Sales</h2>
-                        <p className="text-xs text-gray-400 mt-0.5">{sales.length} total transactions</p>
-                    </div>
+        <div style={{ display: 'flex', height: '100%', background: '#f9fafb', overflow: 'hidden' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '24px' }}>
+                <div style={{ marginBottom: '20px' }}>
+                    <h2 style={{ fontSize: '17px', fontWeight: 600, color: '#111827', margin: 0 }}>All Sales</h2>
+                    <p style={{ fontSize: '12px', color: '#9ca3af', margin: '2px 0 0' }}>{sales.length} total transactions</p>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                    <StatCard label="Total Revenue" value={`Rs. ${totalRevenue.toLocaleString()}`} color="text-blue-600" />
-                    <StatCard label="Completed"     value={String(completedSales.length)}          color="text-green-600" />
-                    <StatCard label="Cancelled"     value={String(cancelledCount)}                 color="text-red-500" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+                    {[
+                        { label: 'Total Revenue', value: `Rs. ${totalRevenue.toLocaleString()}`, color: '#2563eb' },
+                        { label: 'Completed',     value: String(completedSales.length),          color: '#15803d' },
+                        { label: 'Cancelled',     value: String(cancelledCount),                 color: '#dc2626' },
+                    ].map(({ label, value, color }) => (
+                        <div key={label} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '12px 16px' }}>
+                            <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 4px' }}>{label}</p>
+                            <p style={{ fontSize: '18px', fontWeight: 700, color, margin: 0 }}>{value}</p>
+                        </div>
+                    ))}
                 </div>
 
                 {/* Filters */}
-                <div className="flex gap-3 mb-4">
-                    <div className="relative flex-1">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <Input
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            placeholder="Search by invoice number..."
-                            className="pl-9 text-sm h-9"
-                        />
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                        <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by invoice number..." style={{ width: '100%', height: '36px', paddingLeft: '36px', paddingRight: '12px', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
                     </div>
-                    <div className="flex gap-1 bg-white border border-gray-200 rounded-lg p-1">
+                    <div style={{ display: 'flex', gap: '4px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '4px' }}>
                         {(['all', 'completed', 'cancelled'] as const).map(s => (
-                            <button
-                                key={s}
-                                onClick={() => setStatus(s)}
-                                className={`px-3 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors
-                  ${statusFilter === s
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                            >
-                                {s}
-                            </button>
+                            <button key={s} onClick={() => setStatus(s)} style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', border: 'none', textTransform: 'capitalize', background: statusFilter === s ? '#2563eb' : 'transparent', color: statusFilter === s ? '#fff' : '#6b7280' }}>{s}</button>
                         ))}
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="flex-1 bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col">
-
-                    {/* Table header */}
-                    <div className="grid grid-cols-[1.2fr_1fr_0.8fr_0.8fr_0.7fr_80px] px-5 py-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100">
-                        <span>Invoice</span>
-                        <span>Date & Time</span>
-                        <span>Payment</span>
-                        <span>Amount</span>
-                        <span>Status</span>
-                        <span className="text-center">Actions</span>
+                <div style={{ flex: 1, background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 0.8fr 0.8fr 0.7fr 80px', padding: '10px 20px', fontSize: '10px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid #f3f4f6' }}>
+                        <span>Invoice</span><span>Date & Time</span><span>Payment</span><span>Amount</span><span>Status</span><span style={{ textAlign: 'center' }}>Actions</span>
                     </div>
-
-                    {/* Rows */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div style={{ flex: 1, overflowY: 'auto' }}>
                         {filtered.length === 0 ? (
-                            <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
-                                No sales found.
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px', color: '#9ca3af', fontSize: '13px' }}>
+                                {sales.length === 0 ? 'No sales yet. Complete a sale to see it here.' : 'No sales found.'}
                             </div>
-                        ) : (
-                            filtered.map(sale => (
-                                <div
-                                    key={sale.id}
-                                    onClick={() => setSelected(sale)}
-                                    className={`grid grid-cols-[1.2fr_1fr_0.8fr_0.8fr_0.7fr_80px] items-center px-5 py-3.5 border-b border-gray-50 cursor-pointer transition-colors
-                    ${selectedSale?.id === sale.id ? 'bg-blue-50/60' : 'hover:bg-gray-50'}`}
+                        ) : filtered.map(sale => {
+                            const isSelected = selectedSale?.id === sale.id;
+                            const pmStyle = PAYMENT_STYLE[sale.payment_method] ?? { background: '#f3f4f6', color: '#4b5563' };
+                            const stStyle = sale.status === 'completed' ? { background: '#f0fdf4', color: '#15803d' } : { background: '#fef2f2', color: '#dc2626' };
+                            return (
+                                <div key={sale.id} onClick={() => setSelected(sale)}
+                                     style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 0.8fr 0.8fr 0.7fr 80px', alignItems: 'center', padding: '12px 20px', borderBottom: '1px solid #f9fafb', cursor: 'pointer', background: isSelected ? 'rgba(37,99,235,0.04)' : 'transparent' }}
+                                     onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = '#f9fafb'; }}
+                                     onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
                                 >
-                                    <span className="text-sm font-semibold text-blue-600">{sale.invoice_no}</span>
-                                    <span className="text-xs text-gray-500">{formatDate(sale.created_at)}</span>
-                                    <Badge className={`text-[11px] border-0 w-fit ${PAYMENT_COLORS[sale.payment_method] ?? 'bg-gray-100 text-gray-600'}`}>
-                                        {sale.payment_method}
-                                    </Badge>
-                                    <span className="text-sm font-semibold text-gray-900">
-                    Rs. {sale.total_amount.toLocaleString()}
-                  </span>
-                                    <Badge className={`text-[11px] border-0 w-fit capitalize
-                    ${sale.status === 'completed' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
-                                        {sale.status}
-                                    </Badge>
-                                    <div className="flex items-center justify-center gap-2" onClick={e => e.stopPropagation()}>
-                                        <button
-                                            onClick={() => setSelected(sale)}
-                                            className="text-gray-400 hover:text-blue-600 cursor-pointer transition-colors"
-                                        >
-                                            <Eye size={15} />
-                                        </button>
+                                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#2563eb' }}>{sale.invoice_no}</span>
+                                    <span style={{ fontSize: '11px', color: '#9ca3af' }}>{formatDate(sale.created_at)}</span>
+                                    <span style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, width: 'fit-content', ...pmStyle }}>{sale.payment_method}</span>
+                                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>Rs. {sale.total_amount.toLocaleString()}</span>
+                                    <span style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, textTransform: 'capitalize', width: 'fit-content', ...stStyle }}>{sale.status}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={e => e.stopPropagation()}>
+                                        <button onClick={() => setSelected(sale)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: 0 }} onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#2563eb'} onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = '#9ca3af'}><Eye size={15} /></button>
                                         {sale.status === 'completed' && (
-                                            <button
-                                                onClick={() => handleCancel(sale.id)}
-                                                disabled={cancelling === sale.id}
-                                                className="text-gray-400 hover:text-red-500 cursor-pointer transition-colors disabled:opacity-40"
-                                            >
-                                                <XCircle size={15} />
-                                            </button>
+                                            <button onClick={() => handleCancel(sale.id)} disabled={cancelling === sale.id} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: 0, opacity: cancelling === sale.id ? 0.4 : 1 }} onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#dc2626'} onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = '#9ca3af'}><XCircle size={15} /></button>
                                         )}
                                     </div>
                                 </div>
-                            ))
-                        )}
+                            );
+                        })}
                     </div>
                 </div>
             </div>
 
-            {/* ── Right: Detail panel ── */}
-            <div className="w-[300px] bg-white border-l border-gray-200 flex flex-col h-full shrink-0">
+            {/* Right detail panel */}
+            <div style={{ width: '300px', minWidth: '300px', background: '#fff', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', height: '100%' }}>
                 {selectedSale ? (
                     <>
-                        <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+                        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0 }}>
                             <div>
-                                <p className="text-sm font-semibold text-gray-900">{selectedSale.invoice_no}</p>
-                                <p className="text-xs text-gray-400 mt-0.5">{formatDate(selectedSale.created_at)}</p>
+                                <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0 }}>{selectedSale.invoice_no}</p>
+                                <p style={{ fontSize: '11px', color: '#9ca3af', margin: '2px 0 0' }}>{formatDate(selectedSale.created_at)}</p>
                             </div>
-                            <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
-                                <XCircle size={16} />
-                            </button>
+                            <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: 0 }}><XCircle size={16} /></button>
                         </div>
-
-                        <div className="flex-1 overflow-y-auto px-5 py-4">
-                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                                Items ({selectedSale.items.length})
-                            </p>
-                            <div className="space-y-3">
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+                            <p style={{ fontSize: '10px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px' }}>Items ({selectedSale.items.length})</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 {selectedSale.items.map(item => (
-                                    <div key={item.id} className="flex justify-between">
+                                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <div>
-                                            <p className="text-xs font-medium text-gray-900">{item.product_name}</p>
-                                            <p className="text-[11px] text-gray-400">
-                                                Rs. {item.unit_price.toLocaleString()} × {item.quantity}
-                                            </p>
+                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#111827', margin: 0 }}>{item.product_name}</p>
+                                            <p style={{ fontSize: '11px', color: '#9ca3af', margin: '2px 0 0' }}>Rs. {item.unit_price.toLocaleString()} × {item.quantity}</p>
                                         </div>
-                                        <p className="text-xs font-semibold text-gray-900">
-                                            Rs. {item.subtotal.toLocaleString()}
-                                        </p>
+                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#111827', margin: 0 }}>Rs. {item.subtotal.toLocaleString()}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
-
-                        <div className="px-5 py-4 border-t border-gray-100 shrink-0">
-                            <div className="space-y-1.5 text-xs text-gray-500 mb-3">
-                                <div className="flex justify-between">
-                                    <span>Subtotal</span>
-                                    <span>Rs. {(selectedSale.total_amount + selectedSale.discount_amount - selectedSale.tax_amount).toLocaleString()}</span>
-                                </div>
-                                {selectedSale.discount_amount > 0 && (
-                                    <div className="flex justify-between text-green-600">
-                                        <span>Discount</span>
-                                        <span>− Rs. {selectedSale.discount_amount.toLocaleString()}</span>
-                                    </div>
-                                )}
-                                {selectedSale.tax_amount > 0 && (
-                                    <div className="flex justify-between">
-                                        <span>Tax</span>
-                                        <span>Rs. {selectedSale.tax_amount.toLocaleString()}</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between font-bold text-sm text-gray-900 pt-1">
-                                    <span>Total</span>
-                                    <span>Rs. {selectedSale.total_amount.toLocaleString()}</span>
-                                </div>
+                        <div style={{ padding: '14px 20px 20px', borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6b7280' }}><span>Subtotal</span><span>Rs. {(selectedSale.total_amount + selectedSale.discount_amount - selectedSale.tax_amount).toLocaleString()}</span></div>
+                                {selectedSale.discount_amount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#16a34a' }}><span>Discount</span><span>− Rs. {selectedSale.discount_amount.toLocaleString()}</span></div>}
+                                {selectedSale.tax_amount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6b7280' }}><span>Tax</span><span>Rs. {selectedSale.tax_amount.toLocaleString()}</span></div>}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 700, color: '#111827', paddingTop: '4px', borderTop: '1px solid #f3f4f6', marginTop: '4px' }}><span>Total</span><span>Rs. {selectedSale.total_amount.toLocaleString()}</span></div>
                             </div>
-
-                            <div className="flex gap-2 mt-1">
-                                <Badge className={`text-[11px] border-0 ${PAYMENT_COLORS[selectedSale.payment_method] ?? 'bg-gray-100 text-gray-600'}`}>
-                                    {selectedSale.payment_method}
-                                </Badge>
-                                <Badge className={`text-[11px] border-0 capitalize
-                  ${selectedSale.status === 'completed' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
-                                    {selectedSale.status}
-                                </Badge>
+                            <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
+                                {[selectedSale.payment_method, selectedSale.status].map((val, i) => {
+                                    const style = i === 0 ? PAYMENT_STYLE[val] ?? { background: '#f3f4f6', color: '#4b5563' } : val === 'completed' ? { background: '#f0fdf4', color: '#15803d' } : { background: '#fef2f2', color: '#dc2626' };
+                                    return <span key={i} style={{ padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, textTransform: 'capitalize', ...style }}>{val}</span>;
+                                })}
                             </div>
-
                             {selectedSale.status === 'completed' && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => handleCancel(selectedSale.id)}
-                                    disabled={cancelling === selectedSale.id}
-                                    className="w-full mt-3 text-red-500 border-red-200 hover:bg-red-50 text-xs h-8 cursor-pointer"
-                                >
-                                    <XCircle size={13} className="mr-1.5" />
-                                    {cancelling === selectedSale.id ? 'Cancelling...' : 'Cancel Sale'}
-                                </Button>
+                                <button onClick={() => handleCancel(selectedSale.id)} disabled={cancelling === selectedSale.id} style={{ width: '100%', height: '36px', border: '1px solid #fecaca', borderRadius: '8px', background: '#fff', color: '#dc2626', fontSize: '12px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: cancelling === selectedSale.id ? 0.5 : 1 }}>
+                                    <XCircle size={13} />{cancelling === selectedSale.id ? 'Cancelling...' : 'Cancel Sale'}
+                                </button>
                             )}
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="text-center text-gray-400">
-                            <Eye size={36} className="mx-auto mb-3 opacity-30" />
-                            <p className="text-sm font-medium">Select a sale</p>
-                            <p className="text-xs mt-1">Click any row to view details</p>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ textAlign: 'center', color: '#9ca3af' }}>
+                            <Eye size={36} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
+                            <p style={{ fontSize: '13px', fontWeight: 500, margin: 0 }}>Select a sale</p>
+                            <p style={{ fontSize: '11px', margin: '4px 0 0' }}>Click any row to view details</p>
                         </div>
                     </div>
                 )}
             </div>
-        </div>
-    );
-}
-
-// ── Stat card ─────────────────────────────────────────
-function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-            <p className="text-xs text-gray-400 mb-1">{label}</p>
-            <p className={`text-lg font-bold ${color}`}>{value}</p>
         </div>
     );
 }

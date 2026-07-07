@@ -1,17 +1,20 @@
 'use client';
 
 import { Product, useCartStore } from '@/store/cartstore';
-import { Badge } from '@/components/ui/badge';
 
 const EMOJI_MAP: Record<string, string> = {
-    Groceries: '🌾', Dairy: '🧀', Clothing: '👕', Household: '🧹', Electronic: '📱',
+    Groceries:  '🌾',
+    Dairy:      '🧀',
+    Clothing:   '👕',
+    Household:  '🧹',
+    Electronic: '📱',
 };
 
 export default function ProductGrid({ products }: { products: Product[] }) {
     const addItem = useCartStore(s => s.addItem);
 
     return (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2">
+        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
             {products.map(p => {
                 const isOut = p.stock === 0;
                 const isLow = p.stock > 0 && p.stock <= 10;
@@ -21,40 +24,46 @@ export default function ProductGrid({ products }: { products: Product[] }) {
                         key={p.id}
                         onClick={() => !isOut && addItem(p)}
                         className={`
-              relative bg-white border border-gray-200 rounded-xl p-3
-              transition-all duration-150
-              ${isOut
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'cursor-pointer hover:shadow-md hover:border-blue-300'
+                            relative bg-white border border-gray-200 rounded-xl p-3
+                            transition-shadow duration-150
+                            ${isOut
+                            ? 'opacity-55 cursor-not-allowed'
+                            : 'cursor-pointer hover:shadow-[0_2px_12px_rgba(37,99,235,0.12)]'
                         }
-            `}
+                        `}
                     >
                         {/* Stock badge */}
                         {isOut && (
-                            <Badge className="absolute top-2 right-2 bg-orange-100 text-orange-600 border-0 text-[10px]">
+                            <span className="absolute top-2.5 right-2.5 bg-orange-50 text-orange-500 border border-orange-200 text-[10px] font-semibold px-1.5 py-0.5 rounded-md">
                                 Out
-                            </Badge>
+                            </span>
                         )}
-                        {isLow && (
-                            <Badge className="absolute top-2 right-2 bg-orange-100 text-orange-600 border-0 text-[10px]">
+                        {isLow && !isOut && (
+                            <span className="absolute top-2.5 right-2.5 bg-orange-50 text-orange-500 border border-orange-200 text-[10px] font-semibold px-1.5 py-0.5 rounded-md">
                                 Low: {p.stock}
-                            </Badge>
+                            </span>
                         )}
 
                         {/* Icon */}
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl mb-2.5">
-                            {EMOJI_MAP[p.category] ?? '📦'}
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl mb-2">
+                            {EMOJI_MAP[p.category] || '📦'}
                         </div>
 
-                        <p className="text-sm font-semibold text-gray-900 leading-tight mb-0.5">{p.name}</p>
-                        <p className="text-xs text-gray-400 mb-2">{p.sku}</p>
+                        {/* Name + SKU */}
+                        <div className="text-[13px] font-semibold text-gray-900 mb-0.5 leading-snug">
+                            {p.name}
+                        </div>
+                        <div className="text-[11px] text-gray-400 mb-1.5">
+                            {p.sku}
+                        </div>
 
-                        <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-blue-600">
-                Rs. {p.price.toLocaleString()}
-              </span>
+                        {/* Price + Add button */}
+                        <div className="flex justify-between items-center">
+                            <span className="text-[13px] font-bold text-blue-600">
+                                Rs. {p.price.toLocaleString()}
+                            </span>
                             {!isOut && (
-                                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg leading-none">
+                                <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg leading-none">
                                     +
                                 </div>
                             )}

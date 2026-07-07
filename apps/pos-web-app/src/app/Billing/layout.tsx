@@ -3,123 +3,124 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-    ShoppingCart,
-    ClipboardList,
-    Receipt,
-    RotateCcw,
-    Users,
-    GitBranch,
-    type LucideIcon,
+    ShoppingCart, List, Receipt,
+    RotateCcw, Users, GitBranch
 } from 'lucide-react';
-
-// ── Types ─────────────────────────────────────────────
-interface NavItem {
-    label: string;
-    href:  string;
-    icon:  LucideIcon;
-    badge?: number;
-}
-
-interface NavGroup {
-    group: string;
-    items: NavItem[];
-}
-
-// ── Nav data ──────────────────────────────────────────
-const NAV: NavGroup[] = [
-    {
-        group: 'SALES',
-        items: [
-            { label: 'New Sale',  href: '/Billing',            icon: ShoppingCart  },
-            { label: 'All Sales', href: '/Billing/all-sales',  icon: ClipboardList },
-            { label: 'Receipts',  href: '/Billing/receipts',   icon: Receipt       },
-        ],
-    },
-    {
-        group: 'RETURNS',
-        items: [
-            { label: 'Returns', href: '/return', icon: RotateCcw},
-        ],
-    },
-    {
-        group: 'SETUP',
-        items: [
-            { label: 'Cashiers', href: '/Billing/cashiers', icon: Users     },
-            { label: 'Branches', href: '/Billing/branches', icon: GitBranch },
-        ],
-    },
-];
 
 export default function BillingLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
-    return (
-        <div className="flex h-screen overflow-hidden">
+    const navItem = (
+        href: string,
+        icon: React.ReactNode,
+        label: string,
+        badge?: number
+    ) => {
+        const active = pathname === href;
+        return (
+            <Link
+                href={href}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '9px 14px',
+                    margin: '0 8px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    color: active ? '#ffffff' : '#9ca3af',
+                    background: active ? '#2563eb' : 'transparent',
+                    transition: 'background 0.15s, color 0.15s',
+                }}
+                onMouseEnter={e => {
+                    if (!active) {
+                        (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.08)';
+                        (e.currentTarget as HTMLAnchorElement).style.color = '#ffffff';
+                    }
+                }}
+                onMouseLeave={e => {
+                    if (!active) {
+                        (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+                        (e.currentTarget as HTMLAnchorElement).style.color = '#9ca3af';
+                    }
+                }}
+            >
+                <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>{icon}</span>
+                <span style={{ flex: 1 }}>{label}</span>
+                {badge !== undefined && (
+                    <span style={{
+                        background: '#ef4444',
+                        color: '#fff',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                    }}>
+                        {badge}
+                    </span>
+                )}
+            </Link>
+        );
+    };
 
-            {/* ── Sidebar ── */}
-            <aside className="w-48 bg-gray-900 flex flex-col shrink-0">
+    return (
+        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+
+            {/* SIDEBAR */}
+            <div style={{ width: '220px', minWidth: '220px', background: '#0f172a', display: 'flex', flexDirection: 'column' }}>
 
                 {/* Logo */}
-                <div className="px-5 pt-5 pb-4 border-b border-gray-700">
-                    <p className="text-white font-bold text-base leading-tight">Ryzera POS</p>
-                    <p className="text-blue-400 text-[11px] font-semibold tracking-widest uppercase mt-0.5">
+                <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ color: '#fff', fontWeight: 700, fontSize: '16px' }}>Ryzera POS</div>
+                    <div style={{ color: '#60a5fa', fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em', marginTop: '4px', textTransform: 'uppercase' }}>
                         Billing Module
-                    </p>
-                </div>
-
-                {/* Nav items */}
-                <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
-                    {NAV.map(({ group, items }) => (
-                        <div key={group}>
-                            <p className="text-gray-500 text-[10px] font-semibold tracking-widest uppercase px-2 mb-1.5">
-                                {group}
-                            </p>
-                            <div className="space-y-0.5">
-                                {items.map(({ label, href, icon: Icon, badge }) => {
-                                    const isActive = pathname === href;
-                                    return (
-                                        <Link
-                                            key={href}
-                                            href={href}
-                                            className={`
-                                                flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors
-                                                ${isActive
-                                                ? 'bg-blue-600 text-white font-medium'
-                                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                                            }
-                                            `}
-                                        >
-                                            <Icon size={15} className="shrink-0" />
-                                            <span className="flex-1 truncate">{label}</span>
-                                            {badge && (
-                                                <span className="bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shrink-0">
-                                                    {badge}
-                                                </span>
-                                            )}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </nav>
-
-                {/* Bottom user info */}
-                <div className="px-3 py-4 border-t border-gray-700 shrink-0">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                            SA
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-white text-xs font-medium truncate">Super Admin</p>
-                            <p className="text-gray-500 text-[11px] truncate">Administrator</p>
-                        </div>
                     </div>
                 </div>
-            </aside>
 
-            {/* ── Page content ── */}
-            <div className="flex-1 overflow-hidden">
+                {/* Nav */}
+                <nav style={{ flex: 1, padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '2px', overflowY: 'auto' }}>
+
+                    <div style={{ padding: '0 20px 8px', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Sales
+                    </div>
+                    {navItem('/Billing', <ShoppingCart size={15} />, 'New Sale')}
+                    {navItem('/Billing/all-sales', <List size={15} />, 'All Sales')}
+                    {navItem('/Billing/receipts', <Receipt size={15} />, 'Receipts')}
+
+                    <div style={{ padding: '16px 20px 8px', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Returns
+                    </div>
+                    {navItem('/Billing/return', <RotateCcw size={15} />, 'Returns')}
+
+                    <div style={{ padding: '16px 20px 8px', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Setup
+                    </div>
+                    {navItem('/Billing/cashiers', <Users size={15} />, 'Cashiers')}
+                    {navItem('/Billing/branches', <GitBranch size={15} />, 'Branches')}
+                </nav>
+
+                {/* Bottom user */}
+                <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
+                        SA
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                        <div style={{ color: '#fff', fontSize: '12px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Super Admin</div>
+                        <div style={{ color: '#9ca3af', fontSize: '11px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Administrator</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* PAGE CONTENT */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
                 {children}
             </div>
         </div>

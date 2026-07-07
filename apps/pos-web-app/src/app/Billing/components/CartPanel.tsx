@@ -2,13 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cartstore';
-import { Button }    from '@/components/ui/button';
-import { Input }     from '@/components/ui/input';
-import { Badge }     from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
 import PaymentModal from './PaymentModal';
 
 export default function CartPanel() {
@@ -22,7 +15,6 @@ export default function CartPanel() {
     const [discountInput, setDiscountInput] = useState('');
     const [showModal, setShowModal]         = useState(false);
 
-    // Hydration fix — client side only invoice generate
     useEffect(() => {
         if (!invoiceNo) {
             const year = new Date().getFullYear();
@@ -42,63 +34,106 @@ export default function CartPanel() {
         <>
             {showModal && <PaymentModal onClose={() => setShowModal(false)} />}
 
-            <div className="w-[340px] bg-white border-l border-gray-200 flex flex-col h-screen shrink-0">
-
+            <div style={{
+                width: '340px', minWidth: '340px', background: '#fff',
+                borderLeft: '1px solid #e5e7eb',
+                display: 'flex', flexDirection: 'column',
+                height: '100%', overflow: 'hidden',
+            }}>
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
-                    <span className="text-sm font-semibold text-gray-900">Transaction Process</span>
-                    <Badge className="bg-blue-50 text-blue-600 border-0 text-[11px] font-semibold">
+                <div style={{
+                    padding: '14px 20px',
+                    borderBottom: '1px solid #e5e7eb',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    flexShrink: 0,
+                }}>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>
+                        Transaction Process
+                    </span>
+                    <span style={{
+                        fontSize: '11px', fontWeight: 600, color: '#2563eb',
+                        background: '#eff6ff', padding: '2px 8px', borderRadius: '6px',
+                    }}>
                         {invoiceNo}
-                    </Badge>
+                    </span>
                 </div>
 
                 {/* Column headers */}
                 {items.length > 0 && (
-                    <div className="grid grid-cols-[1fr_80px_65px] px-5 py-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100 shrink-0">
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 80px 70px',
+                        padding: '6px 20px',
+                        fontSize: '10px', fontWeight: 600,
+                        color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em',
+                        borderBottom: '1px solid #f3f4f6',
+                        flexShrink: 0,
+                    }}>
                         <span>Item</span>
-                        <span className="text-center">Qty</span>
-                        <span className="text-right">Price</span>
+                        <span style={{ textAlign: 'center' }}>Qty</span>
+                        <span style={{ textAlign: 'right' }}>Price</span>
                     </div>
                 )}
 
                 {/* Cart items */}
-                <div className="flex-1 overflow-y-auto px-5">
+                <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
                     {items.length === 0 ? (
-                        <div className="text-center text-gray-400 text-sm mt-12">
-                            <p className="text-3xl mb-3">🛒</p>
-                            <p>No items added yet.</p>
-                            <p className="text-xs mt-1">Click a product to add.</p>
+                        <div style={{ textAlign: 'center', color: '#9ca3af', marginTop: '48px' }}>
+                            <div style={{ fontSize: '32px', marginBottom: '10px' }}>🛒</div>
+                            <p style={{ fontSize: '13px' }}>No items added yet.</p>
+                            <p style={{ fontSize: '11px', marginTop: '4px' }}>Click a product to add.</p>
                         </div>
                     ) : (
                         items.map(({ product, quantity }) => (
-                            <div
-                                key={product.id}
-                                className="grid grid-cols-[1fr_80px_65px] items-center py-2.5 border-b border-gray-50"
-                            >
+                            <div key={product.id} style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 80px 70px',
+                                alignItems: 'center',
+                                padding: '10px 0',
+                                borderBottom: '1px solid #f9fafb',
+                            }}>
                                 <div>
-                                    <p className="text-xs font-medium text-gray-900 leading-snug">{product.name}</p>
-                                    <p className="text-[11px] text-gray-400">Rs. {product.price.toLocaleString()} each</p>
+                                    <p style={{ fontSize: '12px', fontWeight: 500, color: '#111827', lineHeight: 1.3 }}>
+                                        {product.name}
+                                    </p>
+                                    <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '1px' }}>
+                                        Rs. {product.price.toLocaleString()} each
+                                    </p>
                                 </div>
 
-                                <div className="flex items-center justify-center gap-1.5">
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                                     <button
                                         onClick={() => updateQuantity(product.id, quantity - 1)}
-                                        className="w-5 h-5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 text-sm flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+                                        style={{
+                                            width: '20px', height: '20px', borderRadius: '50%',
+                                            border: '1px solid #e5e7eb', background: '#f9fafb',
+                                            color: '#374151', fontSize: '14px', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        }}
                                     >−</button>
-                                    <span className="text-xs font-semibold text-gray-900 w-4 text-center">{quantity}</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#111827', width: '16px', textAlign: 'center' }}>
+                                        {quantity}
+                                    </span>
                                     <button
                                         onClick={() => updateQuantity(product.id, quantity + 1)}
-                                        className="w-5 h-5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 text-sm flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+                                        style={{
+                                            width: '20px', height: '20px', borderRadius: '50%',
+                                            border: '1px solid #e5e7eb', background: '#f9fafb',
+                                            color: '#374151', fontSize: '14px', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        }}
                                     >+</button>
                                 </div>
 
-                                <div className="flex items-center justify-end gap-1">
-                  <span className="text-xs font-semibold text-gray-900">
-                    Rs.{(product.price * quantity).toLocaleString()}
-                  </span>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#111827' }}>
+                                        Rs.{(product.price * quantity).toLocaleString()}
+                                    </span>
                                     <button
                                         onClick={() => removeItem(product.id)}
-                                        className="text-gray-300 hover:text-red-400 text-xs cursor-pointer ml-0.5"
+                                        style={{ color: '#d1d5db', fontSize: '11px', cursor: 'pointer', background: 'none', border: 'none' }}
+                                        onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#f87171'}
+                                        onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = '#d1d5db'}
                                     >✕</button>
                                 </div>
                             </div>
@@ -107,79 +142,91 @@ export default function CartPanel() {
                 </div>
 
                 {/* Discount + Tax */}
-                <div className="px-5 pt-4 pb-2 border-t border-gray-100 shrink-0">
-                    <div className="flex gap-2 mb-3">
-                        <Input
+                <div style={{ padding: '14px 20px 8px', borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                        <input
                             placeholder="Discount"
                             value={discountInput}
                             onChange={e => {
                                 setDiscountInput(e.target.value);
                                 setDiscount(parseFloat(e.target.value) || 0);
                             }}
-                            className="flex-1 h-8 text-xs"
+                            style={{
+                                flex: 1, height: '32px', padding: '0 10px',
+                                border: '1px solid #e5e7eb', borderRadius: '6px',
+                                fontSize: '12px', outline: 'none',
+                            }}
                         />
-                        <span className="h-8 px-2.5 bg-gray-100 rounded-md text-xs text-gray-500 flex items-center">%</span>
-                        <Select
+                        <span style={{
+                            height: '32px', padding: '0 10px',
+                            background: '#f3f4f6', borderRadius: '6px',
+                            fontSize: '12px', color: '#6b7280',
+                            display: 'flex', alignItems: 'center',
+                        }}>%</span>
+                        <select
                             value={String(taxRate)}
-                            onValueChange={v => setTaxRate(parseFloat(v))}
+                            onChange={e => setTaxRate(parseFloat(e.target.value))}
+                            style={{
+                                width: '95px', height: '32px', padding: '0 8px',
+                                border: '1px solid #e5e7eb', borderRadius: '6px',
+                                fontSize: '12px', outline: 'none', background: '#fff',
+                            }}
                         >
-                            <SelectTrigger className="h-8 text-xs w-[95px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="0">No Tax</SelectItem>
-                                <SelectItem value="8">VAT 8%</SelectItem>
-                                <SelectItem value="10">VAT 10%</SelectItem>
-                                <SelectItem value="15">VAT 15%</SelectItem>
-                            </SelectContent>
-                        </Select>
+                            <option value="0">No Tax</option>
+                            <option value="8">VAT 8%</option>
+                            <option value="10">VAT 10%</option>
+                            <option value="15">VAT 15%</option>
+                        </select>
                     </div>
 
                     {/* Summary */}
-                    <div className="space-y-1 text-xs text-gray-500">
-                        <div className="flex justify-between">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6b7280' }}>
                             <span>Subtotal</span>
                             <span>Rs. {subtotal.toLocaleString()}</span>
                         </div>
                         {discAmt > 0 && (
-                            <div className="flex justify-between text-green-600">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#16a34a' }}>
                                 <span>Discount ({discount}%)</span>
                                 <span>− Rs. {discAmt.toLocaleString()}</span>
                             </div>
                         )}
                         {taxAmt > 0 && (
-                            <div className="flex justify-between">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6b7280' }}>
                                 <span>Tax ({taxRate}%)</span>
                                 <span>Rs. {taxAmt.toLocaleString()}</span>
                             </div>
                         )}
                     </div>
 
-                    <Separator className="my-2" />
+                    <div style={{ borderTop: '1px solid #e5e7eb', margin: '8px 0' }} />
 
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm font-semibold text-gray-900">Total Amount</span>
-                        <span className="text-lg font-bold text-gray-900">
-              Rs. {total.toLocaleString()}
-            </span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>Total Amount</span>
+                        <span style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>
+                            Rs. {total.toLocaleString()}
+                        </span>
                     </div>
                 </div>
 
                 {/* Payment method */}
-                <div className="px-5 py-4 border-t border-gray-100 shrink-0">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                <div style={{ padding: '12px 20px', borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
                         Payment Method
                     </p>
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                         {(['Cash', 'Card', 'Split'] as const).map(method => (
                             <button
                                 key={method}
                                 onClick={() => setPaymentMethod(method)}
-                                className={`py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all
-                  ${paymentMethod === method
-                                    ? 'bg-blue-600 text-white border-2 border-blue-600'
-                                    : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'
-                                }`}
+                                style={{
+                                    padding: '8px', borderRadius: '8px',
+                                    fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                                    border: paymentMethod === method ? '2px solid #2563eb' : '1px solid #e5e7eb',
+                                    background: paymentMethod === method ? '#2563eb' : '#fff',
+                                    color: paymentMethod === method ? '' : '#4b5563',
+                                    transition: 'all 0.15s',
+                                }}
                             >
                                 {method}
                             </button>
@@ -188,21 +235,32 @@ export default function CartPanel() {
                 </div>
 
                 {/* Actions */}
-                <div className="px-5 pb-6 pt-3 flex flex-col gap-2 shrink-0">
-                    <Button
-                        variant="outline"
+                <div style={{ padding: '10px 20px 20px', display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                    <button
                         onClick={clearCart}
-                        className="w-full text-gray-500 text-sm h-9 cursor-pointer"
+                        style={{
+                            width: '100%', height: '36px',
+                            border: '1px solid #e5e7eb', borderRadius: '8px',
+                            background: '#fff', color: '#6b7280',
+                            fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                        }}
                     >
                         Void / Clear Sale
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                         disabled={items.length === 0}
                         onClick={() => setShowModal(true)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm h-11 rounded-xl tracking-wide cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                            width: '100%', height: '44px',
+                            border: 'none', borderRadius: '10px',
+                            background: items.length === 0 ? '#93c5fd' : '#2563eb',
+                            color: '#fff', fontSize: '14px', fontWeight: 700,
+                            cursor: items.length === 0 ? 'not-allowed' : 'pointer',
+                            letterSpacing: '0.05em',
+                        }}
                     >
                         ✓ CONFIRM
-                    </Button>
+                    </button>
                 </div>
             </div>
         </>
