@@ -1,34 +1,30 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { SyncModule } from './modules/sync/sync.module';
-import { EmailModule } from './email/email.module';
-import { SettingsModule } from './settings/settings.module';
+import { RolesModule } from './roles/roles.module';
+import { CompanyModule } from './company/company.module';
+import { BranchModule } from './branch/branch.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { BillingModule } from './billing/billing.module';
 import { BackupModule } from './backup/backup.module';
-import { NotificationModule } from './notification/notification.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
-/**
- * Root module that imports all feature modules.
- * ScheduleModule enables cron jobs for background sync tasks.
- * Each feature module is responsible for its own controllers and services.
- */
+import { SyncModule } from './modules/sync/sync.module';
+
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     UsersModule,
-    SyncModule,
-    EmailModule,
-    SettingsModule,
+    RolesModule,
+    CompanyModule,
+    BranchModule,
+    InventoryModule,
+    BillingModule,
     BackupModule,
-    NotificationModule,
+    ScheduleModule.forRoot(),
+    SyncModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

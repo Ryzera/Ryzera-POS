@@ -6,6 +6,9 @@ import { SyncRepository } from './repository/sync.repository';
 import { EmailModule } from '../../email/email.module';
 import { NotificationModule } from '../../notification/notification.module';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { BackupService } from './backup.service';
+
+import { SyncGateway } from './sync.gateway';
 
 @Module({
   imports: [
@@ -15,7 +18,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
     PrismaModule,
   ],
   controllers: [SyncController],
-  providers: [SyncService, SyncRepository],
+  providers: [SyncService, SyncRepository, BackupService, SyncGateway],
   exports: [SyncService],
 })
 export class SyncModule {}

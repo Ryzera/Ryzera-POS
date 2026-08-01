@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-export const FailSyncSchema = z.object({
-  errorMessage: z.string().min(1, 'Error message is required'),
-});
-
-export type FailSyncDto = z.infer<typeof FailSyncSchema>;
+export class FailSyncDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Error message is required' })
+  errorMessage: string;
+}

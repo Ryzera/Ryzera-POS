@@ -2,7 +2,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { dbService } from '../services/indexedDB';
 import toast from 'react-hot-toast';
 
-const API_BASE = 'http://localhost:3000/api';
+// DESIGN RATIONALE: Named Constants to avoid Magic Numbers per clean code standards
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const MAX_RETRY_ATTEMPTS = 3;
+const CIRCUIT_BREAKER_PAUSE_MS = 5 * 60 * 1000; // 5 minutes pause
+const AUTO_SYNC_INTERVAL_MS = 30000; // 30 seconds interval
 
 interface OfflineSyncState {
   isOnline: boolean;
@@ -37,13 +41,18 @@ export function useOfflineSync() {
     initDB();
   }, []);
 
-  // Save data to IndexedDB (offline)
+  /**
+   * DESIGN RATIONALE: Offline Data Persistence & Priority Queueing.
+   * Saves transaction payloads locally in browser IndexedDB when network connection fails,
+   * stamping them with metadata (`status: PENDING`, `priority`, `last_modified`) so that
+   * critical sales invoices (HIGH priority) are synced before routine logs upon reconnection.
+   */
   const saveToIndexedDB = useCallback(async (storeName: string, data: any, priority: 'HIGH' | 'NORMAL' | 'LOW' = 'NORMAL') => {
     try {
       await dbService.init();
       // Inject Delta Sync Timestamp and Priority
-      const payloadWithMetadata = { 
-        ...data, 
+      const payloadWithMetadata = {
+        ...data,
         status: 'PENDING',
         priority,
         last_modified: new Date().toISOString() // Delta sync tracking
@@ -52,13 +61,13 @@ export function useOfflineSync() {
       const pending = await dbService.getPendingCount();
       setState(prev => ({ ...prev, pendingCount: pending }));
       toast.success('💾 Data saved offline. Will sync when online.');
-      
+
       // Register background sync if available
       if ('serviceWorker' in navigator && 'SyncManager' in window) {
         const registration = await navigator.serviceWorker.ready;
-        await registration.sync.register('sync-pending-data');
+        await (registration as any).sync.register('sync-pending-data');
       }
-      
+
       return saved;
     } catch (error) {
       console.error('Failed to save offline:', error);
@@ -67,7 +76,12 @@ export function useOfflineSync() {
     }
   }, []);
 
-  // Sync pending data with backend
+  /**
+   * DESIGN RATIONALE: Circuit Breaker & Priority-Ordered Sync-Back Engine.
+   * Reads pending offline items sorted by priority (HIGH -> NORMAL -> LOW) and pushes them to NestJS.
+   * Employs a Circuit Breaker pattern: 3 consecutive network failures trip the breaker,
+   * pausing sync attempts for 5 minutes to prevent client CPU/battery drain and server DDOS during outages.
+   */
   const syncPendingData = useCallback(async () => {
     if (!state.isOnline) {
       console.log('Offline - skipping sync');
@@ -80,19 +94,19 @@ export function useOfflineSync() {
     }
 
     setState(prev => ({ ...prev, isSyncing: true }));
-    
+
     try {
       await dbService.init();
       // Use Priority Queue instead of normal fetch
       const pendingSales = await dbService.getAllPendingSortedByPriority();
-      
+
       if (pendingSales.length === 0) {
         setState(prev => ({ ...prev, isSyncing: false, consecutiveFailures: 0, isCircuitOpen: false }));
         return;
       }
 
       toast.loading(`Syncing ${pendingSales.length} items (Priority Ordered)...`, { duration: 2000 });
-      
+
       let syncedCount = 0;
       let failedCount = 0;
 
@@ -107,7 +121,7 @@ export function useOfflineSync() {
               status: 'PENDING'
             })
           });
-          
+
           if (response.ok) {
             await dbService.delete('pendingSales', sale.id);
             syncedCount++;
@@ -125,14 +139,14 @@ export function useOfflineSync() {
       }
 
       const pending = await dbService.getPendingCount();
-      
+
       // Circuit Breaker Logic
       if (failedCount > 0 && syncedCount === 0) {
         const newFailures = state.consecutiveFailures + 1;
-        const shouldOpenCircuit = newFailures >= 3;
-        
-        setState(prev => ({ 
-          ...prev, 
+        const shouldOpenCircuit = newFailures >= MAX_RETRY_ATTEMPTS;
+
+        setState(prev => ({
+          ...prev,
           pendingCount: pending,
           isSyncing: false,
           consecutiveFailures: newFailures,
@@ -140,31 +154,31 @@ export function useOfflineSync() {
         }));
 
         if (shouldOpenCircuit) {
-          toast.error('⚠️ Server unreachable. Sync paused for 5 minutes.');
-          // Auto-close circuit after 5 minutes
+          toast.error(`⚠️ Server unreachable. Sync paused for ${CIRCUIT_BREAKER_PAUSE_MS / 60000} minutes.`);
+          // Auto-close circuit after pause duration
           setTimeout(() => {
             setState(prev => ({ ...prev, isCircuitOpen: false, consecutiveFailures: 0 }));
-            toast.info('🔄 Retrying sync connection...');
-          }, 5 * 60 * 1000);
+            toast('🔄 Retrying sync connection...');
+          }, CIRCUIT_BREAKER_PAUSE_MS);
         } else {
-          toast.error(`❌ Failed to sync. Attempt ${newFailures}/3`);
+          toast.error(`❌ Failed to sync. Attempt ${newFailures}/${MAX_RETRY_ATTEMPTS}`);
         }
       } else {
         // Success - reset breaker
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           pendingCount: pending,
           isSyncing: false,
           lastSyncTime: new Date(),
           consecutiveFailures: 0,
           isCircuitOpen: false
         }));
-        
+
         if (syncedCount > 0) {
           toast.success(`✅ Synced ${syncedCount} high-priority items!`);
         }
       }
-      
+
     } catch (error) {
       console.error('Sync error:', error);
       setState(prev => ({ ...prev, isSyncing: false }));
@@ -190,16 +204,16 @@ export function useOfflineSync() {
       toast.success('🟢 Back online! Syncing data...');
       await syncPendingData();
     };
-    
+
     const handleOffline = () => {
       console.log('Going offline');
       setState(prev => ({ ...prev, isOnline: false }));
       toast.error('🔴 You are offline. Sales will be saved locally.');
     };
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -214,9 +228,9 @@ export function useOfflineSync() {
         syncPendingData();
       }
     };
-    
+
     navigator.serviceWorker?.addEventListener('message', handleMessage);
-    
+
     return () => {
       navigator.serviceWorker?.removeEventListener('message', handleMessage);
     };
@@ -225,20 +239,48 @@ export function useOfflineSync() {
   // Auto-sync every 30 seconds when online
   useEffect(() => {
     if (!state.isOnline) return;
-    
+
     const interval = setInterval(() => {
       syncPendingData();
-    }, 30000); // Every 30 seconds
-    
+    }, AUTO_SYNC_INTERVAL_MS);
+
     return () => clearInterval(interval);
   }, [state.isOnline, syncPendingData]);
+
+  // Delta Sync worker
+  const pullDeltaUpdates = useCallback(async () => {
+    if (!state.isOnline) return;
+    const lastSync = typeof window !== 'undefined' ? localStorage.getItem('last_delta_sync') || new Date(0).toISOString() : new Date(0).toISOString();
+
+    try {
+      const res = await fetch(`${API_BASE}/sync/delta?since=${encodeURIComponent(lastSync)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const payload = data.data || data;
+        if (payload.products && payload.products.length > 0) {
+          await dbService.init();
+          for (const item of payload.products) {
+            await dbService.add('products', item);
+          }
+        }
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('last_delta_sync', payload.syncedAt || new Date().toISOString());
+        }
+      }
+    } catch (err) {
+      console.error('Delta sync background check failed:', err);
+    }
+  }, [state.isOnline]);
 
   return {
     isOnline: state.isOnline,
     pendingCount: state.pendingCount,
     isSyncing: state.isSyncing,
     lastSyncTime: state.lastSyncTime,
+    isCircuitOpen: state.isCircuitOpen,
+    consecutiveFailures: state.consecutiveFailures,
     saveToIndexedDB,
-    syncPendingData: manualSync
+    syncPendingData: manualSync,
+    pullDeltaUpdates
   };
 }

@@ -1,94 +1,269 @@
 'use client';
 
+import { useState } from 'react';
 import { 
-  Gavel, Settings, ShieldCheck, Zap, Info, Plus, 
-  ArrowRight, Trash2, CheckCircle2, SlidersHorizontal
+  Gavel, ShieldCheck, Zap, Info, 
+  Save, X, Clock, Server, Database, Activity, GitCommit, GitMerge
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
+interface ConflictPolicy {
+  id: string;
+  entity: string;
+  strategy: string;
+  active: boolean;
+  icon: any;
+}
+
 export default function RulesPage() {
-  const rules = [
-    { id: 1, entity: 'INVENTORY', strategy: 'ADDITIVE_MERGE', description: 'Sum quantities from all branches instead of overwriting.', active: true },
-    { id: 2, entity: 'PRICING', strategy: 'SERVER_WINS', description: 'Always trust HQ prices in case of a conflict.', active: true },
-    { id: 3, entity: 'CUSTOMER_DATA', strategy: 'LWW_TIMESTAMP', description: 'Use the record with the most recent modification time.', active: true },
-    { id: 4, entity: 'TAX_CONFIG', strategy: 'GLOBAL_ENFORCED', description: 'Branch-level overrides are strictly prohibited.', active: true },
-    { id: 5, entity: 'EMPLOYEE_LOGS', strategy: 'BRANCH_WINS', description: 'Branch-level attendance data is considered the truth.', active: false },
-  ];
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Initial State Data
+  const [conflictPolicies, setConflictPolicies] = useState<ConflictPolicy[]>([
+    { id: '1', entity: 'INVENTORY', strategy: 'ADDITIVE_MERGE', active: true, icon: GitMerge },
+    { id: '2', entity: 'PRICING', strategy: 'SERVER_WINS', active: true, icon: Server },
+    { id: '3', entity: 'CUSTOMER_DATA', strategy: 'TIMESTAMP_WINS', active: true, icon: Clock },
+    { id: '4', entity: 'TAX_CONFIG', strategy: 'SERVER_WINS', active: true, icon: ShieldCheck },
+    { id: '5', entity: 'EMPLOYEE_LOGS', strategy: 'BRANCH_WINS', active: false, icon: GitCommit },
+  ]);
+
+  const [networkPolicy, setNetworkPolicy] = useState({
+    syncMode: 'REALTIME', // REALTIME or BATCH
+    throttlePeak: true,
+    batchInterval: '15',
+  });
+
+  const [retentionPolicy, setRetentionPolicy] = useState({
+    logRetentionDays: '7',
+    autoPurgeSuccess: true,
+  });
+
+  const handleConflictChange = (id: string, field: keyof ConflictPolicy, value: any) => {
+    setConflictPolicies(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+    setIsDirty(true);
+  };
+
+  const handleNetworkChange = (field: string, value: any) => {
+    setNetworkPolicy(prev => ({ ...prev, [field]: value }));
+    setIsDirty(true);
+  };
+
+  const handleRetentionChange = (field: string, value: any) => {
+    setRetentionPolicy(prev => ({ ...prev, [field]: value }));
+    setIsDirty(true);
+  };
+
+  const handleSave = () => {
+    setIsSaving(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsSaving(false);
+      setIsDirty(false);
+      toast.success('Policies updated successfully');
+    }, 800);
+  };
+
+  const handleDiscard = () => {
+    // In a real app, you'd fetch the initial state again.
+    // Here we'll just reload the page to reset.
+    window.location.reload();
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50/50">
-      <header className="bg-white border-b border-slate-200 px-8 py-6 flex items-center justify-between">
+    <div className="max-w-4xl mx-auto space-y-8 relative pb-24">
+      {/* Sticky Header for Unsaved Changes */}
+      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isDirty ? 'translate-y-0 opacity-100 visible' : 'translate-y-10 opacity-0 invisible'}`}>
+        <div className="bg-slate-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-6 border border-slate-700">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 bg-amber-400 rounded-full animate-pulse" />
+            <span className="text-sm font-medium">Unsaved changes detected</span>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={handleDiscard} className="px-4 py-2 hover:bg-slate-800 rounded-full text-xs font-bold transition text-slate-300">
+              Discard
+            </button>
+            <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-full text-xs font-bold transition shadow-lg shadow-blue-500/20">
+              {isSaving ? <Activity className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {isSaving ? 'Saving...' : 'Save Policies'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Sync Policy Manager</h1>
-          <p className="text-sm text-slate-500 mt-1">Configure automated conflict resolution and synchronization logic</p>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Sync Policies</h2>
+          <p className="text-sm text-slate-500 mt-1">Configure automated conflict resolution and system behavior</p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-md">
-          <Plus className="h-4 w-4" /> New Sync Rule
-        </button>
-      </header>
+      </div>
 
-      <div className="p-8 max-w-5xl space-y-8 overflow-y-auto">
-        <div className="bg-blue-50/50 border border-blue-100 rounded-[32px] p-6 flex gap-4">
-          <div className="h-10 w-10 bg-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0 text-white">
-            <Info className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-blue-900 mb-1 text-slate-900">Global Rule Inheritance</h4>
-            <p className="text-xs text-blue-700 leading-relaxed text-slate-500">
-              These rules act as the "Auto-Pilot" for your synchronization engine. If a conflict occurs and a rule is active, 
-              the system will resolve it automatically without administrative intervention.
-            </p>
-          </div>
+      {/* ── Section 1: Conflict Resolution ── */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Gavel className="h-5 w-5 text-blue-600" />
+          <h3 className="text-lg font-bold text-slate-800">Conflict Resolution Engine</h3>
         </div>
-
-        <div className="grid gap-4">
-          {rules.map((rule) => (
-            <div key={rule.id} className="bg-white rounded-[32px] border border-slate-100 p-6 flex items-center justify-between hover:border-blue-200 transition group shadow-sm">
-              <div className="flex items-center gap-6">
-                <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${rule.active ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}`}>
-                   <Gavel className="h-6 w-6" />
+        <p className="text-xs text-slate-500 mb-4">Define how the system resolves collisions when records are edited simultaneously.</p>
+        
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+          {conflictPolicies.map((rule) => (
+            <div key={rule.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-slate-50/50 transition group">
+              <div className="flex items-center gap-5">
+                <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${rule.active ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-300'}`}>
+                   <rule.icon className="h-6 w-6" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{rule.entity}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${rule.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {rule.active ? 'Active' : 'Disabled'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">{rule.description}</p>
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight">{rule.entity}</h3>
+                  <p className="text-xs text-slate-400 mt-0.5 max-w-sm">
+                    {rule.entity === 'INVENTORY' && 'Handle simultaneous stock adjustments across branches.'}
+                    {rule.entity === 'PRICING' && 'Handle product price changes made offline.'}
+                    {rule.entity === 'CUSTOMER_DATA' && 'Handle profile updates for loyalty members.'}
+                    {rule.entity === 'TAX_CONFIG' && 'Handle modifications to tax rate policies.'}
+                    {rule.entity === 'EMPLOYEE_LOGS' && 'Handle shift and attendance record updates.'}
+                  </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-8">
-                <div className="text-right">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Resolution Strategy</p>
-                  <p className="text-sm font-bold text-blue-600 font-mono tracking-tighter">{rule.strategy}</p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="flex flex-col items-start sm:items-end">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Strategy</label>
+                  <select 
+                    value={rule.strategy}
+                    disabled={!rule.active}
+                    onChange={(e) => handleConflictChange(rule.id, 'strategy', e.target.value)}
+                    className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 cursor-pointer"
+                  >
+                    <option value="SERVER_WINS">HQ Server Wins</option>
+                    <option value="BRANCH_WINS">Branch Wins</option>
+                    <option value="ADDITIVE_MERGE">Additive Merge (+)</option>
+                    <option value="TIMESTAMP_WINS">Most Recent Wins</option>
+                    <option value="MANUAL_REVIEW">Flag for Manual Review</option>
+                  </select>
                 </div>
-                <div className="flex gap-2">
-                   <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"><SlidersHorizontal className="h-4 w-4" /></button>
-                   <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 className="h-4 w-4" /></button>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-slate-500 w-12 text-right">{rule.active ? 'ON' : 'OFF'}</span>
+                  <button 
+                    onClick={() => handleConflictChange(rule.id, 'active', !rule.active)}
+                    className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${rule.active ? 'bg-blue-500' : 'bg-slate-200'}`}
+                  >
+                    <span className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ${rule.active ? 'translate-x-6' : 'translate-x-0'}`} />
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
+      </div>
 
-        <div className="bg-slate-900 rounded-[32px] p-10 text-white relative overflow-hidden shadow-xl shadow-slate-900/10">
-           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="max-w-md">
-                 <h3 className="text-xl font-bold mb-2 italic">Expert Recommendation</h3>
-                 <p className="text-sm text-slate-400 leading-relaxed">
-                    Based on your multi-branch volume, we recommend using <span className="text-blue-400">Additive Merge</span> for inventory 
-                    to ensure stock counts remain accurate during high-velocity sales periods.
-                 </p>
+      {/* ── Section 2: Network & Bandwidth ── */}
+      <div className="space-y-4 pt-6">
+        <div className="flex items-center gap-2 mb-2">
+          <Zap className="h-5 w-5 text-amber-500" />
+          <h3 className="text-lg font-bold text-slate-800">Network & Bandwidth</h3>
+        </div>
+        
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h4 className="text-sm font-bold text-slate-900 mb-1">Synchronization Mode</h4>
+            <p className="text-xs text-slate-400 mb-4">Choose how data flows between branches.</p>
+            <div className="space-y-3">
+              <label className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition ${networkPolicy.syncMode === 'REALTIME' ? 'border-blue-500 bg-blue-50/30' : 'border-slate-100 hover:border-slate-200'}`}>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Real-time WebSocket</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Instant updates, higher network load</p>
+                </div>
+                <input type="radio" name="syncMode" value="REALTIME" checked={networkPolicy.syncMode === 'REALTIME'} onChange={(e) => handleNetworkChange('syncMode', e.target.value)} className="w-4 h-4 text-blue-600" />
+              </label>
+              
+              <label className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition ${networkPolicy.syncMode === 'BATCH' ? 'border-blue-500 bg-blue-50/30' : 'border-slate-100 hover:border-slate-200'}`}>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Batch Interval</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Consolidated periodic updates</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {networkPolicy.syncMode === 'BATCH' && (
+                    <select 
+                      value={networkPolicy.batchInterval} 
+                      onChange={(e) => handleNetworkChange('batchInterval', e.target.value)}
+                      className="px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold"
+                    >
+                      <option value="5">5 mins</option>
+                      <option value="15">15 mins</option>
+                      <option value="30">30 mins</option>
+                      <option value="60">1 hour</option>
+                    </select>
+                  )}
+                  <input type="radio" name="syncMode" value="BATCH" checked={networkPolicy.syncMode === 'BATCH'} onChange={(e) => handleNetworkChange('syncMode', e.target.value)} className="w-4 h-4 text-blue-600" />
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-bold text-slate-900 mb-1">Traffic Shaping</h4>
+            <p className="text-xs text-slate-400 mb-4">Optimize POS performance during peak hours.</p>
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm font-bold text-slate-800">Peak Hour Throttling</span>
+                </div>
+                <button 
+                  onClick={() => handleNetworkChange('throttlePeak', !networkPolicy.throttlePeak)}
+                  className={`w-10 h-5 rounded-full relative transition-colors duration-200 focus:outline-none ${networkPolicy.throttlePeak ? 'bg-blue-500' : 'bg-slate-200'}`}
+                >
+                  <span className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform duration-200 ${networkPolicy.throttlePeak ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
               </div>
-              <button className="px-6 py-3 bg-white text-slate-900 rounded-2xl text-sm font-bold hover:bg-slate-100 transition whitespace-nowrap">
-                 Update All Policies
-              </button>
-           </div>
-           <ShieldCheck className="absolute -bottom-6 -left-6 h-32 w-32 text-white/5" />
+              <p className="text-xs text-slate-500">Automatically switch to Batch Mode (15 min intervals) and compress payloads between 10:00 AM - 2:00 PM and 5:00 PM - 8:00 PM.</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* ── Section 3: Database Cleanup Rules ── */}
+      <div className="space-y-4 pt-6">
+        <div className="flex items-center gap-2 mb-2">
+          <Database className="h-5 w-5 text-emerald-500" />
+          <h3 className="text-lg font-bold text-slate-800">Database Cleanup Rules</h3>
+        </div>
+        
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+           <div>
+             <h4 className="text-sm font-bold text-slate-900">Sync Log Retention</h4>
+             <p className="text-xs text-slate-400 mt-1 max-w-md">How long should the HQ database retain detailed synchronization logs and telemetry payloads?</p>
+           </div>
+           
+           <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-600">Auto-Purge Success:</span>
+                <button 
+                  onClick={() => handleRetentionChange('autoPurgeSuccess', !retentionPolicy.autoPurgeSuccess)}
+                  className={`w-10 h-5 rounded-full relative transition-colors duration-200 focus:outline-none ${retentionPolicy.autoPurgeSuccess ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                >
+                  <span className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform duration-200 ${retentionPolicy.autoPurgeSuccess ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
+              
+              <div className="h-8 w-px bg-slate-100 hidden md:block"></div>
+
+              <select 
+                value={retentionPolicy.logRetentionDays}
+                onChange={(e) => handleRetentionChange('logRetentionDays', e.target.value)}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer"
+              >
+                <option value="3">3 Days</option>
+                <option value="7">7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+                <option value="90">90 Days</option>
+              </select>
+           </div>
+        </div>
+      </div>
+
     </div>
   );
 }

@@ -3,509 +3,586 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Bell, Settings, LayoutDashboard, List, AlertCircle, RotateCw, RefreshCw,
-  Database, Wifi, WifiOff, CheckCircle2, XCircle, Info, X, Clock, Activity, Cpu, ShieldCheck
+  RotateCw, RefreshCw, Database, Activity, ArrowRight,
+  CheckCircle2, XCircle, Clock, AlertTriangle,
+  ShieldAlert, Zap, List, Settings, Eye,
+  Server, MapPin, GitBranch, BarChart3
 } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, AreaChart, Area } from 'recharts';
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, Cell, AreaChart, Area
+} from 'recharts';
 import { toast } from 'react-hot-toast';
+import { useAuthStore } from '@/store/auth.store';
+import { useBranches } from '@/hooks/useBranches';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { io } from 'socket.io-client';
+import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 interface SyncRecord { id: string; entity: string; status: string; branchId?: string; companyId?: string; createdAt: string; error?: string; }
-interface Notification { id: string; title: string; message: string; type: string; isRead: boolean; createdAt: string; }
 interface SyncStatus { pending: number; synced: number; failed: number; total: number; }
+interface SystemHealth { status: string; onlineDevices: number; totalDevices: number; branch_id?: number | null; timestamp: string; }
+interface SyncMetrics { p50: number; p95: number; p99: number; unit: string; throughput: { time: string; count: number }[]; lastSyncTime?: string | Date | null; }
+interface BranchStatus { branch_id: number; pending: number; synced: number; failed: number; health: string; lastSync?: string | null; }
 
-const statusConfig: Record<string, { label: string; color: string; dot: string; border: string; bg: string }> = {
-  SYNCED:  { label: 'Synced',  color: 'text-green-600',  dot: 'bg-green-500',  border: 'border-b-green-500',  bg: 'bg-green-50'  },
-  PENDING: { label: 'Pending', color: 'text-yellow-600', dot: 'bg-yellow-400 animate-pulse', border: 'border-b-yellow-400', bg: 'bg-yellow-50' },
-  FAILED:  { label: 'Failed',  color: 'text-red-500',    dot: 'bg-red-500',    border: 'border-b-red-400',    bg: 'bg-red-50'    },
+const formatTimeSafe = (dateVal: any) => {
+  if (!dateVal) return '—';
+  try {
+    const d = new Date(dateVal);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleTimeString();
+  } catch { return '—'; }
 };
 
-const notifIcon = (type: string) => {
-  if (type === 'ERROR')   return <XCircle      className="h-4 w-4 text-red-500    flex-shrink-0" />;
-  if (type === 'WARNING') return <Info         className="h-4 w-4 text-yellow-500 flex-shrink-0" />;
-  return                         <CheckCircle2 className="h-4 w-4 text-green-500  flex-shrink-0" />;
+const formatRelativeTime = (date: Date | null) => {
+  if (!date) return 'Never';
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  return `${Math.floor(diff / 3600)}h ago`;
 };
-
-// REAL UUIDs from the database
-const IDS = {
-  "companyId": "c2eb3830-2184-4b7e-b19c-0498167b27a2",
-  "Colombo HQ": "7fbb4773-bc67-4f61-a157-10e1ec953f97",
-  "Kandy Branch": "fce17723-88fd-4267-9ada-fcfe5caf4481",
-  "Galle Outlet": "20ee52f8-8d7b-4b23-babb-8a19baaf8b1f",
-  "Negombo Store": "5ea04087-6895-46fb-8ab0-474b55e9caae",
-  "Matara Point": "0711f446-d565-4697-b95f-71836015c89f",
-  "Jaffna North": "f423c1a7-01db-478a-8585-8e0d7cb037b1"
-};
-
-// Helper: spread records across the last 8 hours for realistic volume data
-const hoursAgo = (h: number, extra = 0) => new Date(Date.now() - h * 3600000 - extra * 60000).toISOString();
-
-const SEED_RECORDS = [
-  // Colombo HQ — 285 synced spread across hours 1-8
-  ...Array(40).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H1-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(1,i) } })),
-  ...Array(35).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H2-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(2,i) } })),
-  ...Array(30).fill(null).map((_,i) => ({ entity: 'product', companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H3-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(3,i) } })),
-  ...Array(45).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H4-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(4,i) } })),
-  ...Array(50).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H5-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(5,i) } })),
-  ...Array(35).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H6-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(6,i) } })),
-  ...Array(30).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H7-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(7,i) } })),
-  ...Array(20).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Colombo HQ"], payload: { id: `COL-H8-${i}`, branch: "Colombo HQ", last_modified: hoursAgo(8,i) } })),
-  // Kandy Branch — 142 synced + 12 pending
-  ...Array(50).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Kandy Branch"], payload: { id: `KDY-H1-${i}`, branch: "Kandy Branch", last_modified: hoursAgo(1,i) } })),
-  ...Array(40).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Kandy Branch"], payload: { id: `KDY-H2-${i}`, branch: "Kandy Branch", last_modified: hoursAgo(2,i) } })),
-  ...Array(32).fill(null).map((_,i) => ({ entity: 'product', companyId: IDS.companyId, branchId: IDS["Kandy Branch"], payload: { id: `KDY-H3-${i}`, branch: "Kandy Branch", last_modified: hoursAgo(3,i) } })),
-  ...Array(20).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Kandy Branch"], payload: { id: `KDY-H4-${i}`, branch: "Kandy Branch", last_modified: hoursAgo(4,i) } })),
-  ...Array(12).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Kandy Branch"], payload: { id: `KDP-${i}`,     branch: "Kandy Branch", last_modified: hoursAgo(0,i) } })),
-  // Galle Outlet — 98 synced + 3 pending
-  ...Array(35).fill(null).map((_,i) => ({ entity: 'product', companyId: IDS.companyId, branchId: IDS["Galle Outlet"], payload: { id: `GAL-H1-${i}`, branch: "Galle Outlet", last_modified: hoursAgo(1,i) } })),
-  ...Array(30).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Galle Outlet"], payload: { id: `GAL-H2-${i}`, branch: "Galle Outlet", last_modified: hoursAgo(2,i) } })),
-  ...Array(33).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Galle Outlet"], payload: { id: `GAL-H3-${i}`, branch: "Galle Outlet", last_modified: hoursAgo(3,i) } })),
-  ...Array(3).fill(null).map((_,i)  => ({ entity: 'product', companyId: IDS.companyId, branchId: IDS["Galle Outlet"], payload: { id: `GAP-${i}`,     branch: "Galle Outlet", last_modified: hoursAgo(0,i) } })),
-  // Negombo Store — 61 synced + 35 pending
-  ...Array(30).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Negombo Store"], payload: { id: `NEG-H4-${i}`, branch: "Negombo Store", last_modified: hoursAgo(4,i) } })),
-  ...Array(31).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Negombo Store"], payload: { id: `NEG-H5-${i}`, branch: "Negombo Store", last_modified: hoursAgo(5,i) } })),
-  ...Array(28).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Negombo Store"], payload: { id: `NEP-${i}`,     branch: "Negombo Store", last_modified: hoursAgo(0,i) } })),
-  ...Array(7).fill(null).map((_,i)  => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Negombo Store"], payload: { id: `NEF-${i}`,     branch: "Negombo Store", last_modified: hoursAgo(0,i) } })),
-  // Matara Point — 77 synced + 4 pending
-  ...Array(40).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Matara Point"],  payload: { id: `MAT-H2-${i}`, branch: "Matara Point", last_modified: hoursAgo(2,i) } })),
-  ...Array(37).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Matara Point"],  payload: { id: `MAT-H3-${i}`, branch: "Matara Point", last_modified: hoursAgo(3,i) } })),
-  ...Array(4).fill(null).map((_,i)  => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Matara Point"],  payload: { id: `MAP-${i}`,     branch: "Matara Point", last_modified: hoursAgo(0,i) } })),
-  // Jaffna North — 33 synced
-  ...Array(18).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Jaffna North"],  payload: { id: `JAF-H6-${i}`, branch: "Jaffna North", last_modified: hoursAgo(6,i) } })),
-  ...Array(15).fill(null).map((_,i) => ({ entity: 'sale',    companyId: IDS.companyId, branchId: IDS["Jaffna North"],  payload: { id: `JAF-H7-${i}`, branch: "Jaffna North", last_modified: hoursAgo(7,i) } })),
-];
 
 export default function Dashboard() {
   const router = useRouter();
-  const [syncStatus, setSyncStatus]       = useState<SyncStatus>({ pending: 0, synced: 0, failed: 0, total: 0 });
-  const [queueItems, setQueueItems]       = useState<SyncRecord[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount]     = useState(0);
-  const [isConnected, setIsConnected]     = useState(true);
-  const [syncing, setSyncing]             = useState(false);
-  const [mounted, setMounted]             = useState(false);
-  const [showNotifs, setShowNotifs]       = useState(false);
-  const [activeMenu, setActiveMenu]       = useState('dashboard');
-  const [selectedStatus, setSelectedStatus] = useState('ALL');
-  const [dataSource, setDataSource]       = useState<'real'|'seeded'|'loading'>('loading');
-  const [seeding, setSeeding]             = useState(false);
+  const { user } = useAuthStore();
+  const branchQuery = (user?.roles?.includes('ADMIN') || user?.user_type === 'ADMIN') ? '' : (user?.branch_id ? `?branchId=${user.branch_id}` : '');
+
+  const { branches, getBranchName } = useBranches();
+
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>({ pending: 0, synced: 0, failed: 0, total: 0 });
+  const [queueItems, setQueueItems] = useState<SyncRecord[]>([]);
+  const [isConnected, setIsConnected] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState('ALL');
+  const [systemHealth, setSystemHealth] = useState<SystemHealth>({ status: 'HEALTHY', onlineDevices: 0, totalDevices: 0, branch_id: null, timestamp: '' });
+  const [syncMetrics, setSyncMetrics] = useState<SyncMetrics>({ p50: 0, p95: 0, p99: 0, unit: 'ms', throughput: [] });
+  const [allBranchStatuses, setAllBranchStatuses] = useState<BranchStatus[]>([]);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [conflictCount, setConflictCount] = useState(0);
   const isOfflineRef = useRef(false);
-  const notifRef = useRef<HTMLDivElement>(null);
 
-  const fetchStatus = useCallback(async () => {
-    if (isOfflineRef.current || !navigator.onLine) { setIsConnected(false); return; }
+  const isAdmin = user?.roles?.includes('ADMIN') || user?.user_type === 'ADMIN';
+  const userBranchObj = branches.find(b => b.id === user?.branch_id);
+  const userBranchLabel = userBranchObj ? `${userBranchObj.name} (${userBranchObj.code})` : null;
+
+  useEffect(() => {
+    if (!isAdmin && userBranchLabel && selectedBranch === 'ALL') {
+      setSelectedBranch(userBranchLabel);
+    }
+  }, [isAdmin, userBranchLabel, selectedBranch]);
+
+  const {
+    isOnline, pendingCount: offlinePendingCount, isSyncing: isOfflineSyncing,
+    syncPendingData, lastSyncTime, isCircuitOpen, consecutiveFailures
+  } = useOfflineSync();
+
+  const { data: queryData, refetch: refetchData } = useQuery({
+    queryKey: ['dashboard', branchQuery],
+    queryFn: async () => {
+      if (isOfflineRef.current || !navigator.onLine) return null;
+      const [sr, br, qr, hr, mr, cr] = await Promise.all([
+        api.get(`/sync/status${branchQuery}`).catch(() => ({ data: null })),
+        api.get(`/sync/status/all`).catch(() => ({ data: null })),
+        api.get(`/sync/check-queue${branchQuery}`).catch(() => ({ data: null })),
+        api.get(`/sync/health${branchQuery}`).catch(() => ({ data: null })),
+        api.get(`/sync/metrics`).catch(() => ({ data: null })),
+        api.get(`/sync/conflicts${branchQuery}`).catch(() => ({ data: null }))
+      ]);
+      return { sr, br, qr, hr, mr, cr };
+    },
+    staleTime: 60000,
+  });
+
+  useEffect(() => {
+    if (!queryData) return;
+    const { sr, br, qr, hr, mr, cr } = queryData;
+    
+    if (sr?.data) {
+      const d = sr.data.data || sr.data;
+      setSyncStatus({
+        pending: d.pending || 0,
+        synced: d.synced || 0,
+        failed: d.failed || 0,
+        total: (d.pending || 0) + (d.synced || 0) + (d.failed || 0)
+      });
+      setIsConnected(true);
+    } else {
+      setIsConnected(false);
+    }
+
+    if (br?.data) setAllBranchStatuses(br.data.data || br.data);
+    if (qr?.data) setQueueItems(((qr.data.data || qr.data).queue || []).slice(0, 20));
+    if (hr?.data) setSystemHealth(hr.data.data || hr.data);
+    if (mr?.data) setSyncMetrics(mr.data.data || mr.data);
+    if (cr?.data) setConflictCount((cr.data.data || cr.data).length || 0);
+
+    setLastRefreshed(new Date());
+  }, [queryData]);
+
+  const refreshAll = useCallback(async () => {
     try {
-      const r = await fetch(`${API_BASE}/sync/status`);
-      if (r.ok) { const d = await r.json(); setSyncStatus({ pending: d.pending||0, synced: d.synced||0, failed: d.failed||0, total: (d.pending||0)+(d.synced||0)+(d.failed||0) }); setIsConnected(true); }
-      else setIsConnected(false);
-    } catch { setIsConnected(false); }
-  }, []);
-
-  const fetchQueue = useCallback(async () => {
-    if (isOfflineRef.current || !navigator.onLine) return;
-    try {
-      const r = await fetch(`${API_BASE}/sync/check-queue`);
-      if (r.ok) { const d = await r.json(); setQueueItems((d.queue || []).slice(0, 20)); }
-    } catch {}
-  }, []);
-
-  const fetchNotifs = useCallback(async () => {
-    if (isOfflineRef.current || !navigator.onLine) return;
-    try {
-      const [nr, cr] = await Promise.all([fetch(`${API_BASE}/notifications`), fetch(`${API_BASE}/notifications/unread/count`)]);
-      if (nr.ok) { const d = await nr.json(); setNotifications(Array.isArray(d) ? d : []); }
-      if (cr.ok) { const c = await cr.json(); setUnreadCount(typeof c === 'number' ? c : 0); }
-    } catch {}
-  }, []);
-
-  const markRead = async (id: string) => {
-    try { await fetch(`${API_BASE}/notifications/${id}/read`, { method: 'PATCH' }); await fetchNotifs(); } catch {}
-  };
-
-  const markAllRead = async () => {
-    try {
-      const unread = notifications.filter(n => !n.isRead);
-      await Promise.all(unread.map(n => fetch(`${API_BASE}/notifications/${n.id}/read`, { method: 'PATCH' })));
-      await fetchNotifs();
-      toast.success('All marked as read');
-    } catch { toast.error('Failed'); }
-  };
+      await refetchData();
+    } catch (err) {
+      console.error('Error during refresh:', err);
+    }
+  }, [refetchData]);
 
   const handleSyncNow = async () => {
-    if (syncing || isOfflineRef.current || !navigator.onLine) {
+    if (syncing || isOfflineSyncing || isOfflineRef.current || !navigator.onLine) {
       if (isOfflineRef.current || !navigator.onLine) { toast.error('Offline — data saved locally'); return; }
       return;
     }
     setSyncing(true);
     const tid = toast.loading('Syncing...');
     try {
-      await fetch(`${API_BASE}/sync/push`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entity: 'manual_sync', payload: { time: new Date().toISOString() } }) });
-      toast.dismiss(tid); toast.success('Sync complete!');
-      await Promise.all([fetchStatus(), fetchQueue(), fetchNotifs()]);
+      if (isOnline) { await syncPendingData(); }
+      await fetch(`${API_BASE}/sync/push`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity: 'manual_sync', payload: { time: new Date().toISOString() } })
+      });
+      toast.dismiss(tid);
+      toast.success('✅ Sync complete!');
+      await refreshAll();
     } catch { toast.dismiss(tid); toast.error('Sync failed'); }
     setSyncing(false);
   };
-
-  const seedBackend = useCallback(async () => {
-    if (isOfflineRef.current || !navigator.onLine) return;
-    setSeeding(true);
-    const tid = toast.loading(`Seeding backend with ${SEED_RECORDS.length} sample records...`);
-    // Push in small batches to avoid overloading the API
-    const BATCH = 10;
-    for (let i = 0; i < SEED_RECORDS.length; i += BATCH) {
-      const batch = SEED_RECORDS.slice(i, i + BATCH);
-      await Promise.allSettled(batch.map(r =>
-        fetch(`${API_BASE}/sync/push`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(r),
-        })
-      ));
-    }
-    toast.dismiss(tid);
-    toast.success('Backend seeded! Fetching real data...');
-    setDataSource('seeded');
-    setSeeding(false);
-    await Promise.all([fetchStatus(), fetchQueue(), fetchNotifs()]);
-  }, [fetchStatus, fetchQueue, fetchNotifs]);
 
   useEffect(() => {
     setMounted(true);
     setIsConnected(navigator.onLine);
     isOfflineRef.current = !navigator.onLine;
-    // Fetch then auto-seed if empty
-    const init = async () => {
-      await Promise.all([fetchStatus(), fetchQueue(), fetchNotifs()]);
+    refreshAll();
+
+    let interval: NodeJS.Timeout | null = null;
+
+    const onOnline = () => {
+      isOfflineRef.current = false;
+      setIsConnected(true);
+      toast.success('🟢 Back online');
+      refreshAll();
     };
-    init();
-    const interval = setInterval(() => { if (!isOfflineRef.current && navigator.onLine) { fetchStatus(); fetchQueue(); fetchNotifs(); } }, 30000);
-    const onOnline  = () => { isOfflineRef.current = false; setIsConnected(true);  toast.success('Back online'); fetchStatus(); fetchQueue(); fetchNotifs(); };
-    const onOffline = () => { isOfflineRef.current = true;  setIsConnected(false); toast.error('You are offline'); };
-    window.addEventListener('online',  onOnline);
+    const onOffline = () => {
+      isOfflineRef.current = true;
+      setIsConnected(false);
+      toast.error('🔴 You are offline');
+    };
+    window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
-    return () => { clearInterval(interval); window.removeEventListener('online', onOnline); window.removeEventListener('offline', onOffline); };
-  }, [fetchStatus, fetchQueue, fetchNotifs]);
 
-  // Auto-seed if backend is empty after first fetch
-  useEffect(() => {
-    if (!mounted) return;
-    if (syncStatus.total === 0 && queueItems.length === 0 && !seeding && isConnected) {
-      setDataSource('loading');
-      seedBackend();
-    } else if (syncStatus.total > 0 || queueItems.length > 0) {
-      if (dataSource === 'loading') setDataSource('real');
-    }
-  }, [mounted, syncStatus.total, queueItems.length, seeding, isConnected, seedBackend, dataSource]);
+    // WebSocket Integration
+    const socket = io('http://localhost:3000');
+    socket.on('connect', () => setIsSocketConnected(true));
+    socket.on('disconnect', () => setIsSocketConnected(false));
+    socket.on('new-notification', (data) => {
+      // Whenever we get a websocket push that sync is done/failed, refresh automatically
+      if (!isOfflineRef.current && navigator.onLine) {
+        refreshAll();
+      }
+    });
 
-  // Close notif panel when clicking outside
-  useEffect(() => {
-    const handler = (e: MouseEvent) => { if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    return () => {
+      if (interval) clearInterval(interval);
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+      socket.disconnect();
+    };
+  }, [refreshAll]);
 
-  // Group by branch for summary cards
-  const getBranchName = (q: SyncRecord) => (q.payload as any)?.branch || q.branchId || 'Unknown';
-  const branchNames = Array.from(new Set(queueItems.map(getBranchName).filter(Boolean))) as string[];
-  const branches = ['ALL', ...branchNames];
+  const filterBranches = isAdmin 
+    ? ['ALL', ...branches.map(b => `${b.name} (${b.code})`)]
+    : (userBranchLabel ? [userBranchLabel] : []);
 
-  const filteredQueue = selectedStatus === 'ALL' 
-    ? queueItems 
-    : queueItems.filter(q => getBranchName(q) === selectedStatus);
+  const getRecordBranchName = (q: SyncRecord) => getBranchName((q as any).branch_id || q.branchId);
 
-  const branchSummary = branchNames.map(name => {
-    const items = queueItems.filter(q => getBranchName(q) === name);
+  const filteredQueue = selectedBranch === 'ALL'
+    ? queueItems
+    : queueItems.filter(q => getRecordBranchName(q) === selectedBranch);
+
+  const branchSummary = branches.map(branch => {
+    const statusInfo = allBranchStatuses.find(s => s.branch_id === branch.id);
+    const branchLabel = `${branch.name} (${branch.code})`;
     return {
-      id: items.find(i => i.branchId)?.branchId || name,
-      name: name,
-      pending: items.filter(i => i.status === 'PENDING').length,
-      synced:  items.filter(i => i.status === 'SYNCED').length,
-      failed:  items.filter(i => i.status === 'FAILED').length,
-      lastSync: items[0]?.createdAt ? new Date(items[0].createdAt).toLocaleTimeString() : '—',
+      id: branch.id,
+      name: branchLabel,
+      pending: statusInfo?.pending || 0,
+      synced: statusInfo?.synced || 0,
+      failed: statusInfo?.failed || 0,
+      lastSync: formatTimeSafe(statusInfo?.lastSync || null),
+      health: statusInfo?.health || 'UNKNOWN',
     };
   });
 
-  // Build volume chart from real createdAt timestamps grouped by hour
-  const volumeData = Array.from({ length: 8 }, (_, i) => {
-    const hOffset = 7 - i; // 7 hours ago → now
-    const hourStart = new Date(Date.now() - hOffset * 3600000);
-    hourStart.setMinutes(0, 0, 0);
-    const hourEnd = new Date(hourStart.getTime() + 3600000);
-    const label = `${hourStart.getHours().toString().padStart(2,'0')}:00`;
-    const count = queueItems.filter(q => {
-      const t = new Date(q.createdAt).getTime();
-      return t >= hourStart.getTime() && t < hourEnd.getTime();
-    }).length;
-    const failed = queueItems.filter(q => {
-      const t = new Date(q.createdAt).getTime();
-      return t >= hourStart.getTime() && t < hourEnd.getTime() && q.status === 'FAILED';
-    }).length;
-    const pending = queueItems.filter(q => {
-      const t = new Date(q.createdAt).getTime();
-      return t >= hourStart.getTime() && t < hourEnd.getTime() && q.status === 'PENDING';
-    }).length;
-    const color = failed > 0 ? '#EF4444' : pending > 0 ? '#F59E0B' : '#10B981';
-    return { time: label, records: count, color };
-  });
+  const volumeData = (syncMetrics.throughput && syncMetrics.throughput.length > 0)
+    ? Array.from({ length: 8 }, (_, i) => {
+        // Go back up to 7 hours from the current hour
+        const hour = new Date(Date.now() - (7 - i) * 3600000).getHours();
+        const timeStr = `${hour.toString()}:00`;
+        const timeStrPadded = `${hour.toString().padStart(2, '0')}:00`;
+        const t = syncMetrics.throughput.find(x => x.time === timeStr || x.time === timeStrPadded);
+        return {
+          time: timeStrPadded,
+          records: t ? t.count : 0
+        };
+      })
+    : Array.from({ length: 8 }, (_, i) => {
+        const hourStart = new Date(Date.now() - (7 - i) * 3600000);
+        return { time: `${hourStart.getHours().toString().padStart(2, '0')}:00`, records: 0 };
+      });
+
 
   if (!mounted) return null;
 
   return (
-    <>
+    <div className="max-w-7xl mx-auto space-y-8">
 
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between sticky top-0 z-20 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">Sync Dashboard</h1>
-            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${isConnected ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-              {isConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-              {isConnected ? 'Online' : 'Offline'}
-            </div>
+      {/* ── Page Header ── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Sync Overview</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Real-time synchronization telemetry</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Sync Now */}
-            <button onClick={handleSyncNow} disabled={syncing}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#1C2536] text-white rounded-xl text-sm font-semibold hover:bg-[#111827] transition shadow-sm disabled:opacity-60">
-              {syncing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RotateCw className="h-4 w-4" />}
-              {syncing ? 'Syncing…' : 'Sync Now'}
-            </button>
+          {/* Online / Offline badge */}
+          <span className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 ${
+            isOnline
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-rose-50 text-rose-600 border border-rose-200 animate-pulse'
+          }`}>
+            <span className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            {isOnline ? 'Online' : 'Offline Mode'}
+          </span>
 
-            {/* Notifications */}
-            <div className="relative" ref={notifRef}>
-              <button onClick={() => setShowNotifs(v => !v)}
-                className="relative p-2.5 text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
+          {/* WebSocket Status */}
+          <span className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 ${
+            isSocketConnected
+              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+              : 'bg-slate-50 text-slate-500 border border-slate-200'
+          }`} title={isSocketConnected ? 'Real-time sync active' : 'Real-time sync disconnected'}>
+            <Zap className={`h-3 w-3 ${isSocketConnected ? 'text-blue-500' : 'text-slate-400'}`} />
+            {isSocketConnected ? 'Live' : 'Polling'}
+          </span>
 
-              {showNotifs && (
-                <div className="absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-                  <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Notifications</h3>
-                      {unreadCount > 0 && <p className="text-xs text-gray-400">{unreadCount} unread</p>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {unreadCount > 0 && (
-                        <button onClick={markAllRead} className="text-xs text-blue-600 hover:text-blue-800 font-medium">Mark all read</button>
-                      )}
-                      <button onClick={() => setShowNotifs(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
-                    {notifications.length === 0 ? (
-                      <div className="py-10 text-center text-gray-400">
-                        <Bell className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                        <p className="text-sm">No notifications</p>
-                      </div>
-                    ) : notifications.slice(0, 15).map(n => (
-                      <div key={n.id} onClick={() => markRead(n.id)}
-                        className={`px-5 py-3.5 flex gap-3 cursor-pointer hover:bg-gray-50 transition ${!n.isRead ? 'bg-blue-50/40' : ''}`}>
-                        {notifIcon(n.type)}
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm leading-snug ${!n.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>{n.title}</p>
-                          <p className="text-xs text-gray-400 truncate mt-0.5">{n.message}</p>
-                          <p className="text-[10px] text-gray-300 mt-1 flex items-center gap-1">
-                            <Clock className="h-2.5 w-2.5" />
-                            {new Date(n.createdAt).toLocaleString()}
-                          </p>
-                        </div>
-                        {!n.isRead && <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs border border-blue-200 cursor-pointer">AD</div>
-          </div>
-        </header>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50">
-
-          {/* Metric Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            {[
-              { label: 'Total Records',    value: syncStatus.total,   sub: 'All time',         color: 'text-slate-900' },
-              { label: 'Synced',           value: syncStatus.synced,  sub: 'Successfully done', color: 'text-emerald-600' },
-              { label: 'Pending Sync',     value: syncStatus.pending, sub: 'Awaiting upload',   color: 'text-amber-600' },
-              { label: 'Failed',           value: syncStatus.failed,  sub: 'Need attention',    color: 'text-red-500' },
-            ].map(c => (
-              <div key={c.label} className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{c.label}</p>
-                <p className={`text-4xl font-bold ${c.color} mb-1 leading-none`}>{c.value}</p>
-                <p className="text-xs text-slate-400 mt-2">{c.sub}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Branch Filter Buttons */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {branches.map(b => (
-              <button key={b} onClick={() => setSelectedStatus(b)}
-                className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider border transition-all ${selectedStatus === b ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400 shadow-sm'}`}>
-                {b === 'ALL' ? 'All Branches' : b}
-              </button>
-            ))}
-          </div>
-
-          {/* Branch Cards */}
-          {branchSummary.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {(selectedStatus === 'ALL' ? branchSummary : branchSummary.filter(b => b.id === selectedStatus)).map(branch => {
-                const total = branch.pending + branch.synced + branch.failed;
-                const borderCol = branch.failed > 0 ? 'border-b-red-500' : branch.pending > 0 ? 'border-b-amber-500' : 'border-b-emerald-500';
-                return (
-                  <div key={branch.id} className={`bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden border-b-[6px] ${borderCol} transition hover:shadow-md`}>
-                    <div className="p-8">
-                      <div className="flex justify-between items-start mb-6">
-                        <div>
-                          <p className="text-sm font-bold text-slate-900">{branch.name}</p>
-                          <p className="text-[10px] text-slate-400 font-medium mt-1">ID: {branch.id}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-6 mb-6">
-                        <div><p className="text-2xl font-black text-amber-500">{branch.pending}</p><p className="text-[9px] font-black text-slate-400 uppercase">Pending</p></div>
-                        <div><p className="text-2xl font-black text-emerald-600">{branch.synced}</p><p className="text-[9px] font-black text-slate-400 uppercase">Synced</p></div>
-                        <div><p className={`text-2xl font-black ${branch.failed > 0 ? 'text-red-500' : 'text-slate-200'}`}>{branch.failed}</p><p className="text-[9px] font-black text-slate-400 uppercase">Failed</p></div>
-                      </div>
-                      <div className="w-full flex h-2 rounded-full overflow-hidden bg-slate-100 mb-4">
-                        {total > 0 && <>
-                          <div className="bg-emerald-500" style={{ width: `${(branch.synced/total)*100}%` }} />
-                          <div className="bg-amber-500" style={{ width: `${(branch.pending/total)*100}%` }} />
-                          <div className="bg-red-500"    style={{ width: `${(branch.failed/total)*100}%`  }} />
-                        </>}
-                      </div>
-                      <p className="text-[10px] text-slate-400 font-medium">Last pulse: {branch.lastSync}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center mb-8">
-              <Database className="h-10 w-10 mx-auto mb-3 text-gray-200" />
-              <p className="text-gray-500 font-medium">No sync records yet</p>
-              <p className="text-xs text-gray-400 mt-1">Push a sync record to see branch activity here</p>
-            </div>
+          {/* Circuit-breaker warning */}
+          {isCircuitOpen && (
+            <span className="bg-orange-50 text-orange-700 border border-orange-200 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <ShieldAlert className="h-3 w-3" />
+              Circuit Open — Sync Paused
+            </span>
           )}
 
-          {/* Activity Feed from real queue */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mb-8">
-            <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-2">
-              <h3 className="font-semibold text-gray-800">Recent Sync Activity</h3>
-              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{filteredQueue.length} records</span>
-            </div>
-            {filteredQueue.length === 0 ? (
-              <div className="py-10 text-center text-gray-400">
-                <p className="text-sm">No activity yet</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-50">
-                {filteredQueue.slice(0, 10).map(item => {
-                  const cfg = statusConfig[item.status] || statusConfig['PENDING'];
-                  return (
-                    <div key={item.id} className="px-6 py-3.5 flex items-center gap-3">
-                      <span className={`h-2 w-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-800">{item.entity}</p>
-                        <p className="text-xs text-gray-400">{item.branchId || 'Main'} {item.error ? `· ${item.error}` : ''}</p>
-                      </div>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
-                      <p className="text-[11px] text-gray-400 flex-shrink-0">{new Date(item.createdAt).toLocaleTimeString()}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Analytics Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            {/* Sync Volume Chart (Large) */}
-            <div className="lg:col-span-2 bg-white rounded-[32px] border border-slate-100 shadow-sm p-8">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Sync Volume</h3>
-                  <p className="text-xs text-slate-400 mt-1">Activity over the last 8 hours</p>
-                </div>
-                <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-emerald-500" /> Synced</div>
-                  <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-amber-400" /> Pending</div>
-                  <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-red-500" /> Failed</div>
-                </div>
-              </div>
-
-              <div className="h-72 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={volumeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94A3B8'}} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94A3B8'}} />
-                    <Tooltip cursor={{fill: '#F8FAFC'}} contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                    <Bar dataKey="records" radius={[6, 6, 0, 0]} barSize={40}>
-                      {volumeData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill="#3B82F6" />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Health & Latency Widget (Small) */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">System Health</h3>
-                <Activity className="h-4 w-4 text-blue-500" />
-              </div>
-              
-              <div className="space-y-8">
-                <div>
-                  <div className="flex justify-between text-[10px] font-black mb-2">
-                    <span className="text-slate-400 uppercase tracking-widest">Latency (Avg)</span>
-                    <span className="text-blue-600">84ms</span>
-                  </div>
-                  <div className="h-20 w-full opacity-40">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={[{v:40},{v:60},{v:55},{v:80},{v:70},{v:84}]}>
-                          <Area type="monotone" dataKey="v" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.1} strokeWidth={2} />
-                        </AreaChart>
-                     </ResponsiveContainer>
-                  </div>
-                </div>
-
-                <div className="pt-8 border-t border-slate-50">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Terminals</span>
-                    <span className="text-xs font-bold text-slate-900">12 / 12 Online</span>
-                  </div>
-                  <div className="flex gap-1.5">
-                    {Array(12).fill(null).map((_, i) => (
-                      <div key={i} className="h-1.5 flex-1 rounded-full bg-emerald-500 shadow-sm" />
-                    ))}
-                  </div>
-                </div>
-
-                <button onClick={() => router.push('/sync/health')}
-                  className="w-full py-3.5 bg-slate-50 text-slate-600 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition mt-4">
-                  Full Health Report
-                </button>
-              </div>
-            </div>
-          </div>
-
+          {/* Offline queue badge */}
+          {offlinePendingCount > 0 && (
+            <span className="bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold px-3 py-1 rounded-full animate-bounce">
+              💾 {offlinePendingCount} queued offline
+            </span>
+          )}
         </div>
-    </>
+
+        <div className="flex items-center gap-3">
+          {/* Manual refresh */}
+          <button
+            id="refresh-btn"
+            onClick={refreshAll}
+            className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition"
+            title="Refresh now"
+          >
+            <RefreshCw className="h-5 w-5" />
+          </button>
+
+
+
+          {/* Sync Now */}
+          <button
+            id="sync-now-btn"
+            onClick={handleSyncNow}
+            disabled={syncing || isOfflineSyncing || isCircuitOpen}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {syncing || isOfflineSyncing
+              ? <RefreshCw className="h-4 w-4 animate-spin" />
+              : <RotateCw className="h-4 w-4" />}
+            {syncing || isOfflineSyncing ? 'Syncing…' : 'Sync Now'}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Circuit Breaker Alert ── */}
+      {isCircuitOpen && (
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
+          <div className="h-10 w-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
+            <ShieldAlert className="h-5 w-5 text-orange-600" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-orange-900">Circuit Breaker Active</p>
+            <p className="text-xs text-orange-700 mt-0.5">
+              {consecutiveFailures} consecutive failures detected. Sync is paused for 5 minutes to protect the server.
+              The circuit will automatically reset. You can still save data offline.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Unresolved Conflicts Banner ── */}
+      {conflictCount > 0 && (
+        <div className="bg-red-50 border-l-4 border-red-500 rounded-r-2xl p-5 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-red-900">Unresolved Data Conflicts</p>
+              <p className="text-xs text-red-700 mt-0.5">
+                {conflictCount} conflict(s) require manual resolution before affected branches can resume syncing.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push('/sync/conflicts')}
+            className="px-5 py-2 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-700 transition"
+          >
+            Resolve Now
+          </button>
+        </div>
+      )}
+
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[
+          { label: 'Total Records', value: syncStatus.total, sub: 'All time', color: 'text-slate-900', bg: 'from-slate-50 to-white', border: 'border-slate-100' },
+          { label: 'Synced', value: syncStatus.synced, sub: 'Successfully done', color: 'text-emerald-600', bg: 'from-emerald-50 to-white', border: 'border-emerald-100' },
+          { label: 'Pending Sync', value: syncStatus.pending, sub: 'Awaiting upload', color: 'text-amber-600', bg: 'from-amber-50 to-white', border: 'border-amber-100' },
+          { label: 'Failed', value: syncStatus.failed, sub: 'Need attention', color: 'text-red-500', bg: 'from-red-50 to-white', border: 'border-red-100' },
+        ].map(c => (
+          <div key={c.label} className={`bg-gradient-to-br ${c.bg} rounded-[28px] p-7 border ${c.border} shadow-sm hover:shadow-md transition`}>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{c.label}</p>
+            <p className={`text-4xl font-bold ${c.color} mb-1 leading-none tabular-nums`}>{c.value}</p>
+            <p className="text-xs text-slate-400 mt-2">{c.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Dashboard Cards Row ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Database Footprint */}
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 flex flex-col justify-between">
+          <div className="flex items-start gap-4">
+            <div className="h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-slate-900/20">
+              <Database className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Database Storage</p>
+              <p className="text-sm font-bold text-slate-900 mt-1">Logs Retained: 7+ Days</p>
+            </div>
+          </div>
+          <button
+            onClick={async () => {
+              const tid = toast.loading('Pruning old logs...');
+              try {
+                const res = await api.delete(`/sync/prune`);
+                const json = res.data;
+                toast.success(`Pruned ${json.data?.pruned || json.pruned || 0} old records.`, { id: tid });
+                await refreshAll();
+              } catch (err) {
+                toast.error('Failed to prune database', { id: tid });
+              }
+            }}
+            className="relative z-50 cursor-pointer pointer-events-auto mt-4 w-full py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-100 transition border border-slate-200"
+          >
+            Clear Old Successful Logs
+          </button>
+        </div>
+
+        {/* Last Sync Time */}
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 flex items-center gap-5">
+          <div className="h-14 w-14 bg-blue-50 rounded-2xl flex items-center justify-center shrink-0">
+            <Clock className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Sync</p>
+            <p className="text-lg font-bold text-slate-900 mt-1">{formatRelativeTime(syncMetrics?.lastSyncTime ? new Date(syncMetrics.lastSyncTime) : null)}</p>
+            <p className="text-xs text-slate-400 mt-0.5">Dashboard refreshed: {formatRelativeTime(lastRefreshed)}</p>
+          </div>
+        </div>
+
+        {/* Connected Devices */}
+        <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 flex items-center gap-5">
+          <div className="h-14 w-14 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
+            <Server className="h-6 w-6 text-emerald-600" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Connected Devices</p>
+            <p className="text-lg font-bold text-slate-900 mt-1">
+              {systemHealth?.onlineDevices || 0} / {systemHealth?.totalDevices || 0}
+            </p>
+            <p className="text-xs text-slate-400 mt-0.5">Active POS Nodes</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Branch Filter ── */}
+      <div className="flex items-center">
+        <select
+          id="branch-filter-dropdown"
+          value={selectedBranch}
+          onChange={(e) => setSelectedBranch(e.target.value)}
+          disabled={!isAdmin}
+          className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm disabled:bg-slate-50 disabled:text-slate-400"
+        >
+          {filterBranches.map(b => (
+            <option key={b} value={b}>
+              {b === 'ALL' ? '🌐 All Branches' : b}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* ── Branch Cards ── */}
+      {branchSummary.length > 0 ? (
+        <div className="bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden mb-12">
+          <div className="overflow-x-auto max-h-[500px] overflow-y-auto relative">
+            <table className="w-full text-left border-collapse">
+              <thead className="sticky top-0 z-10 shadow-sm">
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50">Branch</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50">Volume (Chart)</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right bg-slate-50">Pending</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right bg-slate-50">Synced</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right bg-slate-50">Failed</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right bg-slate-50">Last Pulse</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {(selectedBranch === 'ALL' ? branchSummary : branchSummary.filter(b => b.name === selectedBranch))
+                  .sort((a, b) => b.failed - a.failed || b.pending - a.pending)
+                  .map(branch => {
+                    const hasIssues = branch.failed > 0;
+                    const isSyncing = branch.pending > 0;
+                    const total = branch.pending + branch.synced + branch.failed;
+                    
+                    return (
+                      <tr key={branch.id} className={`hover:bg-slate-50/50 transition ${hasIssues ? 'bg-red-50/30' : ''}`}>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <MapPin className={`h-4 w-4 ${hasIssues ? 'text-red-400' : 'text-slate-400'}`} />
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{branch.name}</p>
+                              <p className="text-[10px] text-slate-400 font-medium mt-0.5">ID: {branch.id}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-full flex items-center gap-1.5 w-max ${
+                            hasIssues ? 'bg-red-50 text-red-600 border border-red-200' :
+                            isSyncing ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                          }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${hasIssues ? 'bg-red-500 animate-pulse' : isSyncing ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                            {hasIssues ? 'ISSUES' : isSyncing ? 'SYNCING' : 'HEALTHY'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 w-32">
+                          <div className="w-full flex h-1.5 rounded-full overflow-hidden bg-slate-100" title={`Total: ${total} records`}>
+                            {total > 0 && <>
+                              <div className="bg-emerald-500" style={{ width: `${(branch.synced / total) * 100}%` }} />
+                              <div className="bg-amber-400" style={{ width: `${(branch.pending / total) * 100}%` }} />
+                              <div className="bg-red-500" style={{ width: `${(branch.failed / total) * 100}%` }} />
+                            </>}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`text-sm font-black ${branch.pending > 0 ? 'text-amber-500' : 'text-slate-300'}`}>{branch.pending}</span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`text-sm font-black ${branch.synced > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>{branch.synced}</span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`text-sm font-black ${hasIssues ? 'text-red-500' : 'text-slate-300'}`}>{branch.failed}</span>
+                        </td>
+                        <td className="px-6 py-4 text-right text-xs text-slate-500 font-medium">
+                          {branch.lastSync}
+                        </td>
+                      </tr>
+                    );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center">
+          <Database className="h-10 w-10 mx-auto mb-3 text-slate-200" />
+          <p className="text-slate-500 font-medium">No branch sync records yet</p>
+          <p className="text-xs text-slate-400 mt-1">Push a sync record to see branch activity here</p>
+        </div>
+      )}
+
+      {/* ── FORCED SPACER ── */}
+      <div className="w-full h-16 sm:h-24" aria-hidden="true" style={{ minHeight: '80px' }}></div>
+
+      {/* ── Recent Sync Activity ── */}
+      <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm">
+        <div className="px-7 py-5 border-b border-slate-50 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h3 className="font-bold text-slate-800 text-sm">Recent Sync Activity</h3>
+            <span className="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full">
+              {filteredQueue.length} records
+            </span>
+          </div>
+          <button
+            id="view-queue-btn"
+            onClick={() => router.push('/sync/queue')}
+            className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition"
+          >
+            View All <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+
+        {filteredQueue.length === 0 ? (
+          <div className="py-12 text-center text-slate-400">
+            <Clock className="h-8 w-8 mx-auto mb-3 opacity-20" />
+            <p className="text-sm font-medium">No sync activity yet</p>
+            <p className="text-xs mt-1">Click "Sync Now" to push data to the server</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-50">
+            {filteredQueue.slice(0, 5).map(item => {
+              const isSync = item.status === 'SYNCED';
+              const isFail = item.status === 'FAILED';
+              return (
+                <div key={item.id} className="px-7 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition">
+                  <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${
+                    isSync ? 'bg-emerald-50' : isFail ? 'bg-red-50' : 'bg-amber-50'
+                  }`}>
+                    {isSync
+                      ? <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      : isFail
+                        ? <XCircle className="h-4 w-4 text-red-500" />
+                        : <Clock className="h-4 w-4 text-amber-500 animate-pulse" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 capitalize">{item.entity}</p>
+                    <p className="text-xs text-slate-400">{getRecordBranchName(item)}{item.error ? ` · ${item.error}` : ''}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                      isSync ? 'bg-emerald-50 text-emerald-600' :
+                      isFail ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                    }`}>{item.status}</span>
+                    <p className="text-[10px] text-slate-400 mt-1">{formatTimeSafe(item.createdAt || (item as any).created_at)}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+    </div>
   );
 }

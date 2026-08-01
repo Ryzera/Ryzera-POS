@@ -1,17 +1,24 @@
-import { z } from 'zod';
+import { IsNumber, IsString, IsNotEmpty, IsOptional, IsObject } from 'class-validator';
 
 /**
- * Ensures that every incoming sync request contains valid, complete data.
- * Invalid requests are rejected early, preventing corrupt or incomplete records
- * from entering the sync queue.
+ * Class-validator DTO for Push Sync requests.
+ * Ensures every incoming sync payload is complete and valid,
+ * adhering to the NestJS standard across all team modules.
  */
-export const PushSyncSchema = z.object({
-  companyId: z.string().uuid().optional().nullable(),
-  branchId: z.string().uuid().optional().nullable(),
-  entity: z.string().min(1, 'Entity is required'),
-  payload: z.record(z.string(), z.any()).refine(val => Object.keys(val).length > 0, {
-    message: 'Payload cannot be empty',
-  }),
-});
+export class PushSyncDto {
+  @IsOptional()
+  @IsNumber()
+  companyId?: number | null;
 
-export type PushSyncDto = z.infer<typeof PushSyncSchema>;
+  @IsOptional()
+  @IsNumber()
+  branchId?: number | null;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Entity is required' })
+  entity: string;
+
+  @IsObject()
+  @IsNotEmpty({ message: 'Payload cannot be empty' })
+  payload: Record<string, any>;
+}
