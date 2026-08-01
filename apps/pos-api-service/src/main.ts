@@ -1,34 +1,32 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for WebSocket
-  app.enableCors({
-    origin: '*',
-    credentials: true,
-  });
-
-  // Global prefix for all routes
+  // ─── Global Prefix ────────────────────────────────
   app.setGlobalPrefix('api');
 
-  // Swagger setup
-  const config = new DocumentBuilder()
-    .setTitle('Ryzera POS API')
-    .setDescription('POS system API with offline-first sync')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  // ─── Global Exception Filter ──────────────────────
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
-  await app.listen(3000);
-  
-  console.log(`\n🚀 API: http://localhost:3000/api`);
-  console.log(`🔌 WebSocket: ws://localhost:3000`);
-  console.log(`📚 Swagger: http://localhost:3000/api/docs\n`);
+  // ─── Global Response Interceptor ──────────────────
+  app.useGlobalInterceptors(new ResponseInterceptor());
+
+  // ─── CORS ─────────────────────────────────────────
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+
+  console.log(`🚀 Server running on http://localhost:${port}/api`);
 }
+
 bootstrap();

@@ -1,382 +1,62 @@
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client-js"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model Company {
-  company_id Int      @id @default(autoincrement())
-  name       String
-  code       String   @unique
-  email      String?
-  phone      String?
-  address    String?
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  branches   Branch[]
-  users      User[]
+// ENUMS — AUTH MODULE
 
-  @@map("ryzera_pos_company")
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  @@map("user_status")
 }
 
-model Branch {
-  branchId     Int          @id @default(autoincrement())
-  company_id   Int
-  name         String
-  code         String
-  address      String?
-  city         String?
-  phone        String?
-  email        String?
-  manager_name String?
-  is_active    Boolean      @default(true)
-  created_at   DateTime     @default(now())
-  updated_at   DateTime     @updatedAt
-  company      Company      @relation(fields: [company_id], references: [company_id])
-  stockAlerts  StockAlert[]
-  users        User[]
-  userLogs     UserLog[]
-
-  @@map("ryzera_pos_branch")
+enum UserType {
+  ADMIN
+  STAFF
+  @@map("user_type")
 }
 
-model User {
-  user_id               Int            @id @default(autoincrement())
-  username              String         @unique
-  password              String
-  user_type             String         @default("STAFF")
-  status                String
-  company_id            Int
-  branch_id             Int
-  failed_login_attempts Int            @default(0)
-  last_failed_login     DateTime?
-  account_locked_until  DateTime?
-  last_login_at         DateTime?
-  created_at            DateTime       @default(now())
-  updated_at            DateTime       @updatedAt
-  inventoryLogs         InventoryLog[]
-  branch                Branch         @relation(fields: [branch_id], references: [branchId])
-  company               Company        @relation(fields: [company_id], references: [company_id])
-  info                  UserInfo?
-  logs                  UserLog[]
-  userRoles             UserRole[]
-
-  @@map("ryzera_pos_user")
+enum LogAction {
+  LOGIN
+  LOGOUT
+  CREATE_USER
+  UPDATE_USER
+  DELETE_USER
+  ROLE_ASSIGNED
+  PASSWORD_CHANGED
+  @@map("log_action")
 }
 
-model UserInfo {
-  user_info_id Int      @id @default(autoincrement())
-  user_id      Int      @unique
-  first_name   String
-  last_name    String
-  email        String?  @unique
-  phone        String?
-  address      String?
-  profile_pic  String?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
-  @@map("ryzera_pos_user_info")
+enum LogStatus {
+  SUCCESS
+  FAILED
+  @@map("log_status")
 }
 
-model Role {
-  id              String          @id @default(uuid())
-  name            String          @unique
-  description     String?
-  createdAt       DateTime        @default(now())
-  roleAuthorities RoleAuthority[]
-  userRoles       UserRole[]
+// ENUMS — INVENTORY MODULE
 
-  @@map("ryzera_pos_role")
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+  @@map("product_status")
 }
 
-model Authority {
-  id              String          @id @default(uuid())
-  name            String          @unique
-  description     String?
-  createdAt       DateTime        @default(now())
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_authority")
-}
-
-model UserRole {
-  id        String   @id @default(uuid())
-  userId    Int
-  roleId    String
-  createdAt DateTime @default(now())
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-
-  @@unique([userId, roleId])
-  @@map("ryzera_pos_user_role")
-}
-
-model RoleAuthority {
-  id          String    @id @default(uuid())
-  roleId      String
-  authorityId String
-  createdAt   DateTime  @default(now())
-  authority   Authority @relation(fields: [authorityId], references: [id], onDelete: Cascade)
-  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@unique([roleId, authorityId])
-  @@map("ryzera_pos_role_authority")
-}
-
-model UserLog {
-  id          String   @id @default(uuid())
-  userId      Int
-  branch_id   Int
-  action      String
-  ipAddress   String?
-  device_info String?
-  userAgent   String?
-  status      String
-  createdAt   DateTime @default(now())
-  branch      Branch   @relation(fields: [branch_id], references: [branchId])
-  user        User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-
-  @@map("ryzera_pos_user_log")
-}
-
-model Product {
-  id            String         @id @default(uuid())
-  name          String
-  price         Float
-  stockQty      Int            @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  inventoryLogs InventoryLog[]
-  stockAlerts   StockAlert[]
-
-  @@map("ryzera_pos_product")
-}
-
-model InventoryLog {
-  id          String          @id @default(uuid())
-  action      InventoryAction
-  changeQty   Int
-  description String?
-  userId      Int
-  productId   String
-  createdAt   DateTime        @default(now())
-  product     Product         @relation(fields: [productId], references: [id])
-  user        User            @relation(fields: [userId], references: [user_id])
-
-  @@map("ryzera_pos_inventory_log")
-}
-
-model StockAlert {
-  id        String      @id @default(uuid())
-  status    AlertStatus @default(PENDING)
-  stockQty  Int
-  minStock  Int
-  productId String
-  branchId  Int
-  createdAt DateTime    @default(now())
-  branch    Branch      @relation(fields: [branchId], references: [branchId])
-  product   Product     @relation(fields: [productId], references: [id])
-
-  @@map("ryzera_pos_stock_alert")
-}
-
-model SyncCompany {
-  id        String        @id @default(uuid())
-  name      String
-  code      String?       @unique
-  email     String?
-  phone     String?
-  address   String?
-  isActive  Boolean       @default(true)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  backups   SyncBackup[]
-  branches  SyncBranch[]
-  syncLogs  SyncLog[]
-  settings  SyncSetting[]
-
-  @@index([code])
-  @@map("sync_company")
-}
-
-model SyncBranch {
-  id         String               @id @default(uuid())
-  companyId  String
-  name       String
-  code       String
-  address    String?
-  phone      String?
-  adminEmail String?
-  isActive   Boolean              @default(true)
-  createdAt  DateTime             @default(now())
-  updatedAt  DateTime             @updatedAt
-  backups    SyncBackup[]
-  schedules  SyncBackupSchedule[]
-  company    SyncCompany          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  devices    SyncDevice[]
-  metrics    SyncHealthMetric[]
-  syncLogs   SyncLog[]
-  settings   SyncSetting[]
-
-  @@unique([companyId, code])
-  @@index([companyId])
-  @@map("sync_branch")
-}
-
-model SyncLog {
-  id        String        @id @default(uuid())
-  companyId String?
-  branchId  String?
-  entity    String
-  payload   Json
-  error     String?
-  attempts  Int           @default(0)
-  syncedAt  DateTime?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  status    String        @default("PENDING")
-  conflict  SyncConflict?
-  branch    SyncBranch?   @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  company   SyncCompany?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([companyId, status])
-  @@index([branchId, status])
-  @@index([status])
-  @@index([createdAt])
-  @@map("sync_log")
-}
-
-model SyncSetting {
-  id          String      @id @default(uuid())
-  key         String
-  value       String
-  description String?
-  companyId   String
-  branchId    String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  scope       String      @default("GLOBAL")
-  branch      SyncBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  company     SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([companyId, branchId, key])
-  @@index([companyId])
-  @@index([branchId])
-  @@map("sync_setting")
-}
-
-model SyncBackup {
-  id        String      @id @default(uuid())
-  companyId String
-  branchId  String?
-  fileName  String
-  notes     String?
-  createdAt DateTime    @default(now())
-  status    String      @default("SUCCESS")
-  branch    SyncBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  company   SyncCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([companyId])
-  @@index([branchId])
-  @@index([createdAt])
-  @@map("sync_backup")
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  title     String
-  message   String
-  type      String
-  isRead    Boolean  @default(false)
-  userId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([createdAt])
-  @@map("notification")
-}
-
-model SyncDevice {
-  id        String     @id @default(uuid())
-  name      String
-  type      String     @default("POS")
-  status    String     @default("PENDING")
-  branchId  String
-  lastSeen  DateTime   @default(now())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  branch    SyncBranch @relation(fields: [branchId], references: [id], onDelete: Cascade)
-
-  @@index([branchId])
-  @@map("sync_device")
-}
-
-model SyncConflict {
-  id         String    @id @default(uuid())
-  syncLogId  String    @unique
-  resolvedAt DateTime?
-  resolution String?
-  resolvedBy String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  clientData Json?
-  serverData Json?
-  status     String    @default("PENDING")
-  syncLog    SyncLog   @relation(fields: [syncLogId], references: [id], onDelete: Cascade)
-
-  @@map("sync_conflict")
-}
-
-model SyncBackupSchedule {
-  id        String   @id @default(uuid())
-  name      String?
-  branchId  String
-  frequency String   // HOURLY, DAILY, WEEKLY
-  time      String   // HH:mm
-  keepDays  Int      @default(30)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  branch    SyncBranch @relation(fields: [branchId], references: [id], onDelete: Cascade)
-
-  @@index([branchId])
-  @@map("sync_backup_schedule")
-}
-
-model SyncAuditLog {
-  id        String   @id @default(uuid())
-  action    String
-  module    String
-  userId    String?
-  branchId  String?
-  details   Json?
-  createdAt DateTime @default(now())
-
-  @@index([module])
-  @@index([userId])
-  @@index([branchId])
-  @@map("sync_audit_log")
-}
-
-model SyncHealthMetric {
-  id          String     @id @default(uuid())
-  branchId    String
-  latency     Float
-  successRate Float
-  uptime      Float
-  timestamp   DateTime   @default(now())
-  branch      SyncBranch @relation(fields: [branchId], references: [id], onDelete: Cascade)
-
-  @@index([branchId])
-  @@index([timestamp])
-  @@map("sync_health_metric")
+enum UnitOfMeasure {
+  PCS
+  KG
+  PACK
+  LTR
+  BOX
+  MTR
+  @@map("unit_of_measure")
 }
 
 enum InventoryAction {
@@ -391,10 +71,928 @@ enum InventoryAction {
   RETURN_FROM_CUSTOMER
   RETURN_TO_SUPPLIER
   WASTE_DAMAGED
+  @@map("inventory_action")
 }
 
 enum AlertStatus {
   PENDING
   SEEN
   RESOLVED
+  @@map("alert_status")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  RECEIVED
+  CANCELLED
+  @@map("purchase_order_status")
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCELLED
+  @@map("invoice_status")
+}
+
+enum TransferStatus {
+  PENDING
+  SHIPPED
+  RECEIVED
+  CANCELLED
+  @@map("transfer_status")
+}
+
+// ENUMS — BILLING MODULE
+
+enum BillStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  @@map("bill_status")
+}
+
+enum BillPaymentMethod {
+  CASH
+  CARD
+  ONLINE
+  SPLIT
+  @@map("bill_payment_method")
+}
+
+enum SaleStatus {
+  Pending
+  Completed
+  Cancelled
+  @@map("sale_status")
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Refunded
+  @@map("payment_status")
+}
+
+enum ReturnType {
+  Full
+  Partial
+  @@map("return_type")
+}
+
+enum RefundMethod {
+  Cash
+  Card
+  Wallet
+  @@map("refund_method")
+}
+
+enum ReturnStatus {
+  Pending
+  Completed
+  Rejected
+  @@map("return_status")
+}
+
+// CORE — COMPANY & BRANCH (AUTH MODULE BASE)
+
+model Company {
+  id         Int      @id @default(autoincrement()) @map("company_id")
+  name       String
+  code       String   @unique
+  email      String?
+  phone      String?
+  address    String?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  branches Branch[]
+  users    User[]
+  products Product[]
+  bills    Bill[]
+
+  @@map("company")
+}
+
+model Branch {
+  id           Int      @id @default(autoincrement()) @map("branch_id")
+  company_id   Int
+  name         String
+  code         String
+  address      String?
+  phone        String?
+  email        String?
+  city         String?
+  manager_name String?
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  users    User[]
+  logs     UserLog[]
+  products Product[]
+  bills    Bill[]
+
+  // Inventory relations
+  branchProducts BranchProduct[]
+  inventoryLogs  InventoryLog[]
+  stockAlerts    StockAlert[]
+  purchaseOrders PurchaseOrder[]
+  transfersFrom  Transfer[]      @relation("TransferSource")
+  transfersTo    Transfer[]      @relation("TransferDestination")
+
+  // Sync relations
+  syncLogs         SyncLog[]
+  syncDevices      SyncDevice[]
+  syncSettings     SyncSetting[]
+  syncBackups      SyncBackup[]
+  syncSchedules    SyncBackupSchedule[]
+  syncMetrics      SyncHealthMetric[]
+
+  // Reporting
+  dailySummaries DailySummary[]
+
+  @@unique([company_id, code])
+  @@map("branch")
+}
+
+// USER MANAGEMENT (AUTH MODULE)
+
+model User {
+  id                    Int        @id @default(autoincrement()) @map("user_id")
+  username              String     @unique
+  password              String
+  company_id            Int
+  branch_id             Int?
+  user_type             UserType   @default(STAFF)
+  status                UserStatus @default(ACTIVE)
+  failed_login_attempts Int        @default(0)
+  last_failed_login     DateTime?
+  account_locked_until  DateTime?
+  last_login_at         DateTime?
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+
+  company   Company    @relation(fields: [company_id], references: [id])
+  branch    Branch?    @relation(fields: [branch_id], references: [id])
+  info      UserInfo?
+  userRoles UserRole[]
+  logs      UserLog[]
+
+  // Billing
+  bills Bill[] @relation("CashierBills")
+
+  // Inventory
+  inventoryLogs  InventoryLog[]
+  purchaseOrders PurchaseOrder[]
+  transfers      Transfer[]
+
+  // Reporting
+  savedReports    SavedReportConfig[]
+  reportSchedules ReportSchedule[]
+  auditLogs       AuditLog[]
+
+  @@map("user")
+}
+
+model UserInfo {
+  id              Int     @id @default(autoincrement()) @map("user_info_id")
+  user_id         Int     @unique
+  first_name      String
+  last_name       String
+  email           String?
+  phone_number    String?
+  address         String?
+  profile_picture String?
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("user_info")
+}
+
+// ROLE & PERMISSIONS (AUTH MODULE)
+
+model Role {
+  id          Int    @id @default(autoincrement()) @map("role_id")
+  name        String @unique
+  description String?
+
+  userRoles   UserRole[]
+  authorities RoleAuthority[]
+
+  @@map("role")
+}
+
+model Authority {
+  id          Int    @id @default(autoincrement()) @map("authority_id")
+  name        String @unique
+  description String?
+
+  roles RoleAuthority[]
+
+  @@map("authority")
+}
+
+model UserRole {
+  id     Int @id @default(autoincrement())
+  userId Int
+  roleId Int
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@map("user_role")
+}
+
+model RoleAuthority {
+  id          Int @id @default(autoincrement())
+  roleId      Int
+  authorityId Int
+
+  role      Role      @relation(fields: [roleId], references: [id])
+  authority Authority @relation(fields: [authorityId], references: [id])
+
+  @@unique([roleId, authorityId])
+  @@map("role_authority")
+}
+
+model UserLog {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  branch_id   Int?
+  action      LogAction
+  status      LogStatus
+  ip_address  String?
+  user_agent  String?
+  device_info String?
+  created_at  DateTime  @default(now())
+
+  user   User    @relation(fields: [userId], references: [id])
+  branch Branch? @relation(fields: [branch_id], references: [id])
+
+  @@map("user_log")
+}
+
+// INVENTORY MODULE
+
+model Supplier {
+  id          Int     @id @default(autoincrement())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+  leadTimeDays Int    @default(0)
+  isActive    Boolean @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([name])
+  @@map("supplier")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+
+  @@map("category")
+}
+
+model Product {
+  id          Int           @id @default(autoincrement()) @map("product_id")
+  name        String
+  code        String
+  sku         String?       @unique
+  barcode     String?       @unique
+  description String?
+  price       Decimal       @db.Decimal(10, 2)
+  cost_price  Decimal?      @db.Decimal(10, 2)
+  quantity    Int           @default(0)
+  min_quantity Int          @default(0)
+  unit        UnitOfMeasure @default(PCS)
+  status      ProductStatus @default(ACTIVE)
+  is_active   Boolean       @default(true)
+  company_id  Int
+  branch_id   Int?
+  category_id Int?
+  supplier_id Int?
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  branch   Branch?   @relation(fields: [branch_id], references: [id])
+  category Category? @relation(fields: [category_id], references: [id])
+  supplier Supplier? @relation(fields: [supplier_id], references: [id])
+
+  billItems      BillItem[]
+  branchProducts BranchProduct[]
+  inventoryLogs  InventoryLog[]
+  stockAlerts    StockAlert[]
+  purchaseItems  PurchaseOrderItem[]
+  transferItems  TransferItem[]
+  batches        Batch[]
+  saleItems      SaleItem[]
+
+  @@map("product")
+}
+
+model BranchProduct {
+  id          Int @id @default(autoincrement())
+  stockQty    Int @default(0)
+  reservedQty Int @default(0)
+  branch_id   Int
+  product_id  Int
+
+  branch  Branch  @relation(fields: [branch_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  inventoryLogs InventoryLog[]
+
+  @@unique([branch_id, product_id])
+  @@map("branch_product")
+}
+
+model InventoryLog {
+  id          Int             @id @default(autoincrement())
+  action      InventoryAction
+  changeQty   Int
+  description String?
+  userId      Int
+  product_id  Int
+  branch_id   Int
+  branchProductId Int
+
+  user          User          @relation(fields: [userId], references: [id])
+  product       Product       @relation(fields: [product_id], references: [id])
+  branch        Branch        @relation(fields: [branch_id], references: [id])
+  branchProduct BranchProduct @relation(fields: [branchProductId], references: [id])
+
+  created_at DateTime @default(now())
+
+  @@map("inventory_log")
+}
+
+model StockAlert {
+  id         Int         @id @default(autoincrement())
+  status     AlertStatus @default(PENDING)
+  stockQty   Int
+  minStock   Int
+  product_id Int
+  branch_id  Int
+
+  product Product @relation(fields: [product_id], references: [id])
+  branch  Branch  @relation(fields: [branch_id], references: [id])
+
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  purchaseOrder PurchaseOrder?
+
+  @@map("stock_alert")
+}
+
+model PurchaseOrder {
+  id           Int                 @id @default(autoincrement())
+  status       PurchaseOrderStatus @default(DRAFT)
+  notes        String?
+  supplier_id  Int
+  branch_id    Int
+  created_by   Int
+  stockAlertId Int?                @unique
+
+  supplier   Supplier    @relation(fields: [supplier_id], references: [id])
+  branch     Branch      @relation(fields: [branch_id], references: [id])
+  createdBy  User        @relation(fields: [created_by], references: [id])
+  stockAlert StockAlert? @relation(fields: [stockAlertId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  items   PurchaseOrderItem[]
+  invoice PurchaseInvoice?
+
+  @@map("purchase_order")
+}
+
+model PurchaseOrderItem {
+  id               Int     @id @default(autoincrement())
+  quantity         Int
+  unitCost         Decimal @db.Decimal(10, 2)
+  totalCost        Decimal @db.Decimal(10, 2)
+  product_id       Int
+  purchaseOrder_id Int
+
+  product       Product       @relation(fields: [product_id], references: [id])
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrder_id], references: [id])
+
+  @@map("purchase_order_item")
+}
+
+model PurchaseInvoice {
+  id               Int           @id @default(autoincrement())
+  invoiceNo        String        @unique
+  status           InvoiceStatus @default(UNPAID)
+  totalAmount      Decimal       @db.Decimal(10, 2)
+  issuedAt         DateTime      @default(now())
+  dueDate          DateTime?
+  paidAt           DateTime?
+  notes            String?
+  purchaseOrder_id Int           @unique
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrder_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("purchase_invoice")
+}
+
+model Transfer {
+  id                  Int            @id @default(autoincrement())
+  status              TransferStatus @default(PENDING)
+  notes               String?
+  sourceBranch_id     Int
+  destinationBranch_id Int
+  created_by          Int
+
+  sourceBranch      Branch @relation("TransferSource", fields: [sourceBranch_id], references: [id])
+  destinationBranch Branch @relation("TransferDestination", fields: [destinationBranch_id], references: [id])
+  createdBy         User   @relation(fields: [created_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  items      TransferItem[]
+
+  @@map("transfer")
+}
+
+model TransferItem {
+  id          Int @id @default(autoincrement())
+  quantity    Int
+  product_id  Int
+  transfer_id Int
+
+  product  Product  @relation(fields: [product_id], references: [id])
+  transfer Transfer @relation(fields: [transfer_id], references: [id])
+
+  @@map("transfer_item")
+}
+
+model Batch {
+  id              Int       @id @default(autoincrement())
+  batchNumber     String    @unique
+  manufactureDate DateTime?
+  expiryDate      DateTime?
+  quantity        Int
+  product_id      Int
+
+  product Product @relation(fields: [product_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("batch")
+}
+
+// BILLING MODULE
+
+model Bill {
+  id             Int               @id @default(autoincrement()) @map("bill_id")
+  bill_number    String            @unique
+  company_id     Int
+  branch_id      Int
+  cashier_id     Int
+  status         BillStatus        @default(PENDING)
+  payment_method BillPaymentMethod @default(CASH)
+  subtotal       Decimal           @db.Decimal(10, 2)
+  discount       Decimal           @default(0) @db.Decimal(10, 2)
+  tax            Decimal           @default(0) @db.Decimal(10, 2)
+  total          Decimal           @db.Decimal(10, 2)
+  notes          String?
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+
+  company Company  @relation(fields: [company_id], references: [id])
+  branch  Branch   @relation(fields: [branch_id], references: [id])
+  cashier User     @relation("CashierBills", fields: [cashier_id], references: [id])
+  items   BillItem[]
+
+  @@map("bill")
+}
+
+model BillItem {
+  id         Int     @id @default(autoincrement()) @map("bill_item_id")
+  bill_id    Int
+  product_id Int
+  quantity   Int
+  unit_price Decimal @db.Decimal(10, 2)
+  total      Decimal @db.Decimal(10, 2)
+
+  bill    Bill    @relation(fields: [bill_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("bill_item")
+}
+
+model Sale {
+  id             Int           @id @default(autoincrement()) @map("sale_id")
+  branch_id      Int
+  user_id        Int
+  invoice_number String        @unique
+  sale_status    SaleStatus    @default(Pending)
+  payment_status PaymentStatus @default(Pending)
+  subtotal       Decimal       @default(0) @db.Decimal(10, 2)
+  discount_amount Decimal      @default(0) @db.Decimal(10, 2)
+  tax_amount     Decimal       @default(0) @db.Decimal(10, 2)
+  total_amount   Decimal       @default(0) @db.Decimal(10, 2)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  saleItems SaleItem[]
+  payments  Payment[]
+  returns   Return[]
+
+  @@map("sale")
+}
+
+model SaleItem {
+  id               Int     @id @default(autoincrement()) @map("sale_item_id")
+  product_id       Int
+  product_name     String
+  quantity         Decimal @db.Decimal(10, 2)
+  unit             String
+  unit_price       Decimal @db.Decimal(10, 2)
+  cost_price       Decimal @db.Decimal(10, 2)
+  discount_percent Decimal @default(0) @db.Decimal(5, 2)
+  discount_amount  Decimal @default(0) @db.Decimal(10, 2)
+  tax_percent      Decimal @default(0) @db.Decimal(5, 2)
+  tax_amount       Decimal @default(0) @db.Decimal(10, 2)
+  subtotal         Decimal @db.Decimal(10, 2)
+  total_amount     Decimal @db.Decimal(10, 2)
+  created_at       DateTime @default(now())
+  sale_id          Int
+
+  sale        Sale         @relation(fields: [sale_id], references: [id])
+  product     Product      @relation(fields: [product_id], references: [id])
+  returnItems ReturnItem[]
+
+  @@map("sale_item")
+}
+
+model Payment {
+  id                    Int           @id @default(autoincrement()) @map("payment_id")
+  payment_method        BillPaymentMethod
+  amount_paid           Decimal       @db.Decimal(10, 2)
+  payment_status        PaymentStatus @default(Pending)
+  transaction_reference String?
+  payment_date          DateTime      @default(now())
+  created_at            DateTime      @default(now())
+  sale_id               Int
+
+  sale Sale @relation(fields: [sale_id], references: [id])
+
+  @@map("payment")
+}
+
+model Return {
+  id            Int          @id @default(autoincrement()) @map("return_id")
+  return_date   DateTime     @default(now())
+  return_type   ReturnType
+  return_amount Decimal      @db.Decimal(10, 2)
+  reason        String
+  refund_method RefundMethod
+  status        ReturnStatus @default(Pending)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+  sale_id       Int
+
+  sale        Sale         @relation(fields: [sale_id], references: [id])
+  returnItems ReturnItem[]
+
+  @@map("return")
+}
+
+model ReturnItem {
+  id                Int     @id @default(autoincrement()) @map("return_item_id")
+  quantity_returned Decimal @db.Decimal(10, 2)
+  unit_price        Decimal @db.Decimal(10, 2)
+  refund_amount     Decimal @db.Decimal(10, 2)
+  item_condition    String
+  created_at        DateTime @default(now())
+  return_id         Int
+  sale_item_id      Int
+
+  return   Return   @relation(fields: [return_id], references: [id])
+  saleItem SaleItem @relation(fields: [sale_item_id], references: [id])
+
+  @@map("return_item")
+}
+
+// SYNC MODULE
+
+model SyncLog {
+  id        Int       @id @default(autoincrement())
+  branch_id Int?
+  entity    String
+  payload   Json
+  error     String?
+  attempts  Int       @default(0)
+  status    String    @default("PENDING")
+  syncedAt  DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  branch   Branch?      @relation(fields: [branch_id], references: [id])
+  conflict SyncConflict?
+
+  @@index([branch_id, status])
+  @@index([status])
+  @@map("sync_log")
+}
+
+model SyncDevice {
+  id         Int      @id @default(autoincrement())
+  name       String
+  type       String   @default("POS")
+  status     String   @default("PENDING")
+  branch_id  Int
+  lastSeen   DateTime @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  branch Branch @relation(fields: [branch_id], references: [id])
+
+  @@map("sync_device")
+}
+
+model SyncSetting {
+  id          Int      @id @default(autoincrement())
+  key         String
+  value       String
+  description String?
+  branch_id   Int?
+  scope       String   @default("GLOBAL")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  branch Branch? @relation(fields: [branch_id], references: [id])
+
+  @@unique([branch_id, key])
+  @@map("sync_setting")
+}
+
+model SyncConflict {
+  id         Int       @id @default(autoincrement())
+  syncLog_id Int       @unique
+  status     String    @default("PENDING")
+  clientData Json?
+  serverData Json?
+  resolution String?
+  resolvedBy Int?
+  resolvedAt DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  syncLog SyncLog @relation(fields: [syncLog_id], references: [id])
+
+  @@map("sync_conflict")
+}
+
+model SyncBackup {
+  id         Int      @id @default(autoincrement())
+  branch_id  Int
+  status     String   @default("PENDING")
+  file_url   String?
+  created_at DateTime @default(now())
+
+  branch Branch @relation(fields: [branch_id], references: [id])
+
+  @@map("sync_backup")
+}
+
+model SyncBackupSchedule {
+  id        Int      @id @default(autoincrement())
+  branch_id Int
+  frequency String
+  next_run  DateTime
+  is_active Boolean  @default(true)
+
+  branch Branch @relation(fields: [branch_id], references: [id])
+
+  @@map("sync_backup_schedule")
+}
+
+model SyncHealthMetric {
+  id          Int      @id @default(autoincrement())
+  branch_id   Int
+  latency     Float
+  successRate Float
+  uptime      Float
+  timestamp   DateTime @default(now())
+
+  branch Branch @relation(fields: [branch_id], references: [id])
+
+  @@map("sync_health_metric")
+}
+
+model SyncAuditLog {
+  id         Int      @id @default(autoincrement())
+  action     String
+  module     String
+  user_id    Int?
+  branch_id  Int?
+  details    Json?
+  created_at DateTime @default(now())
+
+  @@map("sync_audit_log")
+}
+
+// REPORTING MODULE
+
+model DailySummary {
+  id                Int      @id @default(autoincrement())
+  summaryDate       DateTime
+  totalSales        Float    @default(0)
+  totalTransactions Int      @default(0)
+  totalItemsSold    Int      @default(0)
+  totalDiscounts    Float    @default(0)
+  totalTax          Float    @default(0)
+  grossProfit       Float    @default(0)
+  totalReturns      Float    @default(0)
+  totalCost         Float    @default(0)
+  totalCustomers    Int      @default(0)
+  netProfit         Float    @default(0)
+  branch_id         Int?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  branch Branch? @relation(fields: [branch_id], references: [id])
+
+  @@unique([summaryDate, branch_id])
+  @@map("daily_summary")
+}
+
+model SavedReportConfig {
+  id          Int      @id @default(autoincrement())
+  configName  String
+  reportType  String
+  startDate   String
+  endDate     String
+  branch_id   Int?
+  categoryId  Int?
+  user_id     Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("saved_report_config")
+}
+
+model ReportSchedule {
+  id             Int       @id @default(autoincrement())
+  scheduleName   String
+  reportType     String
+  frequency      String
+  recipientEmail String
+  branch_id      Int?
+  isActive       Boolean   @default(true)
+  nextRunAt      DateTime?
+  user_id        Int
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  user       User             @relation(fields: [user_id], references: [id])
+  deliveries ReportDelivery[]
+
+  @@map("report_schedule")
+}
+
+model ReportDelivery {
+  id             Int      @id @default(autoincrement())
+  recipientEmail String
+  status         String
+  failureReason  String?
+  reportFileUrl  String?
+  sentAt         DateTime @default(now())
+  schedule_id    Int
+
+  schedule ReportSchedule @relation(fields: [schedule_id], references: [id])
+
+  @@map("report_delivery")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  username    String
+  role        String
+  action      String
+  reportType  String?
+  filtersUsed String?
+  branchName  String?
+  user_id     Int
+  created_at  DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("audit_log")
+}
+
+model KpiTarget {
+  id            Int     @id @default(autoincrement())
+  branch_id     Int     @default(0)
+  period_type   String
+  target_amount Decimal @db.Decimal(12, 2)
+
+  @@unique([period_type, branch_id])
+  @@map("kpi_target")
+}
+
+model KpiMarginTarget {
+  id                  Int     @id @default(autoincrement())
+  branch_id           Int     @default(0)
+  target_gross_margin Decimal @db.Decimal(5, 2)
+  target_net_margin   Decimal @db.Decimal(5, 2)
+
+  @@unique([branch_id])
+  @@map("kpi_margin_target")
+}
+
+model KpiInventoryThreshold {
+  id                    Int @id @default(autoincrement())
+  branch_id             Int @default(0)
+  default_reorder_level Int @default(20)
+  critical_stock_level  Int @default(5)
+  zero_sales_hours      Int @default(24)
+
+  @@unique([branch_id])
+  @@map("kpi_inventory_threshold")
+}
+
+model KpiNotificationRule {
+  id                         Int     @id @default(autoincrement())
+  branch_id                  Int     @default(0)
+  daily_target_midday        Boolean @default(true)
+  unusual_hourly_drop        Boolean @default(true)
+  zero_sales_product         Boolean @default(true)
+  low_stock_alert            Boolean @default(true)
+  out_of_stock_alert         Boolean @default(true)
+  daily_summary_notification Boolean @default(true)
+  weekly_performance_summary Boolean @default(false)
+  margin_below_target        Boolean @default(true)
+  check_frequency_minutes    Int     @default(5)
+
+  @@unique([branch_id])
+  @@map("kpi_notification_rule")
+}
+
+model KpiReportDefault {
+  id                   Int     @id @default(autoincrement())
+  branch_id            Int     @default(0)
+  default_date_range   String  @default("LAST_30_DAYS")
+  default_branch_view  String  @default("ALL")
+  show_target_progress Boolean @default(true)
+
+  @@unique([branch_id])
+  @@map("kpi_report_default")
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  branch_id  Int?
+  type       String
+  title      String
+  message    String
+  is_read    Boolean  @default(false)
+  user_id    Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("notification")
+}
+
+model ScheduledReport {
+  id            Int      @id @default(autoincrement())
+  report_name   String
+  report_type   String
+  frequency     String
+  start_date    DateTime
+  next_run_date DateTime
+  email         String
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("scheduled_report")
 }

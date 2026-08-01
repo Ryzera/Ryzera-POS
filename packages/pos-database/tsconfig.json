@@ -2,8 +2,12 @@
   "extends": "@ryzera/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": ".",
-    "declaration": true
+    "rootDir": "src",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
   },
-  "include": ["index.ts", "prisma.config.ts", "src/**/*"]
+  "include": ["src/**/*"]
 }

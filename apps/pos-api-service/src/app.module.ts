@@ -9,7 +9,6 @@ import { InventoryModule } from './inventory/inventory.module';
 import { BillingModule } from './billing/billing.module';
 import { BackupModule } from './backup/backup.module';
 import { ScheduleModule } from '@nestjs/schedule';
-
 import { SyncModule } from './modules/sync/sync.module';
 
 @Module({

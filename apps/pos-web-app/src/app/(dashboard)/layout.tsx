@@ -183,6 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <h1 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a' }}>
                         {navItems.find(i => i.href === pathname)?.label || 'Dashboard'}
                     </h1>
+<<<<<<< HEAD
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <NotificationBell />
                         <div style={{
@@ -195,6 +196,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         }}>
                             {user?.roles?.[0] || user?.user_type}
                         </div>
+=======
+                    <div style={{
+                        padding: '0.375rem 0.75rem',
+                        background: '#eff6ff',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        color: '#2563eb',
+                        fontWeight: 500,
+                    }}>
+                        {user?.roles?.[0] || user?.user_type}
+>>>>>>> origin/develop
                     </div>
                 </div>
 
