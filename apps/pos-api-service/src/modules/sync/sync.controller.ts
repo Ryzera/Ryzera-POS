@@ -113,7 +113,7 @@ export class SyncController {
   }
 
   @Post('resolve-conflict')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'MANAGER')
   async resolveConflict(
     @Body()
     data: {
@@ -186,7 +186,7 @@ export class SyncController {
   // --- v2.0 Dashboard Unification ---
 
   @Get('conflicts')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'MANAGER')
   async listConflicts(@Query('branchId') branchId?: string) {
     return this.syncService.getConflicts(branchId ? parseInt(branchId, 10) : undefined);
   }
@@ -245,7 +245,7 @@ export class SyncController {
   }
 
   @Get('devices')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'MANAGER')
   async listDevices(@Query('branchId') branchId?: string) {
     return this.syncService.getDevices(branchId ? parseInt(branchId, 10) : undefined);
   }

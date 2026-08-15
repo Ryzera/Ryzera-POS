@@ -1,0 +1,7 @@
+# Backup SQL files — these are committed by GitHub Actions only
+# Do NOT commit local dev backups manually
+backups/*.sql
+backups/*.json
+
+# Exception: keep the directory tracked
+!backups/.gitkeep

@@ -1,0 +1,3 @@
+# This file keeps the /backups directory tracked by git.
+# Actual .sql backup files are committed here by GitHub Actions (daily_backup.yml).
+# They are excluded from local dev commits via .gitignore.

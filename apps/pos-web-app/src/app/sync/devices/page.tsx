@@ -43,7 +43,13 @@ export default function DevicesPage() {
   const fetchDevices = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/sync/devices${branchQuery}`);
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('access_token') || useAuthStore.getState().token) : null;
+      const res = await fetch(`${API_BASE}/sync/devices${branchQuery}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const responseJson = await res.json();
       const data = responseJson.data || responseJson;
       setDevices(Array.isArray(data) ? data.map(injectMockMDM) : []);

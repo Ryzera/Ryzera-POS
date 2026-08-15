@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { INotificationRepository } from './notification.repository.interface';
-import { Notification, Prisma } from '@prisma/client';
+import { Notification, Prisma } from '@ryzera/pos-database';
 
 /**
  * Stores and retrieves notification records using Prisma ORM.
@@ -19,16 +19,16 @@ export class NotificationRepository implements INotificationRepository {
 
   async findAll(userId?: string): Promise<Notification[]> {
     return this.prisma.notification.findMany({
-      where: userId ? { userId } : {},
-      orderBy: { createdAt: 'desc' },
+      where: userId ? { user_id: Number(userId) } : {},
+      orderBy: { created_at: 'desc' },
     });
   }
 
   async findUnreadCount(userId?: string): Promise<number> {
     return this.prisma.notification.count({
       where: {
-        isRead: false,
-        ...(userId && { userId }),
+        is_read: false,
+        ...(userId && { user_id: Number(userId) }),
       },
     });
   }
@@ -36,17 +36,17 @@ export class NotificationRepository implements INotificationRepository {
   async markAsRead(id: string): Promise<Notification> {
     return this.prisma.notification.update({
       where: { id },
-      data: { isRead: true },
+      data: { is_read: true },
     });
   }
 
   async markAllAsRead(userId?: string): Promise<Prisma.BatchPayload> {
     return this.prisma.notification.updateMany({
       where: {
-        isRead: false,
-        ...(userId && { userId }),
+        is_read: false,
+        ...(userId && { user_id: Number(userId) }),
       },
-      data: { isRead: true },
+      data: { is_read: true },
     });
   }
 
@@ -56,7 +56,7 @@ export class NotificationRepository implements INotificationRepository {
 
   async deleteAll(userId?: string): Promise<Prisma.BatchPayload> {
     return this.prisma.notification.deleteMany({
-      where: userId ? { userId } : {},
+      where: userId ? { user_id: Number(userId) } : {},
     });
   }
 }

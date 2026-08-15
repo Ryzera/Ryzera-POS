@@ -16,7 +16,7 @@ export class NotificationService {
       title: data.title,
       message: data.message,
       type: data.type,
-      userId: data.userId || null,
+      user_id: data.userId ? Number(data.userId) : null,
     });
 
     // WebSocket emission ensures all connected clients get instant updates

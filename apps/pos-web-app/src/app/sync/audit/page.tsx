@@ -31,7 +31,13 @@ export default function AuditPage() {
   const fetchAuditLogs = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/sync/audit${branchQuery}`);
+      const token = localStorage.getItem('access_token') || useAuthStore.getState().token;
+      const res = await fetch(`${API_BASE}/sync/audit${branchQuery}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const responseJson = await res.json();
       const data = responseJson.data || responseJson;
       setLogs(Array.isArray(data) ? data : []);

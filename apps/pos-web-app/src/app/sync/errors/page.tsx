@@ -279,25 +279,25 @@ export default function ErrorsPage() {
       {/* Payload Modal */}
       {selectedError && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[40px] w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-white/20">
-            <div className="p-10 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-200">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div>
-                <h3 className="text-2xl font-bold text-slate-900">Transaction Payload</h3>
-                <p className="text-sm text-slate-500 mt-1 uppercase font-black tracking-widest">Entity: {selectedError.entity}</p>
+                <h3 className="text-xl font-bold text-slate-900">Transaction Payload</h3>
+                <p className="text-xs text-slate-500 mt-1 uppercase font-bold tracking-wider">Entity: {selectedError.entity}</p>
               </div>
-              <button onClick={() => setSelectedError(null)} className="p-3 hover:bg-slate-50 rounded-2xl transition">
-                <X className="h-6 w-6 text-slate-400" />
+              <button onClick={() => setSelectedError(null)} className="p-2 hover:bg-slate-200/60 rounded-lg transition">
+                <X className="h-5 w-5 text-slate-500" />
               </button>
             </div>
-            <div className="p-10 bg-slate-50/30">
-              <div className="bg-slate-900 rounded-[32px] p-8 overflow-hidden shadow-inner">
-                <pre className="text-blue-400 text-xs font-mono overflow-auto max-h-[400px] custom-scrollbar leading-relaxed">
+            <div className="p-6 bg-slate-50">
+              <div className="bg-slate-900 rounded-lg p-5 border border-slate-800 shadow-sm">
+                <pre className="text-emerald-400 text-sm font-mono overflow-auto max-h-[350px] leading-relaxed">
                   {JSON.stringify(selectedError.payload || { message: 'No payload attached' }, null, 2)}
                 </pre>
               </div>
             </div>
-            <div className="p-10 bg-white border-t border-slate-100 flex justify-end">
-              <button onClick={() => setSelectedError(null)} className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-900/20">Close Preview</button>
+            <div className="p-4 bg-white border-t border-slate-100 flex justify-end">
+              <button onClick={() => setSelectedError(null)} className="px-6 py-2.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition shadow-sm">Close Preview</button>
             </div>
           </div>
         </div>

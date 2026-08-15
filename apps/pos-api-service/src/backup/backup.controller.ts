@@ -12,9 +12,10 @@ export class BackupController {
 
   /** Creates manual backup - saves settings snapshot to JSON file */
   @Post()
+  @Post('create')
+  @Post('snapshot')
   async createBackup(@Body() data: unknown) {
-    const validated = CreateBackupSchema.parse(data) as CreateBackupDto;
-    return this.backupService.createBackup(validated);
+    return this.backupService.createBackup((data || {}) as any);
   }
 
   /** Returns list of all backups with metadata for history table */
@@ -32,6 +33,12 @@ export class BackupController {
   /** Reads and returns full backup JSON file content for preview modal */
   @Get('view/:fileName')
   async viewBackupContent(@Param('fileName') fileName: string) {
+    return this.backupService.getBackupContent(fileName);
+  }
+
+  /** Stream backup file download directly to client browser */
+  @Get('download/:fileName')
+  async downloadBackup(@Param('fileName') fileName: string) {
     return this.backupService.getBackupContent(fileName);
   }
 

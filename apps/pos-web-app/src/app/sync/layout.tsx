@@ -82,23 +82,20 @@ export default function SyncLayout({ children }: { children: React.ReactNode }) 
     }
 
     if (!isAdmin) {
-      const adminOnlyRoutes = [
+      // Routes strictly restricted to Super Admin only
+      const superAdminOnlyRoutes = [
         '/sync/topology',
         '/sync/analytics',
-        '/sync/errors',
-        '/sync/conflicts',
         '/sync/broadcast',
-        '/sync/devices',
         '/sync/rules',
         '/sync/backup',
         '/sync/audit',
-        '/sync/settings',
-        '/sync/health'
+        '/sync/settings'
       ];
       
-      const isUserOnAdminRoute = adminOnlyRoutes.some(route => pathname.startsWith(route));
-      if (isUserOnAdminRoute) {
-        toast.error('You are not authorized to access this page.');
+      const isUserOnSuperAdminRoute = superAdminOnlyRoutes.some(route => pathname.startsWith(route));
+      if (isUserOnSuperAdminRoute) {
+        toast.error('Access restricted to Super Admin role only.');
         router.push('/sync/dashboard');
       }
     }
@@ -246,16 +243,16 @@ export default function SyncLayout({ children }: { children: React.ReactNode }) 
       show: true,
       items: [
         { label: 'Sync Queue', icon: List, path: '/sync/queue', show: true },
-        { label: 'Sync Errors', icon: AlertCircle, path: '/sync/errors', show: isAdmin },
-        { label: 'Sync Conflicts', icon: Gavel, path: '/sync/conflicts', show: isAdmin },
+        { label: 'Sync Errors', icon: AlertCircle, path: '/sync/errors', show: isAdmin || isManager },
+        { label: 'Sync Conflicts', icon: Gavel, path: '/sync/conflicts', show: isAdmin || isManager },
         { label: 'Broadcast Alert', icon: Bell, path: '/sync/broadcast', show: isAdmin },
       ]
     },
     {
       title: 'Infrastructure',
-      show: isAdmin,
+      show: true,
       items: [
-        { label: 'Device Manager', icon: Cpu, path: '/sync/devices', show: isAdmin },
+        { label: 'Device Manager', icon: Cpu, path: '/sync/devices', show: isAdmin || isManager },
         { label: 'Policy Manager', icon: Settings, path: '/sync/rules', show: isAdmin },
       ]
     },
@@ -264,16 +261,15 @@ export default function SyncLayout({ children }: { children: React.ReactNode }) 
       show: isAdmin,
       items: [
         { label: 'Database Backup', icon: ShieldCheck, path: '/sync/backup', show: isAdmin },
-
         { label: 'Activity Audit', icon: ShieldCheck, path: '/sync/audit', show: isAdmin },
       ]
     },
     {
       title: 'System',
-      show: isAdmin,
+      show: true,
       items: [
         { label: 'Settings', icon: Settings, path: '/sync/settings', show: isAdmin },
-        { label: 'System Health', icon: Activity, path: '/sync/health', show: isAdmin },
+        { label: 'System Health', icon: Activity, path: '/sync/health', show: isAdmin || isManager },
       ]
     }
   ];

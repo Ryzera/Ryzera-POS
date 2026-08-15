@@ -37,9 +37,11 @@ export default function HealthPage() {
   const fetchHealth = useCallback(async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem('access_token') || useAuthStore.getState().token;
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
       const [healthRes, metricsRes] = await Promise.all([
-        fetch(`${API_BASE}/sync/health${branchQuery}`),
-        fetch(`${API_BASE}/sync/metrics${branchQuery}`)
+        fetch(`${API_BASE}/sync/health${branchQuery}`, { headers }),
+        fetch(`${API_BASE}/sync/metrics${branchQuery}`, { headers })
       ]);
       const healthData = await healthRes.json();
       const metricsData = await metricsRes.json();

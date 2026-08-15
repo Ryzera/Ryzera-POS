@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 import { useAuthStore } from '@/store/auth.store';
 import { useBranches } from '@/hooks/useBranches';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'http://localhost:3000/api';
 
 export default function StorageManagerPage() {
   const { user } = useAuthStore();
@@ -43,7 +43,13 @@ export default function StorageManagerPage() {
     setLoading(true);
     try {
       // Fetch devices to see their remote storage stats
-      const res = await fetch(`${API_BASE}/sync/devices`);
+      const token = localStorage.getItem('access_token') || useAuthStore.getState().token;
+      const res = await fetch(`${API_BASE}/sync/devices`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const responseJson = await res.json();
       const data = responseJson.data || responseJson;
       setDevices(Array.isArray(data) ? data.map(injectMockStorageData) : []);

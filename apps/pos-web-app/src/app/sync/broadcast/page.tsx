@@ -98,12 +98,12 @@ export default function BroadcastPage() {
                   </select>
                 </div>
 
-                <div className="space-y-4">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Target Audience</label>
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Target Audience</label>
                   <select 
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
-                    className="w-full px-6 py-5 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition shadow-inner appearance-none cursor-pointer"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition cursor-pointer"
                   >
                     <option value="ALL_STAFF">All Terminal Staff</option>
                     <option value="MANAGERS">Managers & Admins Only</option>
@@ -112,64 +112,62 @@ export default function BroadcastPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Announcement Title</label>
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Title</label>
                 <input 
-                  type="text" 
                   value={title} 
-                  onChange={e => setTitle(e.target.value)}
-                  placeholder="e.g. System Maintenance Window" 
-                  className="w-full px-6 py-5 bg-slate-50/50 border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition shadow-inner" 
+                  onChange={(e) => setTitle(e.target.value)} 
+                  placeholder="System Maintenance Alert"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition"
                 />
               </div>
 
-              <div className="space-y-4">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Broadcast Content</label>
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Message Payload</label>
                 <textarea 
-                  rows={6} 
                   value={message} 
-                  onChange={e => setMessage(e.target.value)}
-                  placeholder="Provide comprehensive details about the announcement..." 
-                  className="w-full px-6 py-5 bg-slate-50/50 border border-slate-200 rounded-2xl text-lg font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition resize-none shadow-inner leading-relaxed" 
+                  onChange={(e) => setMessage(e.target.value)} 
+                  rows={4}
+                  placeholder="System wide database synchronization will occur tonight at 02:00 AM..."
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition resize-none"
                 />
               </div>
 
               <button 
                 onClick={handleBroadcast} 
                 disabled={sending}
-                className="w-full py-6 bg-slate-900 text-white rounded-[24px] text-base font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition shadow-2xl shadow-slate-900/20 active:scale-[0.98] disabled:opacity-50"
+                className="w-full py-4 bg-slate-900 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-slate-800 transition shadow-md flex items-center justify-center gap-3 disabled:opacity-50"
               >
-                {sending ? <RefreshCw className="h-6 w-6 animate-spin" /> : <Send className="h-6 w-6 rotate-12" />}
-                {sending ? 'Deploying Protocol...' : 'Execute Broadcast'}
+                <Send className="h-4 w-4" /> Dispatch Global Broadcast
               </button>
             </div>
           </div>
 
-          {/* Live Preview */}
-          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 h-full">
-            <div className="flex items-center justify-between px-4">
-               <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                 <Eye className="h-5 w-5" /> Live Notification Preview
+          {/* Preview */}
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-700">
+            <div className="flex items-center justify-between px-2">
+               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                 <Eye className="h-4 w-4" /> Live Notification Preview
                </h3>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 border-dashed rounded-[40px] p-6 sm:p-12 flex items-center justify-center min-h-[600px] h-[calc(100%-40px)]">
+            <div className="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-6 sm:p-10 flex items-center justify-center min-h-[500px] h-[calc(100%-40px)]">
                 {(title || message) ? (
-                  <div className="w-full max-w-xl p-10 rounded-3xl bg-white shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-slate-100 animate-in zoom-in-95 duration-300">
-                    <div className="flex items-center gap-4 mb-8">
-                       <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm ${
+                  <div className="w-full max-w-xl p-8 rounded-xl bg-white shadow-xl border border-slate-200 animate-in zoom-in-95 duration-300">
+                    <div className="flex items-center gap-3 mb-6">
+                       <div className={`h-10 w-10 rounded-lg flex items-center justify-center shadow-sm ${
                          type === 'ERROR' ? 'bg-red-50 text-red-600' : 
                          type === 'WARNING' ? 'bg-amber-50 text-amber-600' : 
                          'bg-blue-50 text-blue-600'
                        }`}>
-                         <Bell className="h-6 w-6" />
+                         <Bell className="h-5 w-5" />
                        </div>
-                       <p className="text-sm font-black text-slate-400 uppercase tracking-widest">System Alert</p>
+                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">System Alert</p>
                     </div>
-                    <h4 className="text-2xl font-black text-slate-900 mb-4 leading-tight break-words">{title || 'Untitled'}</h4>
-                    <p className="text-base text-slate-600 font-medium leading-relaxed whitespace-pre-wrap break-words">{message || '...'}</p>
+                    <h4 className="text-xl font-bold text-slate-900 mb-3 leading-tight break-words">{title || 'Untitled'}</h4>
+                    <p className="text-sm text-slate-600 font-medium leading-relaxed whitespace-pre-wrap break-words">{message || '...'}</p>
                     
-                    <button className="mt-10 w-full py-5 bg-slate-50 hover:bg-slate-100 rounded-2xl text-sm font-black text-slate-500 uppercase tracking-widest transition">
+                    <button className="mt-8 w-full py-3.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-500 uppercase tracking-wider transition">
                        Acknowledge
                     </button>
                   </div>

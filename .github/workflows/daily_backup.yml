@@ -1,0 +1,51 @@
+name: "POS Multi-Branch Daily Backup"
+
+on:
+  schedule:
+    - cron: "0 20 * * *"  # Runs at 1:30 AM Sri Lanka Time (UTC+5:30 = 20:00 UTC)
+  workflow_dispatch:        # Allows manual trigger from GitHub UI
+
+jobs:
+  backup:
+    name: "pg_dump → GitHub"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client Tools
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Create Backups Directory
+        run: mkdir -p backups
+
+      - name: Run Full Logical Backup (pg_dump)
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          pg_dump "$DATABASE_URL" \
+            --no-owner \
+            --no-acl \
+            --format=plain \
+            --file=backups/pos_full_${DATE}.sql
+          echo "✅ Backup created: backups/pos_full_${DATE}.sql"
+          ls -lh backups/
+
+      - name: Keep Only Last 30 Days of Backups
+        run: |
+          cd backups
+          ls -t pos_full_*.sql | tail -n +31 | xargs -r rm --
+          echo "Remaining backups:"
+          ls -lh pos_full_*.sql 2>/dev/null || echo "No old files to delete"
+
+      - name: Commit Backup to Repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(backup): automated pg_dump snapshot $(date +%Y-%m-%d)"
+          file_pattern: "backups/*.sql"
+          commit_user_name: "Ryzera Backup Bot"
+          commit_user_email: "backup-bot@ryzera.app"

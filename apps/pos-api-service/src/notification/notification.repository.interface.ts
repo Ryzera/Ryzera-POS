@@ -1,5 +1,5 @@
 
-import { Notification, Prisma } from '@prisma/client';
+import { Notification, Prisma } from '@ryzera/pos-database';
 
 /**
  * Defines the contract for notification database operations.

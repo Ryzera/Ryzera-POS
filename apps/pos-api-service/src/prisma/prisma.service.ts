@@ -3,9 +3,13 @@ import { PrismaClient } from '@ryzera/pos-database';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+const isLocalDb = process.env.DATABASE_URL?.includes('localhost') || process.env.DATABASE_URL?.includes('127.0.0.1');
+
 const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
+    ssl: isLocalDb ? false : {
         rejectUnauthorized: false,
         checkServerIdentity: () => undefined,
     },
@@ -28,6 +32,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     product = prismaInstance.product;
     bill = prismaInstance.bill;
     billItem = prismaInstance.billItem;
+    syncLog = prismaInstance.syncLog;
+    syncMetric = prismaInstance.syncMetric;
+    syncDevice = prismaInstance.syncDevice;
+    syncConflict = prismaInstance.syncConflict;
+    syncSetting = prismaInstance.syncSetting;
+    syncCompany = prismaInstance.syncCompany;
+    syncBackup = prismaInstance.syncBackup;
+    notification = prismaInstance.notification;
 
     $connect = () => prismaInstance.$connect();
     $disconnect = () => prismaInstance.$disconnect();
