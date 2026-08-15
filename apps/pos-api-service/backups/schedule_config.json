@@ -1,5 +1,0 @@
-{
-  "enabled": false,
-  "cronExpression": "0 0 * * *",
-  "timeString": "Daily at 12:00 AM"
-}
