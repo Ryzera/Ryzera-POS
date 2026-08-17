@@ -5,5 +5,5 @@
     "rootDir": ".",
     "declaration": true
   },
-  "include": ["index.ts", "prisma.config.ts", "src/**/*"]
+  "include": ["index.ts", "prisma.config.ts"]
 }

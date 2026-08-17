@@ -1,198 +1,174 @@
 generator client {
   provider = "prisma-client-js"
-  url      = env("DATABASE_URL")
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model Company {
-  company_id   Int      @id @default(autoincrement())
+enum SaleStatus {
+  Pending
+  Completed
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Refunded
+}
+
+enum PaymentMethod {
+  Cash
+  Card
+  Split
+}
+
+enum ReturnType {
+  Full
+  Partial
+}
+
+enum RefundMethod {
+  Cash
+  Card
+  Wallet
+}
+
+enum ReturnStatus {
+  Pending
+  Completed
+  Rejected
+}
+
+model Branch {
+  branch_id    Int      @id @default(autoincrement())
+  company_id   Int
   name         String
-  code         String   @unique
-  email        String?
-  phone        String?
+  code         String
   address      String?
+  city         String?
+  phone        String?
+  email        String?
+  manager_name String?
   is_active    Boolean  @default(true)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  branches     Branch[]
-  users        User[]
-
-  @@map("ryzera_pos_company")
-}
-
-model Branch {
-  branchId   Int      @id @default(autoincrement())
-  company_id  Int
-  name        String
-  code        String
-  address     String?
-  city        String?
-  phone       String?
-  email       String?
-  manager_name String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  company    Company   @relation(fields: [company_id], references: [company_id])
-  users      User[]
-  userLogs   UserLog[]
-
   @@map("ryzera_pos_branch")
 }
 
-model User {
-  user_id       Int            @id @default(autoincrement())
-  username      String         @unique
-  password      String
-  user_type     String    @default("STAFF")
-  status        String
-  company_id    Int
-  branch_id     Int
-  failed_login_attempts  Int       @default(0)
-  last_failed_login      DateTime?
-  account_locked_until   DateTime?
-  last_login_at          DateTime?
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  company       Company        @relation(fields: [company_id], references: [company_id])
-  branch        Branch         @relation(fields: [branch_id], references: [branchId])
-  info          UserInfo?
-  userRoles     UserRole[]
-  logs          UserLog[]
-  inventoryLogs InventoryLog[]
-
-  @@map("ryzera_pos_user")
-}
-
-model UserInfo {
-  user_info_id Int      @id @default(autoincrement())
-  user_id      Int      @unique
-  first_name   String
-  last_name    String
-  email        String?  @unique
-  phone        String?
-  address      String?
-  profile_pic  String?
-
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
-  @@map("ryzera_pos_user_info")
-}
-
-model Role {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  description     String?
-  createdAt       DateTime         @default(now())
-
-  userRoles       UserRole[]
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_role")
-}
-
-model Authority {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  description     String?
-  createdAt       DateTime         @default(now())
-
-  roleAuthorities RoleAuthority[]
-
-  @@map("ryzera_pos_authority")
-}
-
-model UserRole {
-  id        String   @id @default(uuid())
-  userId    Int
-  roleId    String
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, roleId])
-  @@map("ryzera_pos_user_role")
-}
-
-model RoleAuthority {
-  id          String     @id @default(uuid())
-  roleId      String
-  authorityId String
-  createdAt   DateTime   @default(now())
-
-  role        Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  authority   Authority  @relation(fields: [authorityId], references: [id], onDelete: Cascade)
-
-  @@unique([roleId, authorityId])
-  @@map("ryzera_pos_role_authority")
-}
-
-model UserLog {
-  id        String   @id @default(uuid())
-  userId    Int
-  branch_id Int
-  action    String
-  ipAddress String?
-  device_info String?
-  userAgent String?
-  status    String
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
-  branch    Branch   @relation(fields: [branch_id], references: [branchId])
-
-  @@map("ryzera_pos_user_log")
-}
-
 model Product {
-  id            String         @id @default(uuid())
-  name          String
-  price         Float
-  stockQty      Int            @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  inventoryLogs InventoryLog[]
+  id        String   @id @default(uuid())
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  stockQty  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("ryzera_pos_product")
 }
 
-model InventoryLog {
-  id          String          @id @default(uuid())
-  action      InventoryAction
-  changeQty   Int
-  description String?
-  userId      Int
-  productId   String
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [user_id])
-  product     Product  @relation(fields: [productId], references: [id])
+model User {
+  user_id               Int       @id @default(autoincrement())
+  username              String    @unique
+  password              String
+  user_type             String    @default("STAFF")
+  status                String    @default("ACTIVE")
+  company_id            Int
+  branch_id             Int
+  failed_login_attempts Int       @default(0)
+  last_failed_login     DateTime?
+  account_locked_until  DateTime?
+  last_login_at         DateTime?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
 
-  @@map("ryzera_pos_inventory_log")
+  @@map("ryzera_pos_user")
 }
 
-model StockAlert {
-  id       String      @id @default(uuid())
-  status   AlertStatus @default(PENDING)
-  stockQty Int
-  minStock Int
+model ryzera_pos_sale {
+  sale_id         Int           @id @default(autoincrement())
+  branch_id       String
+  user_id         String
+  sale_date       DateTime      @default(now())
+  invoice_number  String        @unique
+  sale_status     SaleStatus    @default(Pending)
+  payment_status  PaymentStatus @default(Pending)
+  subtotal        Decimal       @default(0) @db.Decimal(10, 2)
+  discount_amount Decimal       @default(0) @db.Decimal(10, 2)
+  tax_amount      Decimal       @default(0) @db.Decimal(10, 2)
+  total_amount    Decimal       @default(0) @db.Decimal(10, 2)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  branchId  String
-  branch    Branch  @relation(fields: [branchId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@map("ryzera_pos_sync_log")
+  sale_items ryzera_pos_sale_item[] @relation("SaleToItems")
+  payments   ryzera_pos_payment[]   @relation("SaleToPayments")
+  returns    ryzera_pos_return[]    @relation("SaleToReturns")
 }
 
+model ryzera_pos_sale_item {
+  sale_item_id     Int      @id @default(autoincrement())
+  product_id       String
+  product_name     String
+  quantity         Decimal  @db.Decimal(10, 2)
+  unit             String
+  unit_price       Decimal  @db.Decimal(10, 2)
+  cost_price       Decimal  @db.Decimal(10, 2)
+  discount_percent Decimal  @default(0) @db.Decimal(5, 2)
+  discount_amount  Decimal  @default(0) @db.Decimal(10, 2)
+  tax_percent      Decimal  @default(0) @db.Decimal(5, 2)
+  tax_amount       Decimal  @default(0) @db.Decimal(10, 2)
+  subtotal         Decimal  @db.Decimal(10, 2)
+  total_amount     Decimal  @db.Decimal(10, 2)
+  created_at       DateTime @default(now())
 
+  saleId       Int
+  sale         ryzera_pos_sale          @relation("SaleToItems", fields: [saleId], references: [sale_id])
+  return_items ryzera_pos_return_item[]
+}
+
+model ryzera_pos_payment {
+  payment_id            Int           @id @default(autoincrement())
+  payment_method        PaymentMethod
+  amount_paid           Decimal       @db.Decimal(10, 2)
+  payment_status        PaymentStatus @default(Pending)
+  transaction_reference String?
+  payment_date          DateTime      @default(now())
+  created_at            DateTime      @default(now())
+
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToPayments", fields: [saleId], references: [sale_id])
+}
+
+model ryzera_pos_return {
+  return_id     Int          @id @default(autoincrement())
+  return_date   DateTime     @default(now())
+  return_type   ReturnType
+  return_amount Decimal      @db.Decimal(10, 2)
+  reason        String
+  refund_method RefundMethod
+  status        ReturnStatus @default(Pending)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+
+  saleId Int
+  sale   ryzera_pos_sale @relation("SaleToReturns", fields: [saleId], references: [sale_id])
+
+  return_items ryzera_pos_return_item[]
+}
+
+model ryzera_pos_return_item {
+  return_item_id    Int      @id @default(autoincrement())
+  quantity_returned Decimal  @db.Decimal(10, 2)
+  unit_price        Decimal  @db.Decimal(10, 2)
+  refund_amount     Decimal  @db.Decimal(10, 2)
+  item_condition    String
+  created_at        DateTime @default(now())
+
+  returnId   Int
+  return     ryzera_pos_return    @relation(fields: [returnId], references: [return_id])
+  saleItemId Int
+  sale_item  ryzera_pos_sale_item @relation(fields: [saleItemId], references: [sale_item_id])
+}
