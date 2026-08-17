@@ -45,7 +45,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex' }}>
+        <div style={{ minHeight: '100vh', display: 'flex' }} suppressHydrationWarning={true}>
             {/* Left Panel */}
             <div style={{
                 width: '50%',

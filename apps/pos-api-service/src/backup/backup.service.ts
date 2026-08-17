@@ -22,15 +22,15 @@ export class BackupService {
     let companyId = data.companyId;
     
     if (!companyId) {
-      const defaultCompany = await this.prisma.syncCompany.findFirst({
+      const defaultCompany = await this.prisma.company.findFirst({
         where: { code: 'DEFAULT' }
       });
       
       if (defaultCompany) {
         companyId = defaultCompany.id;
       } else {
-        const newCompany = await this.prisma.syncCompany.create({
-          data: { name: 'Default Company', code: 'DEFAULT', isActive: true }
+        const newCompany = await this.prisma.company.create({
+          data: { name: 'Default Company', code: 'DEFAULT', is_active: true }
         });
         companyId = newCompany.id;
       }
@@ -84,11 +84,9 @@ export class BackupService {
     // Save backup metadata to database
     const result = await this.prisma.syncBackup.create({
       data: {
-        companyId: companyId,
-        branchId: data.branchId || null,
-        status: 'SUCCESS',
-        fileName,
-        notes: data.notes || null,
+        branch_id: Number(data.branchId) || 1,
+        status: 'COMPLETED',
+        file_url: `/backups/${fileName}`,
       },
     });
 

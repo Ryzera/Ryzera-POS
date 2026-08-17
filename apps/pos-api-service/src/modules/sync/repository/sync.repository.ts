@@ -20,7 +20,7 @@ export class SyncRepository implements ISyncRepository {
   async create(data: any) {
     return this.prismaService.syncLog.create({
       data: {
-        branch_id: data.branch_id ?? null,
+        branch_id: data.branch_id ?? data.branchId ?? null,
         entity: data.entity,
         payload: data.payload,
         status: data.status,
@@ -137,10 +137,15 @@ export class SyncRepository implements ISyncRepository {
       whereClause = condition.where;
     }
 
-    // Rename branchId to branch_id in where clause if present
-    if (whereClause && whereClause.branchId) {
-      whereClause.branch_id = whereClause.branchId;
-      delete whereClause.branchId;
+    // Clean up where clause to match Prisma schema
+    if (whereClause && typeof whereClause === 'object') {
+      if ('branchId' in whereClause) {
+        whereClause.branch_id = whereClause.branchId;
+        delete whereClause.branchId;
+      }
+      if ('companyId' in whereClause) {
+        delete whereClause.companyId;
+      }
     }
 
     return this.prismaService.syncLog.findMany({
@@ -236,7 +241,11 @@ export class SyncRepository implements ISyncRepository {
 
   // --- Audit Logging ---
   async createAuditLog(data: any) {
-    return (this.prismaService as any).syncAuditLog.create({ data });
+    try {
+      return await (this.prismaService as any).syncAuditLog.create({ data });
+    } catch (err) {
+      return null;
+    }
   }
 
   async getAuditLogs(filters: any) {

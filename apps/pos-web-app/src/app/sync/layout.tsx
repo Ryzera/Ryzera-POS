@@ -295,7 +295,7 @@ export default function SyncLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <SyncSocketProvider>
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9' }} suppressHydrationWarning={true}>
 
       {/* ── Sidebar ── */}
       <div style={{
