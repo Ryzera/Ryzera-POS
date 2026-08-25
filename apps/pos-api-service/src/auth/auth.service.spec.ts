@@ -1,169 +1,205 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
-import { UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
+import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { UsersRepository } from '../users/users.repository';
+import { UserLogRepository } from '../users/user-log.repository';
+import { TokenBlacklistService } from './token-blacklist.service';
+
+const mockUser = {
+    id: 1,
+    username: 'admin',
+    password: '$2b$10$dUmWq7KjOLSn7qv4P0EwxO5InE470tQALkxA3QziGe951b4zR9PCe',
+    status: 'ACTIVE',
+    user_type: 'ADMIN',
+    company_id: 1,
+    branch_id: 1,
+    failed_login_attempts: 0,
+    last_failed_login: null,
+    account_locked_until: null,
+    last_login_at: null,
+    userRoles: [{ role: { name: 'ADMIN' } }],
+    info: { first_name: 'Super', last_name: 'Admin' },
+    company: { id: 1, name: 'Ryzera' },
+    branch: { id: 1, name: 'HQ' },
+};
+
+const mockUsersRepository = {
+    findByUsername: jest.fn(),
+    findById: jest.fn(),
+    updateLoginSuccess: jest.fn(),
+    updateLoginFailed: jest.fn(),
+    updatePassword: jest.fn(),
+};
+
+const mockUserLogRepository = {
+    create: jest.fn(),
+    findByUser: jest.fn(),
+};
+
+const mockJwtService = {
+    sign: jest.fn().mockReturnValue('mock-jwt-token'),
+};
+
+const mockTokenBlacklistService = {
+    blacklist: jest.fn(),
+    isBlacklisted: jest.fn().mockReturnValue(false),
+};
 
 describe('AuthService', () => {
-    let authService: AuthService;
-    let prismaService: PrismaService;
-    let jwtService: JwtService;
-
-    const mockPrismaService = {
-        user: {
-            findUnique: jest.fn(),
-            update: jest.fn(),
-            create: jest.fn(),
-        },
-        role: {
-            findUnique: jest.fn(),
-        },
-        userLog: {
-            create: jest.fn(),
-        },
-    };
-
-    const mockJwtService = {
-        sign: jest.fn().mockReturnValue('mock-token'),
-    };
+    let service: AuthService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 AuthService,
-                { provide: PrismaService, useValue: mockPrismaService },
+                { provide: UsersRepository, useValue: mockUsersRepository },
+                { provide: UserLogRepository, useValue: mockUserLogRepository },
                 { provide: JwtService, useValue: mockJwtService },
+                { provide: TokenBlacklistService, useValue: mockTokenBlacklistService },
             ],
         }).compile();
 
-        authService = module.get<AuthService>(AuthService);
-        prismaService = module.get<PrismaService>(PrismaService);
-        jwtService = module.get<JwtService>(JwtService);
-    });
-
-    afterEach(() => {
+        service = module.get<AuthService>(AuthService);
         jest.clearAllMocks();
     });
 
-    // ─── Login Tests ───────────────────────────────────────────────
-    describe('login', () => {
-        it('should return accessToken on valid credentials', async () => {
-            const hashedPassword = await bcrypt.hash('Admin@123', 12);
-            const mockUser = {
-                user_id: 1,
-                username: 'admin',
-                password: hashedPassword,
-                status: 'ACTIVE',
-                branch_id: 1,
-                userRoles: [{ role: { name: 'ADMIN' } }],
-                info: { first_name: 'Admin', last_name: 'User' },
-            };
+    // ─── Login ────────────────────────────────────────────
+    describe('login()', () => {
+        it('should return access_token on valid credentials', async () => {
+            mockUsersRepository.findByUsername.mockResolvedValue(mockUser);
+            mockUsersRepository.updateLoginSuccess.mockResolvedValue(mockUser);
+            mockUserLogRepository.create.mockResolvedValue({});
 
-            mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-            mockPrismaService.user.update.mockResolvedValue(mockUser);
-            mockPrismaService.userLog.create.mockResolvedValue({});
+            const result = await service.login({ username: 'admin', password: 'admin123' });
 
-            const result = await authService.login({
-                username: 'admin',
-                password: 'Admin@123',
-            });
-
-            expect(result).toHaveProperty('accessToken');
-            expect(result.accessToken).toBe('mock-token');
+            expect(result).toHaveProperty('access_token');
             expect(result.user.username).toBe('admin');
+            expect(mockUsersRepository.findByUsername).toHaveBeenCalledWith('admin');
         });
 
-        it('should throw UnauthorizedException if user not found', async () => {
-            mockPrismaService.user.findUnique.mockResolvedValue(null);
+        it('should throw UnauthorizedException for non-existent user', async () => {
+            mockUsersRepository.findByUsername.mockResolvedValue(null);
 
             await expect(
-                authService.login({ username: 'wrong', password: 'wrong' }),
+                service.login({ username: 'unknown', password: 'pass123' }),
             ).rejects.toThrow(UnauthorizedException);
         });
 
-        it('should throw UnauthorizedException if user is INACTIVE', async () => {
-            mockPrismaService.user.findUnique.mockResolvedValue({
-                user_id: 1,
-                username: 'admin',
-                password: 'hashed',
-                status: 'INACTIVE',
-                branch_id: 1,
-                userRoles: [],
-                info: null,
-            });
+        it('should throw UnauthorizedException for wrong password', async () => {
+            mockUsersRepository.findByUsername.mockResolvedValue(mockUser);
+            mockUsersRepository.updateLoginFailed.mockResolvedValue({});
+            mockUserLogRepository.create.mockResolvedValue({});
 
             await expect(
-                authService.login({ username: 'admin', password: 'Admin@123' }),
+                service.login({ username: 'admin', password: 'wrongpass' }),
             ).rejects.toThrow(UnauthorizedException);
+
+            expect(mockUsersRepository.updateLoginFailed).toHaveBeenCalled();
         });
 
-        it('should throw UnauthorizedException on wrong password', async () => {
-            const hashedPassword = await bcrypt.hash('Admin@123', 12);
-            mockPrismaService.user.findUnique.mockResolvedValue({
-                user_id: 1,
-                username: 'admin',
-                password: hashedPassword,
-                status: 'ACTIVE',
-                branch_id: 1,
-                userRoles: [],
-                info: null,
-            });
-
-            await expect(
-                authService.login({ username: 'admin', password: 'WrongPass' }),
-            ).rejects.toThrow(UnauthorizedException);
-        });
-    });
-
-    // ─── Logout Tests ──────────────────────────────────────────────
-    describe('logout', () => {
-        it('should return success message on logout', async () => {
-            mockPrismaService.user.findUnique.mockResolvedValue({
-                user_id: 1,
-                branch_id: 1,
-            });
-            mockPrismaService.userLog.create.mockResolvedValue({});
-
-            const result = await authService.logout(1);
-            expect(result).toEqual({ message: 'Logged out successfully' });
-        });
-    });
-
-    // ─── GetProfile Tests ──────────────────────────────────────────
-    describe('getProfile', () => {
-        it('should return user profile', async () => {
-            const mockUser = {
-                user_id: 1,
-                username: 'admin',
-                status: 'ACTIVE',
-                userRoles: [
-                    {
-                        role: {
-                            name: 'ADMIN',
-                            roleAuthorities: [
-                                { authority: { name: 'USER_READ' } },
-                            ],
-                        },
-                    },
-                ],
-                info: { first_name: 'Admin', last_name: 'User' },
+        it('should throw ForbiddenException for locked account', async () => {
+            const lockedUser = {
+                ...mockUser,
+                account_locked_until: new Date(Date.now() + 30 * 60 * 1000),
+                status: 'SUSPENDED',
             };
+            mockUsersRepository.findByUsername.mockResolvedValue(lockedUser);
 
-            mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-
-            const result = await authService.getProfile(1);
-            expect(result.username).toBe('admin');
-            expect(result.roles).toContain('ADMIN');
-            expect(result.authorities).toContain('USER_READ');
+            await expect(
+                service.login({ username: 'admin', password: 'admin123' }),
+            ).rejects.toThrow(ForbiddenException);
         });
 
-        it('should throw UnauthorizedException if user not found', async () => {
-            mockPrismaService.user.findUnique.mockResolvedValue(null);
+        it('should throw ForbiddenException for inactive user', async () => {
+            const inactiveUser = { ...mockUser, status: 'INACTIVE' };
+            mockUsersRepository.findByUsername.mockResolvedValue(inactiveUser);
 
-            await expect(authService.getProfile(999)).rejects.toThrow(
-                UnauthorizedException,
+            await expect(
+                service.login({ username: 'admin', password: 'admin123' }),
+            ).rejects.toThrow(ForbiddenException);
+        });
+
+        it('should log successful login', async () => {
+            mockUsersRepository.findByUsername.mockResolvedValue(mockUser);
+            mockUsersRepository.updateLoginSuccess.mockResolvedValue(mockUser);
+            mockUserLogRepository.create.mockResolvedValue({});
+
+            await service.login({ username: 'admin', password: 'admin123' });
+
+            expect(mockUserLogRepository.create).toHaveBeenCalledWith(
+                expect.objectContaining({ action: 'LOGIN', status: 'SUCCESS' }),
             );
+        });
+
+        it('should log failed login attempt', async () => {
+            mockUsersRepository.findByUsername.mockResolvedValue(mockUser);
+            mockUsersRepository.updateLoginFailed.mockResolvedValue({});
+            mockUserLogRepository.create.mockResolvedValue({});
+
+            try {
+                await service.login({ username: 'admin', password: 'wrong' });
+            } catch {}
+
+            expect(mockUserLogRepository.create).toHaveBeenCalledWith(
+                expect.objectContaining({ action: 'LOGIN', status: 'FAILED' }),
+            );
+        });
+    });
+
+    // ─── Logout ───────────────────────────────────────────
+    describe('logout()', () => {
+        it('should blacklist token on logout', async () => {
+            mockUsersRepository.findById.mockResolvedValue(mockUser);
+            mockUserLogRepository.create.mockResolvedValue({});
+
+            await service.logout(1, 'test-token');
+
+            expect(mockTokenBlacklistService.blacklist).toHaveBeenCalledWith('test-token');
+        });
+
+        it('should log logout action', async () => {
+            mockUsersRepository.findById.mockResolvedValue(mockUser);
+            mockUserLogRepository.create.mockResolvedValue({});
+
+            await service.logout(1, 'test-token');
+
+            expect(mockUserLogRepository.create).toHaveBeenCalledWith(
+                expect.objectContaining({ action: 'LOGOUT', status: 'SUCCESS' }),
+            );
+        });
+    });
+
+    // ─── Change Password ──────────────────────────────────
+    describe('changePassword()', () => {
+        it('should throw for wrong current password', async () => {
+            mockUsersRepository.findById.mockResolvedValue(mockUser);
+
+            await expect(
+                service.changePassword(1, {
+                    currentPassword: 'wrongpass',
+                    newPassword: 'newpass123',
+                    confirmPassword: 'newpass123',
+                }),
+            ).rejects.toThrow();
+        });
+    });
+
+    // ─── Get Profile ──────────────────────────────────────
+    describe('getProfile()', () => {
+        it('should return user without password', async () => {
+            mockUsersRepository.findById.mockResolvedValue(mockUser);
+
+            const result = await service.getProfile(1);
+
+            expect(result).not.toHaveProperty('password');
+            expect(mockUsersRepository.findById).toHaveBeenCalledWith(1);
+        });
+
+        it('should throw UnauthorizedException for non-existent user', async () => {
+            mockUsersRepository.findById.mockResolvedValue(null);
+
+            await expect(service.getProfile(999)).rejects.toThrow(UnauthorizedException);
         });
     });
 });

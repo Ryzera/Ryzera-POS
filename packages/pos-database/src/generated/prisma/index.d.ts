@@ -253,6 +253,21 @@ export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
  * 
  */
 export type ScheduledReport = $Result.DefaultSelection<Prisma.$ScheduledReportPayload>
+/**
+ * Model DiscountRule
+ * 
+ */
+export type DiscountRule = $Result.DefaultSelection<Prisma.$DiscountRulePayload>
+/**
+ * Model DiscountApproval
+ * 
+ */
+export type DiscountApproval = $Result.DefaultSelection<Prisma.$DiscountApprovalPayload>
+/**
+ * Model DiscountApplication
+ * 
+ */
+export type DiscountApplication = $Result.DefaultSelection<Prisma.$DiscountApplicationPayload>
 
 /**
  * Enums
@@ -436,6 +451,40 @@ export const ReturnStatus: {
 
 export type ReturnStatus = (typeof ReturnStatus)[keyof typeof ReturnStatus]
 
+
+export const DiscountType: {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED'
+};
+
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
+
+
+export const DiscountScope: {
+  GLOBAL: 'GLOBAL',
+  BRANCH: 'BRANCH'
+};
+
+export type DiscountScope = (typeof DiscountScope)[keyof typeof DiscountScope]
+
+
+export const DiscountStatus: {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  EXPIRED: 'EXPIRED'
+};
+
+export type DiscountStatus = (typeof DiscountStatus)[keyof typeof DiscountStatus]
+
+
+export const DiscountApprovalStatus: {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+export type DiscountApprovalStatus = (typeof DiscountApprovalStatus)[keyof typeof DiscountApprovalStatus]
+
 }
 
 export type UserStatus = $Enums.UserStatus
@@ -510,13 +559,31 @@ export type ReturnStatus = $Enums.ReturnStatus
 
 export const ReturnStatus: typeof $Enums.ReturnStatus
 
+export type DiscountType = $Enums.DiscountType
+
+export const DiscountType: typeof $Enums.DiscountType
+
+export type DiscountScope = $Enums.DiscountScope
+
+export const DiscountScope: typeof $Enums.DiscountScope
+
+export type DiscountStatus = $Enums.DiscountStatus
+
+export const DiscountStatus: typeof $Enums.DiscountStatus
+
+export type DiscountApprovalStatus = $Enums.DiscountApprovalStatus
+
+export const DiscountApprovalStatus: typeof $Enums.DiscountApprovalStatus
+
 /**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more Companies
  * const companies = await prisma.company.findMany()
  * ```
@@ -537,7 +604,9 @@ export class PrismaClient<
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more Companies
    * const companies = await prisma.company.findMany()
    * ```
@@ -546,7 +615,7 @@ export class PrismaClient<
    * Read more in our [docs](https://pris.ly/d/client).
    */
 
-  constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
+  constructor(optionsArg ?: Prisma.PrismaClientConstructorArgs<ClientOptions>);
   $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
 
   /**
@@ -617,9 +686,9 @@ export class PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
@@ -1106,6 +1175,36 @@ export class PrismaClient<
     * ```
     */
   get scheduledReport(): Prisma.ScheduledReportDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.discountRule`: Exposes CRUD operations for the **DiscountRule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DiscountRules
+    * const discountRules = await prisma.discountRule.findMany()
+    * ```
+    */
+  get discountRule(): Prisma.DiscountRuleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.discountApproval`: Exposes CRUD operations for the **DiscountApproval** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DiscountApprovals
+    * const discountApprovals = await prisma.discountApproval.findMany()
+    * ```
+    */
+  get discountApproval(): Prisma.DiscountApprovalDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.discountApplication`: Exposes CRUD operations for the **DiscountApplication** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DiscountApplications
+    * const discountApplications = await prisma.discountApplication.findMany()
+    * ```
+    */
+  get discountApplication(): Prisma.DiscountApplicationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1156,8 +1255,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.4.0
-   * Query Engine version: ab56fe763f921d033a6c195e7ddeb3e255bdbb57
+   * Prisma Client JS version: 7.9.1
+   * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
    */
   export type PrismaVersion = {
     client: string
@@ -1292,6 +1391,19 @@ export namespace Prisma {
   };
 
   /**
+   * Resolved type of the argument passed to the `PrismaClient` constructor.
+   *
+   * When called without a narrower options type (the common case), this resolves
+   * to `PrismaClientOptions` directly, which produces a clear TypeScript error
+   * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
+   * the argument is missing or incomplete. When the user supplies a narrower
+   * options type (e.g. via a literal), it falls back to `Subset` to keep
+   * filtering out unknown properties.
+   */
+  export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
+    [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
+
+  /**
    * SelectSubset
    * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
    * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -1323,7 +1435,7 @@ export namespace Prisma {
   type XOR<T, U> =
     T extends object ?
     U extends object ?
-      (Without<T, U> & U) | (Without<U, T> & T)
+      ((Without<T, U> & U) | (Without<U, T> & T)) & object
     : U : T
 
 
@@ -1587,7 +1699,10 @@ export namespace Prisma {
     KpiNotificationRule: 'KpiNotificationRule',
     KpiReportDefault: 'KpiReportDefault',
     Notification: 'Notification',
-    ScheduledReport: 'ScheduledReport'
+    ScheduledReport: 'ScheduledReport',
+    DiscountRule: 'DiscountRule',
+    DiscountApproval: 'DiscountApproval',
+    DiscountApplication: 'DiscountApplication'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1603,7 +1718,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "branch" | "user" | "userInfo" | "role" | "authority" | "userRole" | "roleAuthority" | "userLog" | "supplier" | "category" | "product" | "branchProduct" | "inventoryLog" | "stockAlert" | "purchaseOrder" | "purchaseOrderItem" | "purchaseInvoice" | "transfer" | "transferItem" | "batch" | "bill" | "billItem" | "sale" | "saleItem" | "payment" | "return" | "returnItem" | "syncLog" | "syncDevice" | "syncSetting" | "syncConflict" | "syncBackup" | "syncBackupSchedule" | "syncHealthMetric" | "syncAuditLog" | "dailySummary" | "savedReportConfig" | "reportSchedule" | "reportDelivery" | "auditLog" | "kpiTarget" | "kpiMarginTarget" | "kpiInventoryThreshold" | "kpiNotificationRule" | "kpiReportDefault" | "notification" | "scheduledReport"
+      modelProps: "company" | "branch" | "user" | "userInfo" | "role" | "authority" | "userRole" | "roleAuthority" | "userLog" | "supplier" | "category" | "product" | "branchProduct" | "inventoryLog" | "stockAlert" | "purchaseOrder" | "purchaseOrderItem" | "purchaseInvoice" | "transfer" | "transferItem" | "batch" | "bill" | "billItem" | "sale" | "saleItem" | "payment" | "return" | "returnItem" | "syncLog" | "syncDevice" | "syncSetting" | "syncConflict" | "syncBackup" | "syncBackupSchedule" | "syncHealthMetric" | "syncAuditLog" | "dailySummary" | "savedReportConfig" | "reportSchedule" | "reportDelivery" | "auditLog" | "kpiTarget" | "kpiMarginTarget" | "kpiInventoryThreshold" | "kpiNotificationRule" | "kpiReportDefault" | "notification" | "scheduledReport" | "discountRule" | "discountApproval" | "discountApplication"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5159,6 +5274,228 @@ export namespace Prisma {
           }
         }
       }
+      DiscountRule: {
+        payload: Prisma.$DiscountRulePayload<ExtArgs>
+        fields: Prisma.DiscountRuleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DiscountRuleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DiscountRuleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>
+          }
+          findFirst: {
+            args: Prisma.DiscountRuleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DiscountRuleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>
+          }
+          findMany: {
+            args: Prisma.DiscountRuleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>[]
+          }
+          create: {
+            args: Prisma.DiscountRuleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>
+          }
+          createMany: {
+            args: Prisma.DiscountRuleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DiscountRuleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>[]
+          }
+          delete: {
+            args: Prisma.DiscountRuleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>
+          }
+          update: {
+            args: Prisma.DiscountRuleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>
+          }
+          deleteMany: {
+            args: Prisma.DiscountRuleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DiscountRuleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DiscountRuleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>[]
+          }
+          upsert: {
+            args: Prisma.DiscountRuleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountRulePayload>
+          }
+          aggregate: {
+            args: Prisma.DiscountRuleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDiscountRule>
+          }
+          groupBy: {
+            args: Prisma.DiscountRuleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DiscountRuleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DiscountRuleCountArgs<ExtArgs>
+            result: $Utils.Optional<DiscountRuleCountAggregateOutputType> | number
+          }
+        }
+      }
+      DiscountApproval: {
+        payload: Prisma.$DiscountApprovalPayload<ExtArgs>
+        fields: Prisma.DiscountApprovalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DiscountApprovalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DiscountApprovalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>
+          }
+          findFirst: {
+            args: Prisma.DiscountApprovalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DiscountApprovalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>
+          }
+          findMany: {
+            args: Prisma.DiscountApprovalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>[]
+          }
+          create: {
+            args: Prisma.DiscountApprovalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>
+          }
+          createMany: {
+            args: Prisma.DiscountApprovalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DiscountApprovalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>[]
+          }
+          delete: {
+            args: Prisma.DiscountApprovalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>
+          }
+          update: {
+            args: Prisma.DiscountApprovalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>
+          }
+          deleteMany: {
+            args: Prisma.DiscountApprovalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DiscountApprovalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DiscountApprovalUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>[]
+          }
+          upsert: {
+            args: Prisma.DiscountApprovalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApprovalPayload>
+          }
+          aggregate: {
+            args: Prisma.DiscountApprovalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDiscountApproval>
+          }
+          groupBy: {
+            args: Prisma.DiscountApprovalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DiscountApprovalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DiscountApprovalCountArgs<ExtArgs>
+            result: $Utils.Optional<DiscountApprovalCountAggregateOutputType> | number
+          }
+        }
+      }
+      DiscountApplication: {
+        payload: Prisma.$DiscountApplicationPayload<ExtArgs>
+        fields: Prisma.DiscountApplicationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DiscountApplicationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DiscountApplicationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>
+          }
+          findFirst: {
+            args: Prisma.DiscountApplicationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DiscountApplicationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>
+          }
+          findMany: {
+            args: Prisma.DiscountApplicationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>[]
+          }
+          create: {
+            args: Prisma.DiscountApplicationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>
+          }
+          createMany: {
+            args: Prisma.DiscountApplicationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DiscountApplicationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>[]
+          }
+          delete: {
+            args: Prisma.DiscountApplicationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>
+          }
+          update: {
+            args: Prisma.DiscountApplicationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>
+          }
+          deleteMany: {
+            args: Prisma.DiscountApplicationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DiscountApplicationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DiscountApplicationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>[]
+          }
+          upsert: {
+            args: Prisma.DiscountApplicationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscountApplicationPayload>
+          }
+          aggregate: {
+            args: Prisma.DiscountApplicationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDiscountApplication>
+          }
+          groupBy: {
+            args: Prisma.DiscountApplicationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DiscountApplicationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DiscountApplicationCountArgs<ExtArgs>
+            result: $Utils.Optional<DiscountApplicationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5227,11 +5564,26 @@ export namespace Prisma {
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
     /**
-     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
+     * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
+     * 
+     * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
+     * 
+     * Learn more: https://pris.ly/d/driver-adapters
+     * 
+     * @example
+     * ```ts
+     * import { PrismaPg } from '@prisma/adapter-pg'
+     * import { PrismaClient } from './generated/prisma/client'
+     * 
+     * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+     * const prisma = new PrismaClient({ adapter })
+     * ```
      */
     adapter?: runtime.SqlDriverAdapterFactory
     /**
-     * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
+     * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
+     * 
+     * Learn more: https://pris.ly/d/accelerate
      */
     accelerateUrl?: string
     /**
@@ -5315,6 +5667,9 @@ export namespace Prisma {
     kpiReportDefault?: KpiReportDefaultOmit
     notification?: NotificationOmit
     scheduledReport?: ScheduledReportOmit
+    discountRule?: DiscountRuleOmit
+    discountApproval?: DiscountApprovalOmit
+    discountApplication?: DiscountApplicationOmit
   }
 
   /* Types for Logging */
@@ -5399,6 +5754,7 @@ export namespace Prisma {
     users: number
     products: number
     bills: number
+    discountRules: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5406,6 +5762,7 @@ export namespace Prisma {
     users?: boolean | CompanyCountOutputTypeCountUsersArgs
     products?: boolean | CompanyCountOutputTypeCountProductsArgs
     bills?: boolean | CompanyCountOutputTypeCountBillsArgs
+    discountRules?: boolean | CompanyCountOutputTypeCountDiscountRulesArgs
   }
 
   // Custom InputTypes
@@ -5447,6 +5804,13 @@ export namespace Prisma {
     where?: BillWhereInput
   }
 
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountDiscountRulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountRuleWhereInput
+  }
+
 
   /**
    * Count Type BranchCountOutputType
@@ -5470,6 +5834,9 @@ export namespace Prisma {
     syncSchedules: number
     syncMetrics: number
     dailySummaries: number
+    savedReportConfigs: number
+    reportSchedules: number
+    discountRules: number
   }
 
   export type BranchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5490,6 +5857,9 @@ export namespace Prisma {
     syncSchedules?: boolean | BranchCountOutputTypeCountSyncSchedulesArgs
     syncMetrics?: boolean | BranchCountOutputTypeCountSyncMetricsArgs
     dailySummaries?: boolean | BranchCountOutputTypeCountDailySummariesArgs
+    savedReportConfigs?: boolean | BranchCountOutputTypeCountSavedReportConfigsArgs
+    reportSchedules?: boolean | BranchCountOutputTypeCountReportSchedulesArgs
+    discountRules?: boolean | BranchCountOutputTypeCountDiscountRulesArgs
   }
 
   // Custom InputTypes
@@ -5622,6 +5992,27 @@ export namespace Prisma {
     where?: DailySummaryWhereInput
   }
 
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountSavedReportConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SavedReportConfigWhereInput
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountReportSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportScheduleWhereInput
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountDiscountRulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountRuleWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -5637,6 +6028,10 @@ export namespace Prisma {
     savedReports: number
     reportSchedules: number
     auditLogs: number
+    createdDiscounts: number
+    discountRequests: number
+    discountApplications: number
+    discountApprovals: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5649,6 +6044,10 @@ export namespace Prisma {
     savedReports?: boolean | UserCountOutputTypeCountSavedReportsArgs
     reportSchedules?: boolean | UserCountOutputTypeCountReportSchedulesArgs
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+    createdDiscounts?: boolean | UserCountOutputTypeCountCreatedDiscountsArgs
+    discountRequests?: boolean | UserCountOutputTypeCountDiscountRequestsArgs
+    discountApplications?: boolean | UserCountOutputTypeCountDiscountApplicationsArgs
+    discountApprovals?: boolean | UserCountOutputTypeCountDiscountApprovalsArgs
   }
 
   // Custom InputTypes
@@ -5723,6 +6122,34 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AuditLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCreatedDiscountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountRuleWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDiscountRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApprovalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDiscountApplicationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApplicationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDiscountApprovalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApprovalWhereInput
   }
 
 
@@ -6061,10 +6488,12 @@ export namespace Prisma {
 
   export type BillCountOutputType = {
     items: number
+    discountApplications: number
   }
 
   export type BillCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | BillCountOutputTypeCountItemsArgs
+    discountApplications?: boolean | BillCountOutputTypeCountDiscountApplicationsArgs
   }
 
   // Custom InputTypes
@@ -6083,6 +6512,13 @@ export namespace Prisma {
    */
   export type BillCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BillItemWhereInput
+  }
+
+  /**
+   * BillCountOutputType without action
+   */
+  export type BillCountOutputTypeCountDiscountApplicationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApplicationWhereInput
   }
 
 
@@ -6225,6 +6661,46 @@ export namespace Prisma {
    */
   export type ReportScheduleCountOutputTypeCountDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReportDeliveryWhereInput
+  }
+
+
+  /**
+   * Count Type DiscountRuleCountOutputType
+   */
+
+  export type DiscountRuleCountOutputType = {
+    approvals: number
+    applications: number
+  }
+
+  export type DiscountRuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    approvals?: boolean | DiscountRuleCountOutputTypeCountApprovalsArgs
+    applications?: boolean | DiscountRuleCountOutputTypeCountApplicationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DiscountRuleCountOutputType without action
+   */
+  export type DiscountRuleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRuleCountOutputType
+     */
+    select?: DiscountRuleCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DiscountRuleCountOutputType without action
+   */
+  export type DiscountRuleCountOutputTypeCountApprovalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApprovalWhereInput
+  }
+
+  /**
+   * DiscountRuleCountOutputType without action
+   */
+  export type DiscountRuleCountOutputTypeCountApplicationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApplicationWhereInput
   }
 
 
@@ -6466,6 +6942,7 @@ export namespace Prisma {
     users?: boolean | Company$usersArgs<ExtArgs>
     products?: boolean | Company$productsArgs<ExtArgs>
     bills?: boolean | Company$billsArgs<ExtArgs>
+    discountRules?: boolean | Company$discountRulesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -6511,6 +6988,7 @@ export namespace Prisma {
     users?: boolean | Company$usersArgs<ExtArgs>
     products?: boolean | Company$productsArgs<ExtArgs>
     bills?: boolean | Company$billsArgs<ExtArgs>
+    discountRules?: boolean | Company$discountRulesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6523,6 +7001,7 @@ export namespace Prisma {
       users: Prisma.$UserPayload<ExtArgs>[]
       products: Prisma.$ProductPayload<ExtArgs>[]
       bills: Prisma.$BillPayload<ExtArgs>[]
+      discountRules: Prisma.$DiscountRulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -6932,6 +7411,7 @@ export namespace Prisma {
     users<T extends Company$usersArgs<ExtArgs> = {}>(args?: Subset<T, Company$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     products<T extends Company$productsArgs<ExtArgs> = {}>(args?: Subset<T, Company$productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     bills<T extends Company$billsArgs<ExtArgs> = {}>(args?: Subset<T, Company$billsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discountRules<T extends Company$discountRulesArgs<ExtArgs> = {}>(args?: Subset<T, Company$discountRulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7166,6 +7646,11 @@ export namespace Prisma {
      * Skip the first `n` Companies.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Companies.
+     */
     distinct?: CompanyScalarFieldEnum | CompanyScalarFieldEnum[]
   }
 
@@ -7451,6 +7936,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BillScalarFieldEnum | BillScalarFieldEnum[]
+  }
+
+  /**
+   * Company.discountRules
+   */
+  export type Company$discountRulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    where?: DiscountRuleWhereInput
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    cursor?: DiscountRuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
   }
 
   /**
@@ -7748,6 +8257,9 @@ export namespace Prisma {
     syncSchedules?: boolean | Branch$syncSchedulesArgs<ExtArgs>
     syncMetrics?: boolean | Branch$syncMetricsArgs<ExtArgs>
     dailySummaries?: boolean | Branch$dailySummariesArgs<ExtArgs>
+    savedReportConfigs?: boolean | Branch$savedReportConfigsArgs<ExtArgs>
+    reportSchedules?: boolean | Branch$reportSchedulesArgs<ExtArgs>
+    discountRules?: boolean | Branch$discountRulesArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
@@ -7818,6 +8330,9 @@ export namespace Prisma {
     syncSchedules?: boolean | Branch$syncSchedulesArgs<ExtArgs>
     syncMetrics?: boolean | Branch$syncMetricsArgs<ExtArgs>
     dailySummaries?: boolean | Branch$dailySummariesArgs<ExtArgs>
+    savedReportConfigs?: boolean | Branch$savedReportConfigsArgs<ExtArgs>
+    reportSchedules?: boolean | Branch$reportSchedulesArgs<ExtArgs>
+    discountRules?: boolean | Branch$discountRulesArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7848,6 +8363,9 @@ export namespace Prisma {
       syncSchedules: Prisma.$SyncBackupSchedulePayload<ExtArgs>[]
       syncMetrics: Prisma.$SyncHealthMetricPayload<ExtArgs>[]
       dailySummaries: Prisma.$DailySummaryPayload<ExtArgs>[]
+      savedReportConfigs: Prisma.$SavedReportConfigPayload<ExtArgs>[]
+      reportSchedules: Prisma.$ReportSchedulePayload<ExtArgs>[]
+      discountRules: Prisma.$DiscountRulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -8274,6 +8792,9 @@ export namespace Prisma {
     syncSchedules<T extends Branch$syncSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$syncSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncBackupSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     syncMetrics<T extends Branch$syncMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$syncMetricsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncHealthMetricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dailySummaries<T extends Branch$dailySummariesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$dailySummariesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailySummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    savedReportConfigs<T extends Branch$savedReportConfigsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$savedReportConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavedReportConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reportSchedules<T extends Branch$reportSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$reportSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discountRules<T extends Branch$discountRulesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$discountRulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8511,6 +9032,11 @@ export namespace Prisma {
      * Skip the first `n` Branches.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Branches.
+     */
     distinct?: BranchScalarFieldEnum | BranchScalarFieldEnum[]
   }
 
@@ -9119,6 +9645,78 @@ export namespace Prisma {
   }
 
   /**
+   * Branch.savedReportConfigs
+   */
+  export type Branch$savedReportConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedReportConfig
+     */
+    select?: SavedReportConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedReportConfig
+     */
+    omit?: SavedReportConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SavedReportConfigInclude<ExtArgs> | null
+    where?: SavedReportConfigWhereInput
+    orderBy?: SavedReportConfigOrderByWithRelationInput | SavedReportConfigOrderByWithRelationInput[]
+    cursor?: SavedReportConfigWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SavedReportConfigScalarFieldEnum | SavedReportConfigScalarFieldEnum[]
+  }
+
+  /**
+   * Branch.reportSchedules
+   */
+  export type Branch$reportSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportSchedule
+     */
+    select?: ReportScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportSchedule
+     */
+    omit?: ReportScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportScheduleInclude<ExtArgs> | null
+    where?: ReportScheduleWhereInput
+    orderBy?: ReportScheduleOrderByWithRelationInput | ReportScheduleOrderByWithRelationInput[]
+    cursor?: ReportScheduleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportScheduleScalarFieldEnum | ReportScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * Branch.discountRules
+   */
+  export type Branch$discountRulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    where?: DiscountRuleWhereInput
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    cursor?: DiscountRuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
+  }
+
+  /**
    * Branch without action
    */
   export type BranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9423,6 +10021,10 @@ export namespace Prisma {
     savedReports?: boolean | User$savedReportsArgs<ExtArgs>
     reportSchedules?: boolean | User$reportSchedulesArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    createdDiscounts?: boolean | User$createdDiscountsArgs<ExtArgs>
+    discountRequests?: boolean | User$discountRequestsArgs<ExtArgs>
+    discountApplications?: boolean | User$discountApplicationsArgs<ExtArgs>
+    discountApprovals?: boolean | User$discountApprovalsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -9492,6 +10094,10 @@ export namespace Prisma {
     savedReports?: boolean | User$savedReportsArgs<ExtArgs>
     reportSchedules?: boolean | User$reportSchedulesArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    createdDiscounts?: boolean | User$createdDiscountsArgs<ExtArgs>
+    discountRequests?: boolean | User$discountRequestsArgs<ExtArgs>
+    discountApplications?: boolean | User$discountApplicationsArgs<ExtArgs>
+    discountApprovals?: boolean | User$discountApprovalsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9518,6 +10124,10 @@ export namespace Prisma {
       savedReports: Prisma.$SavedReportConfigPayload<ExtArgs>[]
       reportSchedules: Prisma.$ReportSchedulePayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+      createdDiscounts: Prisma.$DiscountRulePayload<ExtArgs>[]
+      discountRequests: Prisma.$DiscountApprovalPayload<ExtArgs>[]
+      discountApplications: Prisma.$DiscountApplicationPayload<ExtArgs>[]
+      discountApprovals: Prisma.$DiscountApprovalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -9939,6 +10549,10 @@ export namespace Prisma {
     savedReports<T extends User$savedReportsArgs<ExtArgs> = {}>(args?: Subset<T, User$savedReportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavedReportConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportSchedules<T extends User$reportSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, User$reportSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    createdDiscounts<T extends User$createdDiscountsArgs<ExtArgs> = {}>(args?: Subset<T, User$createdDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discountRequests<T extends User$discountRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$discountRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discountApplications<T extends User$discountApplicationsArgs<ExtArgs> = {}>(args?: Subset<T, User$discountApplicationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discountApprovals<T extends User$discountApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$discountApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10177,6 +10791,11 @@ export namespace Prisma {
      * Skip the first `n` Users.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
@@ -10628,6 +11247,102 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.createdDiscounts
+   */
+  export type User$createdDiscountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    where?: DiscountRuleWhereInput
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    cursor?: DiscountRuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
+  }
+
+  /**
+   * User.discountRequests
+   */
+  export type User$discountRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    where?: DiscountApprovalWhereInput
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    cursor?: DiscountApprovalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
+  }
+
+  /**
+   * User.discountApplications
+   */
+  export type User$discountApplicationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    where?: DiscountApplicationWhereInput
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    cursor?: DiscountApplicationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
+  }
+
+  /**
+   * User.discountApprovals
+   */
+  export type User$discountApprovalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    where?: DiscountApprovalWhereInput
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    cursor?: DiscountApprovalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
   }
 
   /**
@@ -11566,6 +12281,11 @@ export namespace Prisma {
      * Skip the first `n` UserInfos.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserInfos.
+     */
     distinct?: UserInfoScalarFieldEnum | UserInfoScalarFieldEnum[]
   }
 
@@ -12632,6 +13352,11 @@ export namespace Prisma {
      * Skip the first `n` Roles.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Roles.
+     */
     distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
   }
 
@@ -13734,6 +14459,11 @@ export namespace Prisma {
      * Skip the first `n` Authorities.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Authorities.
+     */
     distinct?: AuthorityScalarFieldEnum | AuthorityScalarFieldEnum[]
   }
 
@@ -14832,6 +15562,11 @@ export namespace Prisma {
      * Skip the first `n` UserRoles.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserRoles.
+     */
     distinct?: UserRoleScalarFieldEnum | UserRoleScalarFieldEnum[]
   }
 
@@ -15914,6 +16649,11 @@ export namespace Prisma {
      * Skip the first `n` RoleAuthorities.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RoleAuthorities.
+     */
     distinct?: RoleAuthorityScalarFieldEnum | RoleAuthorityScalarFieldEnum[]
   }
 
@@ -17074,6 +17814,11 @@ export namespace Prisma {
      * Skip the first `n` UserLogs.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserLogs.
+     */
     distinct?: UserLogScalarFieldEnum | UserLogScalarFieldEnum[]
   }
 
@@ -18254,6 +18999,11 @@ export namespace Prisma {
      * Skip the first `n` Suppliers.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Suppliers.
+     */
     distinct?: SupplierScalarFieldEnum | SupplierScalarFieldEnum[]
   }
 
@@ -19343,6 +20093,11 @@ export namespace Prisma {
      * Skip the first `n` Categories.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Categories.
+     */
     distinct?: CategoryScalarFieldEnum | CategoryScalarFieldEnum[]
   }
 
@@ -20723,6 +21478,11 @@ export namespace Prisma {
      * Skip the first `n` Products.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Products.
+     */
     distinct?: ProductScalarFieldEnum | ProductScalarFieldEnum[]
   }
 
@@ -22120,6 +22880,11 @@ export namespace Prisma {
      * Skip the first `n` BranchProducts.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BranchProducts.
+     */
     distinct?: BranchProductScalarFieldEnum | BranchProductScalarFieldEnum[]
   }
 
@@ -23332,6 +24097,11 @@ export namespace Prisma {
      * Skip the first `n` InventoryLogs.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InventoryLogs.
+     */
     distinct?: InventoryLogScalarFieldEnum | InventoryLogScalarFieldEnum[]
   }
 
@@ -24491,6 +25261,11 @@ export namespace Prisma {
      * Skip the first `n` StockAlerts.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StockAlerts.
+     */
     distinct?: StockAlertScalarFieldEnum | StockAlertScalarFieldEnum[]
   }
 
@@ -25704,6 +26479,11 @@ export namespace Prisma {
      * Skip the first `n` PurchaseOrders.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PurchaseOrders.
+     */
     distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
   }
 
@@ -26899,6 +27679,11 @@ export namespace Prisma {
      * Skip the first `n` PurchaseOrderItems.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PurchaseOrderItems.
+     */
     distinct?: PurchaseOrderItemScalarFieldEnum | PurchaseOrderItemScalarFieldEnum[]
   }
 
@@ -28077,6 +28862,11 @@ export namespace Prisma {
      * Skip the first `n` PurchaseInvoices.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PurchaseInvoices.
+     */
     distinct?: PurchaseInvoiceScalarFieldEnum | PurchaseInvoiceScalarFieldEnum[]
   }
 
@@ -29242,6 +30032,11 @@ export namespace Prisma {
      * Skip the first `n` Transfers.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Transfers.
+     */
     distinct?: TransferScalarFieldEnum | TransferScalarFieldEnum[]
   }
 
@@ -30365,6 +31160,11 @@ export namespace Prisma {
      * Skip the first `n` TransferItems.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TransferItems.
+     */
     distinct?: TransferItemScalarFieldEnum | TransferItemScalarFieldEnum[]
   }
 
@@ -31504,6 +32304,11 @@ export namespace Prisma {
      * Skip the first `n` Batches.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Batches.
+     */
     distinct?: BatchScalarFieldEnum | BatchScalarFieldEnum[]
   }
 
@@ -32024,6 +32829,7 @@ export namespace Prisma {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     cashier?: boolean | UserDefaultArgs<ExtArgs>
     items?: boolean | Bill$itemsArgs<ExtArgs>
+    discountApplications?: boolean | Bill$discountApplicationsArgs<ExtArgs>
     _count?: boolean | BillCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bill"]>
 
@@ -32090,6 +32896,7 @@ export namespace Prisma {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     cashier?: boolean | UserDefaultArgs<ExtArgs>
     items?: boolean | Bill$itemsArgs<ExtArgs>
+    discountApplications?: boolean | Bill$discountApplicationsArgs<ExtArgs>
     _count?: boolean | BillCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BillIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -32110,6 +32917,7 @@ export namespace Prisma {
       branch: Prisma.$BranchPayload<ExtArgs>
       cashier: Prisma.$UserPayload<ExtArgs>
       items: Prisma.$BillItemPayload<ExtArgs>[]
+      discountApplications: Prisma.$DiscountApplicationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -32524,6 +33332,7 @@ export namespace Prisma {
     branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     cashier<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     items<T extends Bill$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Bill$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discountApplications<T extends Bill$discountApplicationsArgs<ExtArgs> = {}>(args?: Subset<T, Bill$discountApplicationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32763,6 +33572,11 @@ export namespace Prisma {
      * Skip the first `n` Bills.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Bills.
+     */
     distinct?: BillScalarFieldEnum | BillScalarFieldEnum[]
   }
 
@@ -32984,6 +33798,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BillItemScalarFieldEnum | BillItemScalarFieldEnum[]
+  }
+
+  /**
+   * Bill.discountApplications
+   */
+  export type Bill$discountApplicationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    where?: DiscountApplicationWhereInput
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    cursor?: DiscountApplicationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
   }
 
   /**
@@ -33920,6 +34758,11 @@ export namespace Prisma {
      * Skip the first `n` BillItems.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillItems.
+     */
     distinct?: BillItemScalarFieldEnum | BillItemScalarFieldEnum[]
   }
 
@@ -35131,6 +35974,11 @@ export namespace Prisma {
      * Skip the first `n` Sales.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Sales.
+     */
     distinct?: SaleScalarFieldEnum | SaleScalarFieldEnum[]
   }
 
@@ -36475,6 +37323,11 @@ export namespace Prisma {
      * Skip the first `n` SaleItems.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SaleItems.
+     */
     distinct?: SaleItemScalarFieldEnum | SaleItemScalarFieldEnum[]
   }
 
@@ -37638,6 +38491,11 @@ export namespace Prisma {
      * Skip the first `n` Payments.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Payments.
+     */
     distinct?: PaymentScalarFieldEnum | PaymentScalarFieldEnum[]
   }
 
@@ -38809,6 +39667,11 @@ export namespace Prisma {
      * Skip the first `n` Returns.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Returns.
+     */
     distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
   }
 
@@ -39992,6 +40855,11 @@ export namespace Prisma {
      * Skip the first `n` ReturnItems.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReturnItems.
+     */
     distinct?: ReturnItemScalarFieldEnum | ReturnItemScalarFieldEnum[]
   }
 
@@ -41157,6 +42025,11 @@ export namespace Prisma {
      * Skip the first `n` SyncLogs.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncLogs.
+     */
     distinct?: SyncLogScalarFieldEnum | SyncLogScalarFieldEnum[]
   }
 
@@ -42330,6 +43203,11 @@ export namespace Prisma {
      * Skip the first `n` SyncDevices.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncDevices.
+     */
     distinct?: SyncDeviceScalarFieldEnum | SyncDeviceScalarFieldEnum[]
   }
 
@@ -43465,6 +44343,11 @@ export namespace Prisma {
      * Skip the first `n` SyncSettings.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncSettings.
+     */
     distinct?: SyncSettingScalarFieldEnum | SyncSettingScalarFieldEnum[]
   }
 
@@ -44641,6 +45524,11 @@ export namespace Prisma {
      * Skip the first `n` SyncConflicts.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncConflicts.
+     */
     distinct?: SyncConflictScalarFieldEnum | SyncConflictScalarFieldEnum[]
   }
 
@@ -45737,6 +46625,11 @@ export namespace Prisma {
      * Skip the first `n` SyncBackups.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncBackups.
+     */
     distinct?: SyncBackupScalarFieldEnum | SyncBackupScalarFieldEnum[]
   }
 
@@ -46833,6 +47726,11 @@ export namespace Prisma {
      * Skip the first `n` SyncBackupSchedules.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncBackupSchedules.
+     */
     distinct?: SyncBackupScheduleScalarFieldEnum | SyncBackupScheduleScalarFieldEnum[]
   }
 
@@ -47954,6 +48852,11 @@ export namespace Prisma {
      * Skip the first `n` SyncHealthMetrics.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncHealthMetrics.
+     */
     distinct?: SyncHealthMetricScalarFieldEnum | SyncHealthMetricScalarFieldEnum[]
   }
 
@@ -49041,6 +49944,11 @@ export namespace Prisma {
      * Skip the first `n` SyncAuditLogs.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncAuditLogs.
+     */
     distinct?: SyncAuditLogScalarFieldEnum | SyncAuditLogScalarFieldEnum[]
   }
 
@@ -50279,6 +51187,11 @@ export namespace Prisma {
      * Skip the first `n` DailySummaries.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailySummaries.
+     */
     distinct?: DailySummaryScalarFieldEnum | DailySummaryScalarFieldEnum[]
   }
 
@@ -50767,6 +51680,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | SavedReportConfig$branchArgs<ExtArgs>
   }, ExtArgs["result"]["savedReportConfig"]>
 
   export type SavedReportConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -50781,6 +51695,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | SavedReportConfig$branchArgs<ExtArgs>
   }, ExtArgs["result"]["savedReportConfig"]>
 
   export type SavedReportConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -50795,6 +51710,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | SavedReportConfig$branchArgs<ExtArgs>
   }, ExtArgs["result"]["savedReportConfig"]>
 
   export type SavedReportConfigSelectScalar = {
@@ -50813,18 +51729,22 @@ export namespace Prisma {
   export type SavedReportConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "configName" | "reportType" | "startDate" | "endDate" | "branch_id" | "categoryId" | "user_id" | "created_at" | "updated_at", ExtArgs["result"]["savedReportConfig"]>
   export type SavedReportConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | SavedReportConfig$branchArgs<ExtArgs>
   }
   export type SavedReportConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | SavedReportConfig$branchArgs<ExtArgs>
   }
   export type SavedReportConfigIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | SavedReportConfig$branchArgs<ExtArgs>
   }
 
   export type $SavedReportConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SavedReportConfig"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
+      branch: Prisma.$BranchPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -51232,6 +52152,7 @@ export namespace Prisma {
   export interface Prisma__SavedReportConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    branch<T extends SavedReportConfig$branchArgs<ExtArgs> = {}>(args?: Subset<T, SavedReportConfig$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -51467,6 +52388,11 @@ export namespace Prisma {
      * Skip the first `n` SavedReportConfigs.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SavedReportConfigs.
+     */
     distinct?: SavedReportConfigScalarFieldEnum | SavedReportConfigScalarFieldEnum[]
   }
 
@@ -51664,6 +52590,25 @@ export namespace Prisma {
      * Limit how many SavedReportConfigs to delete.
      */
     limit?: number
+  }
+
+  /**
+   * SavedReportConfig.branch
+   */
+  export type SavedReportConfig$branchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
   }
 
   /**
@@ -51940,6 +52885,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | ReportSchedule$branchArgs<ExtArgs>
     deliveries?: boolean | ReportSchedule$deliveriesArgs<ExtArgs>
     _count?: boolean | ReportScheduleCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["reportSchedule"]>
@@ -51957,6 +52903,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | ReportSchedule$branchArgs<ExtArgs>
   }, ExtArgs["result"]["reportSchedule"]>
 
   export type ReportScheduleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -51972,6 +52919,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | ReportSchedule$branchArgs<ExtArgs>
   }, ExtArgs["result"]["reportSchedule"]>
 
   export type ReportScheduleSelectScalar = {
@@ -51991,20 +52939,24 @@ export namespace Prisma {
   export type ReportScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "scheduleName" | "reportType" | "frequency" | "recipientEmail" | "branch_id" | "isActive" | "nextRunAt" | "user_id" | "created_at" | "updated_at", ExtArgs["result"]["reportSchedule"]>
   export type ReportScheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | ReportSchedule$branchArgs<ExtArgs>
     deliveries?: boolean | ReportSchedule$deliveriesArgs<ExtArgs>
     _count?: boolean | ReportScheduleCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ReportScheduleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | ReportSchedule$branchArgs<ExtArgs>
   }
   export type ReportScheduleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | ReportSchedule$branchArgs<ExtArgs>
   }
 
   export type $ReportSchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ReportSchedule"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
+      branch: Prisma.$BranchPayload<ExtArgs> | null
       deliveries: Prisma.$ReportDeliveryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -52414,6 +53366,7 @@ export namespace Prisma {
   export interface Prisma__ReportScheduleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    branch<T extends ReportSchedule$branchArgs<ExtArgs> = {}>(args?: Subset<T, ReportSchedule$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     deliveries<T extends ReportSchedule$deliveriesArgs<ExtArgs> = {}>(args?: Subset<T, ReportSchedule$deliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -52651,6 +53604,11 @@ export namespace Prisma {
      * Skip the first `n` ReportSchedules.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportSchedules.
+     */
     distinct?: ReportScheduleScalarFieldEnum | ReportScheduleScalarFieldEnum[]
   }
 
@@ -52848,6 +53806,25 @@ export namespace Prisma {
      * Limit how many ReportSchedules to delete.
      */
     limit?: number
+  }
+
+  /**
+   * ReportSchedule.branch
+   */
+  export type ReportSchedule$branchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
   }
 
   /**
@@ -53797,6 +54774,11 @@ export namespace Prisma {
      * Skip the first `n` ReportDeliveries.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportDeliveries.
+     */
     distinct?: ReportDeliveryScalarFieldEnum | ReportDeliveryScalarFieldEnum[]
   }
 
@@ -54945,6 +55927,11 @@ export namespace Prisma {
      * Skip the first `n` AuditLogs.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogs.
+     */
     distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
   }
 
@@ -55997,6 +56984,11 @@ export namespace Prisma {
      * Skip the first `n` KpiTargets.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KpiTargets.
+     */
     distinct?: KpiTargetScalarFieldEnum | KpiTargetScalarFieldEnum[]
   }
 
@@ -57025,6 +58017,11 @@ export namespace Prisma {
      * Skip the first `n` KpiMarginTargets.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KpiMarginTargets.
+     */
     distinct?: KpiMarginTargetScalarFieldEnum | KpiMarginTargetScalarFieldEnum[]
   }
 
@@ -58070,6 +59067,11 @@ export namespace Prisma {
      * Skip the first `n` KpiInventoryThresholds.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KpiInventoryThresholds.
+     */
     distinct?: KpiInventoryThresholdScalarFieldEnum | KpiInventoryThresholdScalarFieldEnum[]
   }
 
@@ -59185,6 +60187,11 @@ export namespace Prisma {
      * Skip the first `n` KpiNotificationRules.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KpiNotificationRules.
+     */
     distinct?: KpiNotificationRuleScalarFieldEnum | KpiNotificationRuleScalarFieldEnum[]
   }
 
@@ -60218,6 +61225,11 @@ export namespace Prisma {
      * Skip the first `n` KpiReportDefaults.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KpiReportDefaults.
+     */
     distinct?: KpiReportDefaultScalarFieldEnum | KpiReportDefaultScalarFieldEnum[]
   }
 
@@ -61307,6 +62319,11 @@ export namespace Prisma {
      * Skip the first `n` Notifications.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
   }
 
@@ -62401,6 +63418,11 @@ export namespace Prisma {
      * Skip the first `n` ScheduledReports.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScheduledReports.
+     */
     distinct?: ScheduledReportScalarFieldEnum | ScheduledReportScalarFieldEnum[]
   }
 
@@ -62588,6 +63610,3726 @@ export namespace Prisma {
      * Omit specific fields from the ScheduledReport
      */
     omit?: ScheduledReportOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DiscountRule
+   */
+
+  export type AggregateDiscountRule = {
+    _count: DiscountRuleCountAggregateOutputType | null
+    _avg: DiscountRuleAvgAggregateOutputType | null
+    _sum: DiscountRuleSumAggregateOutputType | null
+    _min: DiscountRuleMinAggregateOutputType | null
+    _max: DiscountRuleMaxAggregateOutputType | null
+  }
+
+  export type DiscountRuleAvgAggregateOutputType = {
+    id: number | null
+    value: Decimal | null
+    max_value: Decimal | null
+    min_purchase: Decimal | null
+    company_id: number | null
+    branch_id: number | null
+    created_by: number | null
+  }
+
+  export type DiscountRuleSumAggregateOutputType = {
+    id: number | null
+    value: Decimal | null
+    max_value: Decimal | null
+    min_purchase: Decimal | null
+    company_id: number | null
+    branch_id: number | null
+    created_by: number | null
+  }
+
+  export type DiscountRuleMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    description: string | null
+    type: $Enums.DiscountType | null
+    value: Decimal | null
+    max_value: Decimal | null
+    min_purchase: Decimal | null
+    scope: $Enums.DiscountScope | null
+    company_id: number | null
+    branch_id: number | null
+    status: $Enums.DiscountStatus | null
+    valid_from: Date | null
+    valid_until: Date | null
+    created_by: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type DiscountRuleMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    description: string | null
+    type: $Enums.DiscountType | null
+    value: Decimal | null
+    max_value: Decimal | null
+    min_purchase: Decimal | null
+    scope: $Enums.DiscountScope | null
+    company_id: number | null
+    branch_id: number | null
+    status: $Enums.DiscountStatus | null
+    valid_from: Date | null
+    valid_until: Date | null
+    created_by: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type DiscountRuleCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    type: number
+    value: number
+    max_value: number
+    min_purchase: number
+    scope: number
+    company_id: number
+    branch_id: number
+    status: number
+    valid_from: number
+    valid_until: number
+    created_by: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type DiscountRuleAvgAggregateInputType = {
+    id?: true
+    value?: true
+    max_value?: true
+    min_purchase?: true
+    company_id?: true
+    branch_id?: true
+    created_by?: true
+  }
+
+  export type DiscountRuleSumAggregateInputType = {
+    id?: true
+    value?: true
+    max_value?: true
+    min_purchase?: true
+    company_id?: true
+    branch_id?: true
+    created_by?: true
+  }
+
+  export type DiscountRuleMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    type?: true
+    value?: true
+    max_value?: true
+    min_purchase?: true
+    scope?: true
+    company_id?: true
+    branch_id?: true
+    status?: true
+    valid_from?: true
+    valid_until?: true
+    created_by?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type DiscountRuleMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    type?: true
+    value?: true
+    max_value?: true
+    min_purchase?: true
+    scope?: true
+    company_id?: true
+    branch_id?: true
+    status?: true
+    valid_from?: true
+    valid_until?: true
+    created_by?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type DiscountRuleCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    type?: true
+    value?: true
+    max_value?: true
+    min_purchase?: true
+    scope?: true
+    company_id?: true
+    branch_id?: true
+    status?: true
+    valid_from?: true
+    valid_until?: true
+    created_by?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type DiscountRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscountRule to aggregate.
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountRules to fetch.
+     */
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DiscountRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DiscountRules
+    **/
+    _count?: true | DiscountRuleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DiscountRuleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DiscountRuleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DiscountRuleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DiscountRuleMaxAggregateInputType
+  }
+
+  export type GetDiscountRuleAggregateType<T extends DiscountRuleAggregateArgs> = {
+        [P in keyof T & keyof AggregateDiscountRule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDiscountRule[P]>
+      : GetScalarType<T[P], AggregateDiscountRule[P]>
+  }
+
+
+
+
+  export type DiscountRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountRuleWhereInput
+    orderBy?: DiscountRuleOrderByWithAggregationInput | DiscountRuleOrderByWithAggregationInput[]
+    by: DiscountRuleScalarFieldEnum[] | DiscountRuleScalarFieldEnum
+    having?: DiscountRuleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DiscountRuleCountAggregateInputType | true
+    _avg?: DiscountRuleAvgAggregateInputType
+    _sum?: DiscountRuleSumAggregateInputType
+    _min?: DiscountRuleMinAggregateInputType
+    _max?: DiscountRuleMaxAggregateInputType
+  }
+
+  export type DiscountRuleGroupByOutputType = {
+    id: number
+    name: string
+    description: string | null
+    type: $Enums.DiscountType
+    value: Decimal
+    max_value: Decimal | null
+    min_purchase: Decimal | null
+    scope: $Enums.DiscountScope
+    company_id: number | null
+    branch_id: number | null
+    status: $Enums.DiscountStatus
+    valid_from: Date
+    valid_until: Date | null
+    created_by: number
+    created_at: Date
+    updated_at: Date
+    _count: DiscountRuleCountAggregateOutputType | null
+    _avg: DiscountRuleAvgAggregateOutputType | null
+    _sum: DiscountRuleSumAggregateOutputType | null
+    _min: DiscountRuleMinAggregateOutputType | null
+    _max: DiscountRuleMaxAggregateOutputType | null
+  }
+
+  type GetDiscountRuleGroupByPayload<T extends DiscountRuleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DiscountRuleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DiscountRuleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DiscountRuleGroupByOutputType[P]>
+            : GetScalarType<T[P], DiscountRuleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DiscountRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    type?: boolean
+    value?: boolean
+    max_value?: boolean
+    min_purchase?: boolean
+    scope?: boolean
+    company_id?: boolean
+    branch_id?: boolean
+    status?: boolean
+    valid_from?: boolean
+    valid_until?: boolean
+    created_by?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    company?: boolean | DiscountRule$companyArgs<ExtArgs>
+    branch?: boolean | DiscountRule$branchArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    approvals?: boolean | DiscountRule$approvalsArgs<ExtArgs>
+    applications?: boolean | DiscountRule$applicationsArgs<ExtArgs>
+    _count?: boolean | DiscountRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["discountRule"]>
+
+  export type DiscountRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    type?: boolean
+    value?: boolean
+    max_value?: boolean
+    min_purchase?: boolean
+    scope?: boolean
+    company_id?: boolean
+    branch_id?: boolean
+    status?: boolean
+    valid_from?: boolean
+    valid_until?: boolean
+    created_by?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    company?: boolean | DiscountRule$companyArgs<ExtArgs>
+    branch?: boolean | DiscountRule$branchArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["discountRule"]>
+
+  export type DiscountRuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    type?: boolean
+    value?: boolean
+    max_value?: boolean
+    min_purchase?: boolean
+    scope?: boolean
+    company_id?: boolean
+    branch_id?: boolean
+    status?: boolean
+    valid_from?: boolean
+    valid_until?: boolean
+    created_by?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    company?: boolean | DiscountRule$companyArgs<ExtArgs>
+    branch?: boolean | DiscountRule$branchArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["discountRule"]>
+
+  export type DiscountRuleSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    type?: boolean
+    value?: boolean
+    max_value?: boolean
+    min_purchase?: boolean
+    scope?: boolean
+    company_id?: boolean
+    branch_id?: boolean
+    status?: boolean
+    valid_from?: boolean
+    valid_until?: boolean
+    created_by?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type DiscountRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "type" | "value" | "max_value" | "min_purchase" | "scope" | "company_id" | "branch_id" | "status" | "valid_from" | "valid_until" | "created_by" | "created_at" | "updated_at", ExtArgs["result"]["discountRule"]>
+  export type DiscountRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | DiscountRule$companyArgs<ExtArgs>
+    branch?: boolean | DiscountRule$branchArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    approvals?: boolean | DiscountRule$approvalsArgs<ExtArgs>
+    applications?: boolean | DiscountRule$applicationsArgs<ExtArgs>
+    _count?: boolean | DiscountRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DiscountRuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | DiscountRule$companyArgs<ExtArgs>
+    branch?: boolean | DiscountRule$branchArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type DiscountRuleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | DiscountRule$companyArgs<ExtArgs>
+    branch?: boolean | DiscountRule$branchArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $DiscountRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DiscountRule"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs> | null
+      branch: Prisma.$BranchPayload<ExtArgs> | null
+      createdBy: Prisma.$UserPayload<ExtArgs>
+      approvals: Prisma.$DiscountApprovalPayload<ExtArgs>[]
+      applications: Prisma.$DiscountApplicationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      description: string | null
+      type: $Enums.DiscountType
+      value: Prisma.Decimal
+      max_value: Prisma.Decimal | null
+      min_purchase: Prisma.Decimal | null
+      scope: $Enums.DiscountScope
+      company_id: number | null
+      branch_id: number | null
+      status: $Enums.DiscountStatus
+      valid_from: Date
+      valid_until: Date | null
+      created_by: number
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["discountRule"]>
+    composites: {}
+  }
+
+  type DiscountRuleGetPayload<S extends boolean | null | undefined | DiscountRuleDefaultArgs> = $Result.GetResult<Prisma.$DiscountRulePayload, S>
+
+  type DiscountRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DiscountRuleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DiscountRuleCountAggregateInputType | true
+    }
+
+  export interface DiscountRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DiscountRule'], meta: { name: 'DiscountRule' } }
+    /**
+     * Find zero or one DiscountRule that matches the filter.
+     * @param {DiscountRuleFindUniqueArgs} args - Arguments to find a DiscountRule
+     * @example
+     * // Get one DiscountRule
+     * const discountRule = await prisma.discountRule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DiscountRuleFindUniqueArgs>(args: SelectSubset<T, DiscountRuleFindUniqueArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DiscountRule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DiscountRuleFindUniqueOrThrowArgs} args - Arguments to find a DiscountRule
+     * @example
+     * // Get one DiscountRule
+     * const discountRule = await prisma.discountRule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DiscountRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, DiscountRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscountRule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleFindFirstArgs} args - Arguments to find a DiscountRule
+     * @example
+     * // Get one DiscountRule
+     * const discountRule = await prisma.discountRule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DiscountRuleFindFirstArgs>(args?: SelectSubset<T, DiscountRuleFindFirstArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscountRule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleFindFirstOrThrowArgs} args - Arguments to find a DiscountRule
+     * @example
+     * // Get one DiscountRule
+     * const discountRule = await prisma.discountRule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DiscountRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, DiscountRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DiscountRules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DiscountRules
+     * const discountRules = await prisma.discountRule.findMany()
+     * 
+     * // Get first 10 DiscountRules
+     * const discountRules = await prisma.discountRule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const discountRuleWithIdOnly = await prisma.discountRule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DiscountRuleFindManyArgs>(args?: SelectSubset<T, DiscountRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DiscountRule.
+     * @param {DiscountRuleCreateArgs} args - Arguments to create a DiscountRule.
+     * @example
+     * // Create one DiscountRule
+     * const DiscountRule = await prisma.discountRule.create({
+     *   data: {
+     *     // ... data to create a DiscountRule
+     *   }
+     * })
+     * 
+     */
+    create<T extends DiscountRuleCreateArgs>(args: SelectSubset<T, DiscountRuleCreateArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DiscountRules.
+     * @param {DiscountRuleCreateManyArgs} args - Arguments to create many DiscountRules.
+     * @example
+     * // Create many DiscountRules
+     * const discountRule = await prisma.discountRule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DiscountRuleCreateManyArgs>(args?: SelectSubset<T, DiscountRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DiscountRules and returns the data saved in the database.
+     * @param {DiscountRuleCreateManyAndReturnArgs} args - Arguments to create many DiscountRules.
+     * @example
+     * // Create many DiscountRules
+     * const discountRule = await prisma.discountRule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DiscountRules and only return the `id`
+     * const discountRuleWithIdOnly = await prisma.discountRule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DiscountRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, DiscountRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DiscountRule.
+     * @param {DiscountRuleDeleteArgs} args - Arguments to delete one DiscountRule.
+     * @example
+     * // Delete one DiscountRule
+     * const DiscountRule = await prisma.discountRule.delete({
+     *   where: {
+     *     // ... filter to delete one DiscountRule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DiscountRuleDeleteArgs>(args: SelectSubset<T, DiscountRuleDeleteArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DiscountRule.
+     * @param {DiscountRuleUpdateArgs} args - Arguments to update one DiscountRule.
+     * @example
+     * // Update one DiscountRule
+     * const discountRule = await prisma.discountRule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DiscountRuleUpdateArgs>(args: SelectSubset<T, DiscountRuleUpdateArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DiscountRules.
+     * @param {DiscountRuleDeleteManyArgs} args - Arguments to filter DiscountRules to delete.
+     * @example
+     * // Delete a few DiscountRules
+     * const { count } = await prisma.discountRule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DiscountRuleDeleteManyArgs>(args?: SelectSubset<T, DiscountRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscountRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DiscountRules
+     * const discountRule = await prisma.discountRule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DiscountRuleUpdateManyArgs>(args: SelectSubset<T, DiscountRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscountRules and returns the data updated in the database.
+     * @param {DiscountRuleUpdateManyAndReturnArgs} args - Arguments to update many DiscountRules.
+     * @example
+     * // Update many DiscountRules
+     * const discountRule = await prisma.discountRule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DiscountRules and only return the `id`
+     * const discountRuleWithIdOnly = await prisma.discountRule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DiscountRuleUpdateManyAndReturnArgs>(args: SelectSubset<T, DiscountRuleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DiscountRule.
+     * @param {DiscountRuleUpsertArgs} args - Arguments to update or create a DiscountRule.
+     * @example
+     * // Update or create a DiscountRule
+     * const discountRule = await prisma.discountRule.upsert({
+     *   create: {
+     *     // ... data to create a DiscountRule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DiscountRule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DiscountRuleUpsertArgs>(args: SelectSubset<T, DiscountRuleUpsertArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DiscountRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleCountArgs} args - Arguments to filter DiscountRules to count.
+     * @example
+     * // Count the number of DiscountRules
+     * const count = await prisma.discountRule.count({
+     *   where: {
+     *     // ... the filter for the DiscountRules we want to count
+     *   }
+     * })
+    **/
+    count<T extends DiscountRuleCountArgs>(
+      args?: Subset<T, DiscountRuleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DiscountRuleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DiscountRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DiscountRuleAggregateArgs>(args: Subset<T, DiscountRuleAggregateArgs>): Prisma.PrismaPromise<GetDiscountRuleAggregateType<T>>
+
+    /**
+     * Group by DiscountRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountRuleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DiscountRuleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DiscountRuleGroupByArgs['orderBy'] }
+        : { orderBy?: DiscountRuleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DiscountRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDiscountRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DiscountRule model
+   */
+  readonly fields: DiscountRuleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DiscountRule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DiscountRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends DiscountRule$companyArgs<ExtArgs> = {}>(args?: Subset<T, DiscountRule$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    branch<T extends DiscountRule$branchArgs<ExtArgs> = {}>(args?: Subset<T, DiscountRule$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    approvals<T extends DiscountRule$approvalsArgs<ExtArgs> = {}>(args?: Subset<T, DiscountRule$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    applications<T extends DiscountRule$applicationsArgs<ExtArgs> = {}>(args?: Subset<T, DiscountRule$applicationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DiscountRule model
+   */
+  interface DiscountRuleFieldRefs {
+    readonly id: FieldRef<"DiscountRule", 'Int'>
+    readonly name: FieldRef<"DiscountRule", 'String'>
+    readonly description: FieldRef<"DiscountRule", 'String'>
+    readonly type: FieldRef<"DiscountRule", 'DiscountType'>
+    readonly value: FieldRef<"DiscountRule", 'Decimal'>
+    readonly max_value: FieldRef<"DiscountRule", 'Decimal'>
+    readonly min_purchase: FieldRef<"DiscountRule", 'Decimal'>
+    readonly scope: FieldRef<"DiscountRule", 'DiscountScope'>
+    readonly company_id: FieldRef<"DiscountRule", 'Int'>
+    readonly branch_id: FieldRef<"DiscountRule", 'Int'>
+    readonly status: FieldRef<"DiscountRule", 'DiscountStatus'>
+    readonly valid_from: FieldRef<"DiscountRule", 'DateTime'>
+    readonly valid_until: FieldRef<"DiscountRule", 'DateTime'>
+    readonly created_by: FieldRef<"DiscountRule", 'Int'>
+    readonly created_at: FieldRef<"DiscountRule", 'DateTime'>
+    readonly updated_at: FieldRef<"DiscountRule", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DiscountRule findUnique
+   */
+  export type DiscountRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountRule to fetch.
+     */
+    where: DiscountRuleWhereUniqueInput
+  }
+
+  /**
+   * DiscountRule findUniqueOrThrow
+   */
+  export type DiscountRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountRule to fetch.
+     */
+    where: DiscountRuleWhereUniqueInput
+  }
+
+  /**
+   * DiscountRule findFirst
+   */
+  export type DiscountRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountRule to fetch.
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountRules to fetch.
+     */
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscountRules.
+     */
+    cursor?: DiscountRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountRules.
+     */
+    distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountRule findFirstOrThrow
+   */
+  export type DiscountRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountRule to fetch.
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountRules to fetch.
+     */
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscountRules.
+     */
+    cursor?: DiscountRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountRules.
+     */
+    distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountRule findMany
+   */
+  export type DiscountRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountRules to fetch.
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountRules to fetch.
+     */
+    orderBy?: DiscountRuleOrderByWithRelationInput | DiscountRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DiscountRules.
+     */
+    cursor?: DiscountRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountRules.
+     */
+    distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountRule create
+   */
+  export type DiscountRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DiscountRule.
+     */
+    data: XOR<DiscountRuleCreateInput, DiscountRuleUncheckedCreateInput>
+  }
+
+  /**
+   * DiscountRule createMany
+   */
+  export type DiscountRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DiscountRules.
+     */
+    data: DiscountRuleCreateManyInput | DiscountRuleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DiscountRule createManyAndReturn
+   */
+  export type DiscountRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * The data used to create many DiscountRules.
+     */
+    data: DiscountRuleCreateManyInput | DiscountRuleCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscountRule update
+   */
+  export type DiscountRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DiscountRule.
+     */
+    data: XOR<DiscountRuleUpdateInput, DiscountRuleUncheckedUpdateInput>
+    /**
+     * Choose, which DiscountRule to update.
+     */
+    where: DiscountRuleWhereUniqueInput
+  }
+
+  /**
+   * DiscountRule updateMany
+   */
+  export type DiscountRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DiscountRules.
+     */
+    data: XOR<DiscountRuleUpdateManyMutationInput, DiscountRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscountRules to update
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * Limit how many DiscountRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscountRule updateManyAndReturn
+   */
+  export type DiscountRuleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * The data used to update DiscountRules.
+     */
+    data: XOR<DiscountRuleUpdateManyMutationInput, DiscountRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscountRules to update
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * Limit how many DiscountRules to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscountRule upsert
+   */
+  export type DiscountRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DiscountRule to update in case it exists.
+     */
+    where: DiscountRuleWhereUniqueInput
+    /**
+     * In case the DiscountRule found by the `where` argument doesn't exist, create a new DiscountRule with this data.
+     */
+    create: XOR<DiscountRuleCreateInput, DiscountRuleUncheckedCreateInput>
+    /**
+     * In case the DiscountRule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DiscountRuleUpdateInput, DiscountRuleUncheckedUpdateInput>
+  }
+
+  /**
+   * DiscountRule delete
+   */
+  export type DiscountRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+    /**
+     * Filter which DiscountRule to delete.
+     */
+    where: DiscountRuleWhereUniqueInput
+  }
+
+  /**
+   * DiscountRule deleteMany
+   */
+  export type DiscountRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscountRules to delete
+     */
+    where?: DiscountRuleWhereInput
+    /**
+     * Limit how many DiscountRules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscountRule.company
+   */
+  export type DiscountRule$companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Company
+     */
+    select?: CompanySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Company
+     */
+    omit?: CompanyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInclude<ExtArgs> | null
+    where?: CompanyWhereInput
+  }
+
+  /**
+   * DiscountRule.branch
+   */
+  export type DiscountRule$branchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
+  }
+
+  /**
+   * DiscountRule.approvals
+   */
+  export type DiscountRule$approvalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    where?: DiscountApprovalWhereInput
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    cursor?: DiscountApprovalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountRule.applications
+   */
+  export type DiscountRule$applicationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    where?: DiscountApplicationWhereInput
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    cursor?: DiscountApplicationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountRule without action
+   */
+  export type DiscountRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountRule
+     */
+    select?: DiscountRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountRule
+     */
+    omit?: DiscountRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountRuleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DiscountApproval
+   */
+
+  export type AggregateDiscountApproval = {
+    _count: DiscountApprovalCountAggregateOutputType | null
+    _avg: DiscountApprovalAvgAggregateOutputType | null
+    _sum: DiscountApprovalSumAggregateOutputType | null
+    _min: DiscountApprovalMinAggregateOutputType | null
+    _max: DiscountApprovalMaxAggregateOutputType | null
+  }
+
+  export type DiscountApprovalAvgAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    requested_by: number | null
+    approved_by: number | null
+  }
+
+  export type DiscountApprovalSumAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    requested_by: number | null
+    approved_by: number | null
+  }
+
+  export type DiscountApprovalMinAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    requested_by: number | null
+    approved_by: number | null
+    status: $Enums.DiscountApprovalStatus | null
+    notes: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type DiscountApprovalMaxAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    requested_by: number | null
+    approved_by: number | null
+    status: $Enums.DiscountApprovalStatus | null
+    notes: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type DiscountApprovalCountAggregateOutputType = {
+    id: number
+    discount_rule_id: number
+    requested_by: number
+    approved_by: number
+    status: number
+    notes: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type DiscountApprovalAvgAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    requested_by?: true
+    approved_by?: true
+  }
+
+  export type DiscountApprovalSumAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    requested_by?: true
+    approved_by?: true
+  }
+
+  export type DiscountApprovalMinAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    requested_by?: true
+    approved_by?: true
+    status?: true
+    notes?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type DiscountApprovalMaxAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    requested_by?: true
+    approved_by?: true
+    status?: true
+    notes?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type DiscountApprovalCountAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    requested_by?: true
+    approved_by?: true
+    status?: true
+    notes?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type DiscountApprovalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscountApproval to aggregate.
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApprovals to fetch.
+     */
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DiscountApprovalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApprovals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApprovals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DiscountApprovals
+    **/
+    _count?: true | DiscountApprovalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DiscountApprovalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DiscountApprovalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DiscountApprovalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DiscountApprovalMaxAggregateInputType
+  }
+
+  export type GetDiscountApprovalAggregateType<T extends DiscountApprovalAggregateArgs> = {
+        [P in keyof T & keyof AggregateDiscountApproval]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDiscountApproval[P]>
+      : GetScalarType<T[P], AggregateDiscountApproval[P]>
+  }
+
+
+
+
+  export type DiscountApprovalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApprovalWhereInput
+    orderBy?: DiscountApprovalOrderByWithAggregationInput | DiscountApprovalOrderByWithAggregationInput[]
+    by: DiscountApprovalScalarFieldEnum[] | DiscountApprovalScalarFieldEnum
+    having?: DiscountApprovalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DiscountApprovalCountAggregateInputType | true
+    _avg?: DiscountApprovalAvgAggregateInputType
+    _sum?: DiscountApprovalSumAggregateInputType
+    _min?: DiscountApprovalMinAggregateInputType
+    _max?: DiscountApprovalMaxAggregateInputType
+  }
+
+  export type DiscountApprovalGroupByOutputType = {
+    id: number
+    discount_rule_id: number
+    requested_by: number
+    approved_by: number | null
+    status: $Enums.DiscountApprovalStatus
+    notes: string | null
+    created_at: Date
+    updated_at: Date
+    _count: DiscountApprovalCountAggregateOutputType | null
+    _avg: DiscountApprovalAvgAggregateOutputType | null
+    _sum: DiscountApprovalSumAggregateOutputType | null
+    _min: DiscountApprovalMinAggregateOutputType | null
+    _max: DiscountApprovalMaxAggregateOutputType | null
+  }
+
+  type GetDiscountApprovalGroupByPayload<T extends DiscountApprovalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DiscountApprovalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DiscountApprovalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DiscountApprovalGroupByOutputType[P]>
+            : GetScalarType<T[P], DiscountApprovalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DiscountApprovalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discount_rule_id?: boolean
+    requested_by?: boolean
+    approved_by?: boolean
+    status?: boolean
+    notes?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    requestedBy?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | DiscountApproval$approverArgs<ExtArgs>
+  }, ExtArgs["result"]["discountApproval"]>
+
+  export type DiscountApprovalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discount_rule_id?: boolean
+    requested_by?: boolean
+    approved_by?: boolean
+    status?: boolean
+    notes?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    requestedBy?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | DiscountApproval$approverArgs<ExtArgs>
+  }, ExtArgs["result"]["discountApproval"]>
+
+  export type DiscountApprovalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discount_rule_id?: boolean
+    requested_by?: boolean
+    approved_by?: boolean
+    status?: boolean
+    notes?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    requestedBy?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | DiscountApproval$approverArgs<ExtArgs>
+  }, ExtArgs["result"]["discountApproval"]>
+
+  export type DiscountApprovalSelectScalar = {
+    id?: boolean
+    discount_rule_id?: boolean
+    requested_by?: boolean
+    approved_by?: boolean
+    status?: boolean
+    notes?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type DiscountApprovalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "discount_rule_id" | "requested_by" | "approved_by" | "status" | "notes" | "created_at" | "updated_at", ExtArgs["result"]["discountApproval"]>
+  export type DiscountApprovalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    requestedBy?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | DiscountApproval$approverArgs<ExtArgs>
+  }
+  export type DiscountApprovalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    requestedBy?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | DiscountApproval$approverArgs<ExtArgs>
+  }
+  export type DiscountApprovalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    requestedBy?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | DiscountApproval$approverArgs<ExtArgs>
+  }
+
+  export type $DiscountApprovalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DiscountApproval"
+    objects: {
+      discountRule: Prisma.$DiscountRulePayload<ExtArgs>
+      requestedBy: Prisma.$UserPayload<ExtArgs>
+      approver: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      discount_rule_id: number
+      requested_by: number
+      approved_by: number | null
+      status: $Enums.DiscountApprovalStatus
+      notes: string | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["discountApproval"]>
+    composites: {}
+  }
+
+  type DiscountApprovalGetPayload<S extends boolean | null | undefined | DiscountApprovalDefaultArgs> = $Result.GetResult<Prisma.$DiscountApprovalPayload, S>
+
+  type DiscountApprovalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DiscountApprovalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DiscountApprovalCountAggregateInputType | true
+    }
+
+  export interface DiscountApprovalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DiscountApproval'], meta: { name: 'DiscountApproval' } }
+    /**
+     * Find zero or one DiscountApproval that matches the filter.
+     * @param {DiscountApprovalFindUniqueArgs} args - Arguments to find a DiscountApproval
+     * @example
+     * // Get one DiscountApproval
+     * const discountApproval = await prisma.discountApproval.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DiscountApprovalFindUniqueArgs>(args: SelectSubset<T, DiscountApprovalFindUniqueArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DiscountApproval that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DiscountApprovalFindUniqueOrThrowArgs} args - Arguments to find a DiscountApproval
+     * @example
+     * // Get one DiscountApproval
+     * const discountApproval = await prisma.discountApproval.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DiscountApprovalFindUniqueOrThrowArgs>(args: SelectSubset<T, DiscountApprovalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscountApproval that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalFindFirstArgs} args - Arguments to find a DiscountApproval
+     * @example
+     * // Get one DiscountApproval
+     * const discountApproval = await prisma.discountApproval.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DiscountApprovalFindFirstArgs>(args?: SelectSubset<T, DiscountApprovalFindFirstArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscountApproval that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalFindFirstOrThrowArgs} args - Arguments to find a DiscountApproval
+     * @example
+     * // Get one DiscountApproval
+     * const discountApproval = await prisma.discountApproval.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DiscountApprovalFindFirstOrThrowArgs>(args?: SelectSubset<T, DiscountApprovalFindFirstOrThrowArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DiscountApprovals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DiscountApprovals
+     * const discountApprovals = await prisma.discountApproval.findMany()
+     * 
+     * // Get first 10 DiscountApprovals
+     * const discountApprovals = await prisma.discountApproval.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const discountApprovalWithIdOnly = await prisma.discountApproval.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DiscountApprovalFindManyArgs>(args?: SelectSubset<T, DiscountApprovalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DiscountApproval.
+     * @param {DiscountApprovalCreateArgs} args - Arguments to create a DiscountApproval.
+     * @example
+     * // Create one DiscountApproval
+     * const DiscountApproval = await prisma.discountApproval.create({
+     *   data: {
+     *     // ... data to create a DiscountApproval
+     *   }
+     * })
+     * 
+     */
+    create<T extends DiscountApprovalCreateArgs>(args: SelectSubset<T, DiscountApprovalCreateArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DiscountApprovals.
+     * @param {DiscountApprovalCreateManyArgs} args - Arguments to create many DiscountApprovals.
+     * @example
+     * // Create many DiscountApprovals
+     * const discountApproval = await prisma.discountApproval.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DiscountApprovalCreateManyArgs>(args?: SelectSubset<T, DiscountApprovalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DiscountApprovals and returns the data saved in the database.
+     * @param {DiscountApprovalCreateManyAndReturnArgs} args - Arguments to create many DiscountApprovals.
+     * @example
+     * // Create many DiscountApprovals
+     * const discountApproval = await prisma.discountApproval.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DiscountApprovals and only return the `id`
+     * const discountApprovalWithIdOnly = await prisma.discountApproval.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DiscountApprovalCreateManyAndReturnArgs>(args?: SelectSubset<T, DiscountApprovalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DiscountApproval.
+     * @param {DiscountApprovalDeleteArgs} args - Arguments to delete one DiscountApproval.
+     * @example
+     * // Delete one DiscountApproval
+     * const DiscountApproval = await prisma.discountApproval.delete({
+     *   where: {
+     *     // ... filter to delete one DiscountApproval
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DiscountApprovalDeleteArgs>(args: SelectSubset<T, DiscountApprovalDeleteArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DiscountApproval.
+     * @param {DiscountApprovalUpdateArgs} args - Arguments to update one DiscountApproval.
+     * @example
+     * // Update one DiscountApproval
+     * const discountApproval = await prisma.discountApproval.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DiscountApprovalUpdateArgs>(args: SelectSubset<T, DiscountApprovalUpdateArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DiscountApprovals.
+     * @param {DiscountApprovalDeleteManyArgs} args - Arguments to filter DiscountApprovals to delete.
+     * @example
+     * // Delete a few DiscountApprovals
+     * const { count } = await prisma.discountApproval.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DiscountApprovalDeleteManyArgs>(args?: SelectSubset<T, DiscountApprovalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscountApprovals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DiscountApprovals
+     * const discountApproval = await prisma.discountApproval.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DiscountApprovalUpdateManyArgs>(args: SelectSubset<T, DiscountApprovalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscountApprovals and returns the data updated in the database.
+     * @param {DiscountApprovalUpdateManyAndReturnArgs} args - Arguments to update many DiscountApprovals.
+     * @example
+     * // Update many DiscountApprovals
+     * const discountApproval = await prisma.discountApproval.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DiscountApprovals and only return the `id`
+     * const discountApprovalWithIdOnly = await prisma.discountApproval.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DiscountApprovalUpdateManyAndReturnArgs>(args: SelectSubset<T, DiscountApprovalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DiscountApproval.
+     * @param {DiscountApprovalUpsertArgs} args - Arguments to update or create a DiscountApproval.
+     * @example
+     * // Update or create a DiscountApproval
+     * const discountApproval = await prisma.discountApproval.upsert({
+     *   create: {
+     *     // ... data to create a DiscountApproval
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DiscountApproval we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DiscountApprovalUpsertArgs>(args: SelectSubset<T, DiscountApprovalUpsertArgs<ExtArgs>>): Prisma__DiscountApprovalClient<$Result.GetResult<Prisma.$DiscountApprovalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DiscountApprovals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalCountArgs} args - Arguments to filter DiscountApprovals to count.
+     * @example
+     * // Count the number of DiscountApprovals
+     * const count = await prisma.discountApproval.count({
+     *   where: {
+     *     // ... the filter for the DiscountApprovals we want to count
+     *   }
+     * })
+    **/
+    count<T extends DiscountApprovalCountArgs>(
+      args?: Subset<T, DiscountApprovalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DiscountApprovalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DiscountApproval.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DiscountApprovalAggregateArgs>(args: Subset<T, DiscountApprovalAggregateArgs>): Prisma.PrismaPromise<GetDiscountApprovalAggregateType<T>>
+
+    /**
+     * Group by DiscountApproval.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApprovalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DiscountApprovalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DiscountApprovalGroupByArgs['orderBy'] }
+        : { orderBy?: DiscountApprovalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DiscountApprovalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDiscountApprovalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DiscountApproval model
+   */
+  readonly fields: DiscountApprovalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DiscountApproval.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DiscountApprovalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    discountRule<T extends DiscountRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DiscountRuleDefaultArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    requestedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    approver<T extends DiscountApproval$approverArgs<ExtArgs> = {}>(args?: Subset<T, DiscountApproval$approverArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DiscountApproval model
+   */
+  interface DiscountApprovalFieldRefs {
+    readonly id: FieldRef<"DiscountApproval", 'Int'>
+    readonly discount_rule_id: FieldRef<"DiscountApproval", 'Int'>
+    readonly requested_by: FieldRef<"DiscountApproval", 'Int'>
+    readonly approved_by: FieldRef<"DiscountApproval", 'Int'>
+    readonly status: FieldRef<"DiscountApproval", 'DiscountApprovalStatus'>
+    readonly notes: FieldRef<"DiscountApproval", 'String'>
+    readonly created_at: FieldRef<"DiscountApproval", 'DateTime'>
+    readonly updated_at: FieldRef<"DiscountApproval", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DiscountApproval findUnique
+   */
+  export type DiscountApprovalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApproval to fetch.
+     */
+    where: DiscountApprovalWhereUniqueInput
+  }
+
+  /**
+   * DiscountApproval findUniqueOrThrow
+   */
+  export type DiscountApprovalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApproval to fetch.
+     */
+    where: DiscountApprovalWhereUniqueInput
+  }
+
+  /**
+   * DiscountApproval findFirst
+   */
+  export type DiscountApprovalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApproval to fetch.
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApprovals to fetch.
+     */
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscountApprovals.
+     */
+    cursor?: DiscountApprovalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApprovals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApprovals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountApprovals.
+     */
+    distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountApproval findFirstOrThrow
+   */
+  export type DiscountApprovalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApproval to fetch.
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApprovals to fetch.
+     */
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscountApprovals.
+     */
+    cursor?: DiscountApprovalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApprovals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApprovals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountApprovals.
+     */
+    distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountApproval findMany
+   */
+  export type DiscountApprovalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApprovals to fetch.
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApprovals to fetch.
+     */
+    orderBy?: DiscountApprovalOrderByWithRelationInput | DiscountApprovalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DiscountApprovals.
+     */
+    cursor?: DiscountApprovalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApprovals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApprovals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountApprovals.
+     */
+    distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountApproval create
+   */
+  export type DiscountApprovalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DiscountApproval.
+     */
+    data: XOR<DiscountApprovalCreateInput, DiscountApprovalUncheckedCreateInput>
+  }
+
+  /**
+   * DiscountApproval createMany
+   */
+  export type DiscountApprovalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DiscountApprovals.
+     */
+    data: DiscountApprovalCreateManyInput | DiscountApprovalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DiscountApproval createManyAndReturn
+   */
+  export type DiscountApprovalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * The data used to create many DiscountApprovals.
+     */
+    data: DiscountApprovalCreateManyInput | DiscountApprovalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscountApproval update
+   */
+  export type DiscountApprovalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DiscountApproval.
+     */
+    data: XOR<DiscountApprovalUpdateInput, DiscountApprovalUncheckedUpdateInput>
+    /**
+     * Choose, which DiscountApproval to update.
+     */
+    where: DiscountApprovalWhereUniqueInput
+  }
+
+  /**
+   * DiscountApproval updateMany
+   */
+  export type DiscountApprovalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DiscountApprovals.
+     */
+    data: XOR<DiscountApprovalUpdateManyMutationInput, DiscountApprovalUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscountApprovals to update
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * Limit how many DiscountApprovals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscountApproval updateManyAndReturn
+   */
+  export type DiscountApprovalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * The data used to update DiscountApprovals.
+     */
+    data: XOR<DiscountApprovalUpdateManyMutationInput, DiscountApprovalUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscountApprovals to update
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * Limit how many DiscountApprovals to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscountApproval upsert
+   */
+  export type DiscountApprovalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DiscountApproval to update in case it exists.
+     */
+    where: DiscountApprovalWhereUniqueInput
+    /**
+     * In case the DiscountApproval found by the `where` argument doesn't exist, create a new DiscountApproval with this data.
+     */
+    create: XOR<DiscountApprovalCreateInput, DiscountApprovalUncheckedCreateInput>
+    /**
+     * In case the DiscountApproval was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DiscountApprovalUpdateInput, DiscountApprovalUncheckedUpdateInput>
+  }
+
+  /**
+   * DiscountApproval delete
+   */
+  export type DiscountApprovalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+    /**
+     * Filter which DiscountApproval to delete.
+     */
+    where: DiscountApprovalWhereUniqueInput
+  }
+
+  /**
+   * DiscountApproval deleteMany
+   */
+  export type DiscountApprovalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscountApprovals to delete
+     */
+    where?: DiscountApprovalWhereInput
+    /**
+     * Limit how many DiscountApprovals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscountApproval.approver
+   */
+  export type DiscountApproval$approverArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * DiscountApproval without action
+   */
+  export type DiscountApprovalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApproval
+     */
+    select?: DiscountApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApproval
+     */
+    omit?: DiscountApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApprovalInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DiscountApplication
+   */
+
+  export type AggregateDiscountApplication = {
+    _count: DiscountApplicationCountAggregateOutputType | null
+    _avg: DiscountApplicationAvgAggregateOutputType | null
+    _sum: DiscountApplicationSumAggregateOutputType | null
+    _min: DiscountApplicationMinAggregateOutputType | null
+    _max: DiscountApplicationMaxAggregateOutputType | null
+  }
+
+  export type DiscountApplicationAvgAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    bill_id: number | null
+    applied_by: number | null
+    amount_deducted: Decimal | null
+  }
+
+  export type DiscountApplicationSumAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    bill_id: number | null
+    applied_by: number | null
+    amount_deducted: Decimal | null
+  }
+
+  export type DiscountApplicationMinAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    bill_id: number | null
+    applied_by: number | null
+    amount_deducted: Decimal | null
+    created_at: Date | null
+  }
+
+  export type DiscountApplicationMaxAggregateOutputType = {
+    id: number | null
+    discount_rule_id: number | null
+    bill_id: number | null
+    applied_by: number | null
+    amount_deducted: Decimal | null
+    created_at: Date | null
+  }
+
+  export type DiscountApplicationCountAggregateOutputType = {
+    id: number
+    discount_rule_id: number
+    bill_id: number
+    applied_by: number
+    amount_deducted: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type DiscountApplicationAvgAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    bill_id?: true
+    applied_by?: true
+    amount_deducted?: true
+  }
+
+  export type DiscountApplicationSumAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    bill_id?: true
+    applied_by?: true
+    amount_deducted?: true
+  }
+
+  export type DiscountApplicationMinAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    bill_id?: true
+    applied_by?: true
+    amount_deducted?: true
+    created_at?: true
+  }
+
+  export type DiscountApplicationMaxAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    bill_id?: true
+    applied_by?: true
+    amount_deducted?: true
+    created_at?: true
+  }
+
+  export type DiscountApplicationCountAggregateInputType = {
+    id?: true
+    discount_rule_id?: true
+    bill_id?: true
+    applied_by?: true
+    amount_deducted?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type DiscountApplicationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscountApplication to aggregate.
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApplications to fetch.
+     */
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DiscountApplicationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApplications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApplications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DiscountApplications
+    **/
+    _count?: true | DiscountApplicationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DiscountApplicationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DiscountApplicationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DiscountApplicationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DiscountApplicationMaxAggregateInputType
+  }
+
+  export type GetDiscountApplicationAggregateType<T extends DiscountApplicationAggregateArgs> = {
+        [P in keyof T & keyof AggregateDiscountApplication]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDiscountApplication[P]>
+      : GetScalarType<T[P], AggregateDiscountApplication[P]>
+  }
+
+
+
+
+  export type DiscountApplicationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscountApplicationWhereInput
+    orderBy?: DiscountApplicationOrderByWithAggregationInput | DiscountApplicationOrderByWithAggregationInput[]
+    by: DiscountApplicationScalarFieldEnum[] | DiscountApplicationScalarFieldEnum
+    having?: DiscountApplicationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DiscountApplicationCountAggregateInputType | true
+    _avg?: DiscountApplicationAvgAggregateInputType
+    _sum?: DiscountApplicationSumAggregateInputType
+    _min?: DiscountApplicationMinAggregateInputType
+    _max?: DiscountApplicationMaxAggregateInputType
+  }
+
+  export type DiscountApplicationGroupByOutputType = {
+    id: number
+    discount_rule_id: number
+    bill_id: number | null
+    applied_by: number
+    amount_deducted: Decimal
+    created_at: Date
+    _count: DiscountApplicationCountAggregateOutputType | null
+    _avg: DiscountApplicationAvgAggregateOutputType | null
+    _sum: DiscountApplicationSumAggregateOutputType | null
+    _min: DiscountApplicationMinAggregateOutputType | null
+    _max: DiscountApplicationMaxAggregateOutputType | null
+  }
+
+  type GetDiscountApplicationGroupByPayload<T extends DiscountApplicationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DiscountApplicationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DiscountApplicationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DiscountApplicationGroupByOutputType[P]>
+            : GetScalarType<T[P], DiscountApplicationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DiscountApplicationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discount_rule_id?: boolean
+    bill_id?: boolean
+    applied_by?: boolean
+    amount_deducted?: boolean
+    created_at?: boolean
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    appliedBy?: boolean | UserDefaultArgs<ExtArgs>
+    bill?: boolean | DiscountApplication$billArgs<ExtArgs>
+  }, ExtArgs["result"]["discountApplication"]>
+
+  export type DiscountApplicationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discount_rule_id?: boolean
+    bill_id?: boolean
+    applied_by?: boolean
+    amount_deducted?: boolean
+    created_at?: boolean
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    appliedBy?: boolean | UserDefaultArgs<ExtArgs>
+    bill?: boolean | DiscountApplication$billArgs<ExtArgs>
+  }, ExtArgs["result"]["discountApplication"]>
+
+  export type DiscountApplicationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discount_rule_id?: boolean
+    bill_id?: boolean
+    applied_by?: boolean
+    amount_deducted?: boolean
+    created_at?: boolean
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    appliedBy?: boolean | UserDefaultArgs<ExtArgs>
+    bill?: boolean | DiscountApplication$billArgs<ExtArgs>
+  }, ExtArgs["result"]["discountApplication"]>
+
+  export type DiscountApplicationSelectScalar = {
+    id?: boolean
+    discount_rule_id?: boolean
+    bill_id?: boolean
+    applied_by?: boolean
+    amount_deducted?: boolean
+    created_at?: boolean
+  }
+
+  export type DiscountApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "discount_rule_id" | "bill_id" | "applied_by" | "amount_deducted" | "created_at", ExtArgs["result"]["discountApplication"]>
+  export type DiscountApplicationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    appliedBy?: boolean | UserDefaultArgs<ExtArgs>
+    bill?: boolean | DiscountApplication$billArgs<ExtArgs>
+  }
+  export type DiscountApplicationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    appliedBy?: boolean | UserDefaultArgs<ExtArgs>
+    bill?: boolean | DiscountApplication$billArgs<ExtArgs>
+  }
+  export type DiscountApplicationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discountRule?: boolean | DiscountRuleDefaultArgs<ExtArgs>
+    appliedBy?: boolean | UserDefaultArgs<ExtArgs>
+    bill?: boolean | DiscountApplication$billArgs<ExtArgs>
+  }
+
+  export type $DiscountApplicationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DiscountApplication"
+    objects: {
+      discountRule: Prisma.$DiscountRulePayload<ExtArgs>
+      appliedBy: Prisma.$UserPayload<ExtArgs>
+      bill: Prisma.$BillPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      discount_rule_id: number
+      bill_id: number | null
+      applied_by: number
+      amount_deducted: Prisma.Decimal
+      created_at: Date
+    }, ExtArgs["result"]["discountApplication"]>
+    composites: {}
+  }
+
+  type DiscountApplicationGetPayload<S extends boolean | null | undefined | DiscountApplicationDefaultArgs> = $Result.GetResult<Prisma.$DiscountApplicationPayload, S>
+
+  type DiscountApplicationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DiscountApplicationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DiscountApplicationCountAggregateInputType | true
+    }
+
+  export interface DiscountApplicationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DiscountApplication'], meta: { name: 'DiscountApplication' } }
+    /**
+     * Find zero or one DiscountApplication that matches the filter.
+     * @param {DiscountApplicationFindUniqueArgs} args - Arguments to find a DiscountApplication
+     * @example
+     * // Get one DiscountApplication
+     * const discountApplication = await prisma.discountApplication.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DiscountApplicationFindUniqueArgs>(args: SelectSubset<T, DiscountApplicationFindUniqueArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DiscountApplication that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DiscountApplicationFindUniqueOrThrowArgs} args - Arguments to find a DiscountApplication
+     * @example
+     * // Get one DiscountApplication
+     * const discountApplication = await prisma.discountApplication.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DiscountApplicationFindUniqueOrThrowArgs>(args: SelectSubset<T, DiscountApplicationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscountApplication that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationFindFirstArgs} args - Arguments to find a DiscountApplication
+     * @example
+     * // Get one DiscountApplication
+     * const discountApplication = await prisma.discountApplication.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DiscountApplicationFindFirstArgs>(args?: SelectSubset<T, DiscountApplicationFindFirstArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscountApplication that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationFindFirstOrThrowArgs} args - Arguments to find a DiscountApplication
+     * @example
+     * // Get one DiscountApplication
+     * const discountApplication = await prisma.discountApplication.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DiscountApplicationFindFirstOrThrowArgs>(args?: SelectSubset<T, DiscountApplicationFindFirstOrThrowArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DiscountApplications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DiscountApplications
+     * const discountApplications = await prisma.discountApplication.findMany()
+     * 
+     * // Get first 10 DiscountApplications
+     * const discountApplications = await prisma.discountApplication.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const discountApplicationWithIdOnly = await prisma.discountApplication.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DiscountApplicationFindManyArgs>(args?: SelectSubset<T, DiscountApplicationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DiscountApplication.
+     * @param {DiscountApplicationCreateArgs} args - Arguments to create a DiscountApplication.
+     * @example
+     * // Create one DiscountApplication
+     * const DiscountApplication = await prisma.discountApplication.create({
+     *   data: {
+     *     // ... data to create a DiscountApplication
+     *   }
+     * })
+     * 
+     */
+    create<T extends DiscountApplicationCreateArgs>(args: SelectSubset<T, DiscountApplicationCreateArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DiscountApplications.
+     * @param {DiscountApplicationCreateManyArgs} args - Arguments to create many DiscountApplications.
+     * @example
+     * // Create many DiscountApplications
+     * const discountApplication = await prisma.discountApplication.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DiscountApplicationCreateManyArgs>(args?: SelectSubset<T, DiscountApplicationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DiscountApplications and returns the data saved in the database.
+     * @param {DiscountApplicationCreateManyAndReturnArgs} args - Arguments to create many DiscountApplications.
+     * @example
+     * // Create many DiscountApplications
+     * const discountApplication = await prisma.discountApplication.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DiscountApplications and only return the `id`
+     * const discountApplicationWithIdOnly = await prisma.discountApplication.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DiscountApplicationCreateManyAndReturnArgs>(args?: SelectSubset<T, DiscountApplicationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DiscountApplication.
+     * @param {DiscountApplicationDeleteArgs} args - Arguments to delete one DiscountApplication.
+     * @example
+     * // Delete one DiscountApplication
+     * const DiscountApplication = await prisma.discountApplication.delete({
+     *   where: {
+     *     // ... filter to delete one DiscountApplication
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DiscountApplicationDeleteArgs>(args: SelectSubset<T, DiscountApplicationDeleteArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DiscountApplication.
+     * @param {DiscountApplicationUpdateArgs} args - Arguments to update one DiscountApplication.
+     * @example
+     * // Update one DiscountApplication
+     * const discountApplication = await prisma.discountApplication.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DiscountApplicationUpdateArgs>(args: SelectSubset<T, DiscountApplicationUpdateArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DiscountApplications.
+     * @param {DiscountApplicationDeleteManyArgs} args - Arguments to filter DiscountApplications to delete.
+     * @example
+     * // Delete a few DiscountApplications
+     * const { count } = await prisma.discountApplication.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DiscountApplicationDeleteManyArgs>(args?: SelectSubset<T, DiscountApplicationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscountApplications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DiscountApplications
+     * const discountApplication = await prisma.discountApplication.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DiscountApplicationUpdateManyArgs>(args: SelectSubset<T, DiscountApplicationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscountApplications and returns the data updated in the database.
+     * @param {DiscountApplicationUpdateManyAndReturnArgs} args - Arguments to update many DiscountApplications.
+     * @example
+     * // Update many DiscountApplications
+     * const discountApplication = await prisma.discountApplication.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DiscountApplications and only return the `id`
+     * const discountApplicationWithIdOnly = await prisma.discountApplication.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DiscountApplicationUpdateManyAndReturnArgs>(args: SelectSubset<T, DiscountApplicationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DiscountApplication.
+     * @param {DiscountApplicationUpsertArgs} args - Arguments to update or create a DiscountApplication.
+     * @example
+     * // Update or create a DiscountApplication
+     * const discountApplication = await prisma.discountApplication.upsert({
+     *   create: {
+     *     // ... data to create a DiscountApplication
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DiscountApplication we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DiscountApplicationUpsertArgs>(args: SelectSubset<T, DiscountApplicationUpsertArgs<ExtArgs>>): Prisma__DiscountApplicationClient<$Result.GetResult<Prisma.$DiscountApplicationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DiscountApplications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationCountArgs} args - Arguments to filter DiscountApplications to count.
+     * @example
+     * // Count the number of DiscountApplications
+     * const count = await prisma.discountApplication.count({
+     *   where: {
+     *     // ... the filter for the DiscountApplications we want to count
+     *   }
+     * })
+    **/
+    count<T extends DiscountApplicationCountArgs>(
+      args?: Subset<T, DiscountApplicationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DiscountApplicationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DiscountApplication.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DiscountApplicationAggregateArgs>(args: Subset<T, DiscountApplicationAggregateArgs>): Prisma.PrismaPromise<GetDiscountApplicationAggregateType<T>>
+
+    /**
+     * Group by DiscountApplication.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscountApplicationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DiscountApplicationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DiscountApplicationGroupByArgs['orderBy'] }
+        : { orderBy?: DiscountApplicationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DiscountApplicationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDiscountApplicationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DiscountApplication model
+   */
+  readonly fields: DiscountApplicationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DiscountApplication.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DiscountApplicationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    discountRule<T extends DiscountRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DiscountRuleDefaultArgs<ExtArgs>>): Prisma__DiscountRuleClient<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    appliedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    bill<T extends DiscountApplication$billArgs<ExtArgs> = {}>(args?: Subset<T, DiscountApplication$billArgs<ExtArgs>>): Prisma__BillClient<$Result.GetResult<Prisma.$BillPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DiscountApplication model
+   */
+  interface DiscountApplicationFieldRefs {
+    readonly id: FieldRef<"DiscountApplication", 'Int'>
+    readonly discount_rule_id: FieldRef<"DiscountApplication", 'Int'>
+    readonly bill_id: FieldRef<"DiscountApplication", 'Int'>
+    readonly applied_by: FieldRef<"DiscountApplication", 'Int'>
+    readonly amount_deducted: FieldRef<"DiscountApplication", 'Decimal'>
+    readonly created_at: FieldRef<"DiscountApplication", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DiscountApplication findUnique
+   */
+  export type DiscountApplicationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApplication to fetch.
+     */
+    where: DiscountApplicationWhereUniqueInput
+  }
+
+  /**
+   * DiscountApplication findUniqueOrThrow
+   */
+  export type DiscountApplicationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApplication to fetch.
+     */
+    where: DiscountApplicationWhereUniqueInput
+  }
+
+  /**
+   * DiscountApplication findFirst
+   */
+  export type DiscountApplicationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApplication to fetch.
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApplications to fetch.
+     */
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscountApplications.
+     */
+    cursor?: DiscountApplicationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApplications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApplications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountApplications.
+     */
+    distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountApplication findFirstOrThrow
+   */
+  export type DiscountApplicationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApplication to fetch.
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApplications to fetch.
+     */
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscountApplications.
+     */
+    cursor?: DiscountApplicationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApplications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApplications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountApplications.
+     */
+    distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountApplication findMany
+   */
+  export type DiscountApplicationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscountApplications to fetch.
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscountApplications to fetch.
+     */
+    orderBy?: DiscountApplicationOrderByWithRelationInput | DiscountApplicationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DiscountApplications.
+     */
+    cursor?: DiscountApplicationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscountApplications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscountApplications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscountApplications.
+     */
+    distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
+  }
+
+  /**
+   * DiscountApplication create
+   */
+  export type DiscountApplicationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DiscountApplication.
+     */
+    data: XOR<DiscountApplicationCreateInput, DiscountApplicationUncheckedCreateInput>
+  }
+
+  /**
+   * DiscountApplication createMany
+   */
+  export type DiscountApplicationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DiscountApplications.
+     */
+    data: DiscountApplicationCreateManyInput | DiscountApplicationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DiscountApplication createManyAndReturn
+   */
+  export type DiscountApplicationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * The data used to create many DiscountApplications.
+     */
+    data: DiscountApplicationCreateManyInput | DiscountApplicationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscountApplication update
+   */
+  export type DiscountApplicationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DiscountApplication.
+     */
+    data: XOR<DiscountApplicationUpdateInput, DiscountApplicationUncheckedUpdateInput>
+    /**
+     * Choose, which DiscountApplication to update.
+     */
+    where: DiscountApplicationWhereUniqueInput
+  }
+
+  /**
+   * DiscountApplication updateMany
+   */
+  export type DiscountApplicationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DiscountApplications.
+     */
+    data: XOR<DiscountApplicationUpdateManyMutationInput, DiscountApplicationUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscountApplications to update
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * Limit how many DiscountApplications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscountApplication updateManyAndReturn
+   */
+  export type DiscountApplicationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * The data used to update DiscountApplications.
+     */
+    data: XOR<DiscountApplicationUpdateManyMutationInput, DiscountApplicationUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscountApplications to update
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * Limit how many DiscountApplications to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscountApplication upsert
+   */
+  export type DiscountApplicationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DiscountApplication to update in case it exists.
+     */
+    where: DiscountApplicationWhereUniqueInput
+    /**
+     * In case the DiscountApplication found by the `where` argument doesn't exist, create a new DiscountApplication with this data.
+     */
+    create: XOR<DiscountApplicationCreateInput, DiscountApplicationUncheckedCreateInput>
+    /**
+     * In case the DiscountApplication was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DiscountApplicationUpdateInput, DiscountApplicationUncheckedUpdateInput>
+  }
+
+  /**
+   * DiscountApplication delete
+   */
+  export type DiscountApplicationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
+    /**
+     * Filter which DiscountApplication to delete.
+     */
+    where: DiscountApplicationWhereUniqueInput
+  }
+
+  /**
+   * DiscountApplication deleteMany
+   */
+  export type DiscountApplicationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscountApplications to delete
+     */
+    where?: DiscountApplicationWhereInput
+    /**
+     * Limit how many DiscountApplications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscountApplication.bill
+   */
+  export type DiscountApplication$billArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bill
+     */
+    select?: BillSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bill
+     */
+    omit?: BillOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillInclude<ExtArgs> | null
+    where?: BillWhereInput
+  }
+
+  /**
+   * DiscountApplication without action
+   */
+  export type DiscountApplicationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscountApplication
+     */
+    select?: DiscountApplicationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscountApplication
+     */
+    omit?: DiscountApplicationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscountApplicationInclude<ExtArgs> | null
   }
 
 
@@ -63289,6 +68031,54 @@ export namespace Prisma {
   export type ScheduledReportScalarFieldEnum = (typeof ScheduledReportScalarFieldEnum)[keyof typeof ScheduledReportScalarFieldEnum]
 
 
+  export const DiscountRuleScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    type: 'type',
+    value: 'value',
+    max_value: 'max_value',
+    min_purchase: 'min_purchase',
+    scope: 'scope',
+    company_id: 'company_id',
+    branch_id: 'branch_id',
+    status: 'status',
+    valid_from: 'valid_from',
+    valid_until: 'valid_until',
+    created_by: 'created_by',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type DiscountRuleScalarFieldEnum = (typeof DiscountRuleScalarFieldEnum)[keyof typeof DiscountRuleScalarFieldEnum]
+
+
+  export const DiscountApprovalScalarFieldEnum: {
+    id: 'id',
+    discount_rule_id: 'discount_rule_id',
+    requested_by: 'requested_by',
+    approved_by: 'approved_by',
+    status: 'status',
+    notes: 'notes',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type DiscountApprovalScalarFieldEnum = (typeof DiscountApprovalScalarFieldEnum)[keyof typeof DiscountApprovalScalarFieldEnum]
+
+
+  export const DiscountApplicationScalarFieldEnum: {
+    id: 'id',
+    discount_rule_id: 'discount_rule_id',
+    bill_id: 'bill_id',
+    applied_by: 'applied_by',
+    amount_deducted: 'amount_deducted',
+    created_at: 'created_at'
+  };
+
+  export type DiscountApplicationScalarFieldEnum = (typeof DiscountApplicationScalarFieldEnum)[keyof typeof DiscountApplicationScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -63683,6 +68473,62 @@ export namespace Prisma {
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
+
+
+  /**
+   * Reference to a field of type 'DiscountType'
+   */
+  export type EnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountType'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountType[]'
+   */
+  export type ListEnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountScope'
+   */
+  export type EnumDiscountScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountScope'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountScope[]'
+   */
+  export type ListEnumDiscountScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountScope[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountStatus'
+   */
+  export type EnumDiscountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountStatus[]'
+   */
+  export type ListEnumDiscountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountApprovalStatus'
+   */
+  export type EnumDiscountApprovalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountApprovalStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'DiscountApprovalStatus[]'
+   */
+  export type ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountApprovalStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -63705,6 +68551,7 @@ export namespace Prisma {
     users?: UserListRelationFilter
     products?: ProductListRelationFilter
     bills?: BillListRelationFilter
+    discountRules?: DiscountRuleListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -63721,6 +68568,7 @@ export namespace Prisma {
     users?: UserOrderByRelationAggregateInput
     products?: ProductOrderByRelationAggregateInput
     bills?: BillOrderByRelationAggregateInput
+    discountRules?: DiscountRuleOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -63740,6 +68588,7 @@ export namespace Prisma {
     users?: UserListRelationFilter
     products?: ProductListRelationFilter
     bills?: BillListRelationFilter
+    discountRules?: DiscountRuleListRelationFilter
   }, "id" | "code">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -63808,6 +68657,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleListRelationFilter
     syncMetrics?: SyncHealthMetricListRelationFilter
     dailySummaries?: DailySummaryListRelationFilter
+    savedReportConfigs?: SavedReportConfigListRelationFilter
+    reportSchedules?: ReportScheduleListRelationFilter
+    discountRules?: DiscountRuleListRelationFilter
   }
 
   export type BranchOrderByWithRelationInput = {
@@ -63841,6 +68693,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleOrderByRelationAggregateInput
     syncMetrics?: SyncHealthMetricOrderByRelationAggregateInput
     dailySummaries?: DailySummaryOrderByRelationAggregateInput
+    savedReportConfigs?: SavedReportConfigOrderByRelationAggregateInput
+    reportSchedules?: ReportScheduleOrderByRelationAggregateInput
+    discountRules?: DiscountRuleOrderByRelationAggregateInput
   }
 
   export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -63878,6 +68733,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleListRelationFilter
     syncMetrics?: SyncHealthMetricListRelationFilter
     dailySummaries?: DailySummaryListRelationFilter
+    savedReportConfigs?: SavedReportConfigListRelationFilter
+    reportSchedules?: ReportScheduleListRelationFilter
+    discountRules?: DiscountRuleListRelationFilter
   }, "id" | "company_id_code">
 
   export type BranchOrderByWithAggregationInput = {
@@ -63947,6 +68805,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigListRelationFilter
     reportSchedules?: ReportScheduleListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    createdDiscounts?: DiscountRuleListRelationFilter
+    discountRequests?: DiscountApprovalListRelationFilter
+    discountApplications?: DiscountApplicationListRelationFilter
+    discountApprovals?: DiscountApprovalListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -63975,6 +68837,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigOrderByRelationAggregateInput
     reportSchedules?: ReportScheduleOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
+    createdDiscounts?: DiscountRuleOrderByRelationAggregateInput
+    discountRequests?: DiscountApprovalOrderByRelationAggregateInput
+    discountApplications?: DiscountApplicationOrderByRelationAggregateInput
+    discountApprovals?: DiscountApprovalOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -64006,6 +68872,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigListRelationFilter
     reportSchedules?: ReportScheduleListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    createdDiscounts?: DiscountRuleListRelationFilter
+    discountRequests?: DiscountApprovalListRelationFilter
+    discountApplications?: DiscountApplicationListRelationFilter
+    discountApprovals?: DiscountApprovalListRelationFilter
   }, "id" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -65398,6 +70268,7 @@ export namespace Prisma {
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     cashier?: XOR<UserScalarRelationFilter, UserWhereInput>
     items?: BillItemListRelationFilter
+    discountApplications?: DiscountApplicationListRelationFilter
   }
 
   export type BillOrderByWithRelationInput = {
@@ -65419,6 +70290,7 @@ export namespace Prisma {
     branch?: BranchOrderByWithRelationInput
     cashier?: UserOrderByWithRelationInput
     items?: BillItemOrderByRelationAggregateInput
+    discountApplications?: DiscountApplicationOrderByRelationAggregateInput
   }
 
   export type BillWhereUniqueInput = Prisma.AtLeast<{
@@ -65443,6 +70315,7 @@ export namespace Prisma {
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     cashier?: XOR<UserScalarRelationFilter, UserWhereInput>
     items?: BillItemListRelationFilter
+    discountApplications?: DiscountApplicationListRelationFilter
   }, "id" | "bill_number">
 
   export type BillOrderByWithAggregationInput = {
@@ -66670,6 +71543,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
     updated_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
   }
 
   export type SavedReportConfigOrderByWithRelationInput = {
@@ -66684,6 +71558,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     user?: UserOrderByWithRelationInput
+    branch?: BranchOrderByWithRelationInput
   }
 
   export type SavedReportConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -66701,6 +71576,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
     updated_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
   }, "id">
 
   export type SavedReportConfigOrderByWithAggregationInput = {
@@ -66753,6 +71629,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"ReportSchedule"> | Date | string
     updated_at?: DateTimeFilter<"ReportSchedule"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
     deliveries?: ReportDeliveryListRelationFilter
   }
 
@@ -66769,6 +71646,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     user?: UserOrderByWithRelationInput
+    branch?: BranchOrderByWithRelationInput
     deliveries?: ReportDeliveryOrderByRelationAggregateInput
   }
 
@@ -66788,6 +71666,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"ReportSchedule"> | Date | string
     updated_at?: DateTimeFilter<"ReportSchedule"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
     deliveries?: ReportDeliveryListRelationFilter
   }, "id">
 
@@ -67415,6 +72294,276 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"ScheduledReport"> | Date | string
   }
 
+  export type DiscountRuleWhereInput = {
+    AND?: DiscountRuleWhereInput | DiscountRuleWhereInput[]
+    OR?: DiscountRuleWhereInput[]
+    NOT?: DiscountRuleWhereInput | DiscountRuleWhereInput[]
+    id?: IntFilter<"DiscountRule"> | number
+    name?: StringFilter<"DiscountRule"> | string
+    description?: StringNullableFilter<"DiscountRule"> | string | null
+    type?: EnumDiscountTypeFilter<"DiscountRule"> | $Enums.DiscountType
+    value?: DecimalFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string
+    max_value?: DecimalNullableFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: DecimalNullableFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFilter<"DiscountRule"> | $Enums.DiscountScope
+    company_id?: IntNullableFilter<"DiscountRule"> | number | null
+    branch_id?: IntNullableFilter<"DiscountRule"> | number | null
+    status?: EnumDiscountStatusFilter<"DiscountRule"> | $Enums.DiscountStatus
+    valid_from?: DateTimeFilter<"DiscountRule"> | Date | string
+    valid_until?: DateTimeNullableFilter<"DiscountRule"> | Date | string | null
+    created_by?: IntFilter<"DiscountRule"> | number
+    created_at?: DateTimeFilter<"DiscountRule"> | Date | string
+    updated_at?: DateTimeFilter<"DiscountRule"> | Date | string
+    company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
+    createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approvals?: DiscountApprovalListRelationFilter
+    applications?: DiscountApplicationListRelationFilter
+  }
+
+  export type DiscountRuleOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrderInput | SortOrder
+    min_purchase?: SortOrderInput | SortOrder
+    scope?: SortOrder
+    company_id?: SortOrderInput | SortOrder
+    branch_id?: SortOrderInput | SortOrder
+    status?: SortOrder
+    valid_from?: SortOrder
+    valid_until?: SortOrderInput | SortOrder
+    created_by?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    branch?: BranchOrderByWithRelationInput
+    createdBy?: UserOrderByWithRelationInput
+    approvals?: DiscountApprovalOrderByRelationAggregateInput
+    applications?: DiscountApplicationOrderByRelationAggregateInput
+  }
+
+  export type DiscountRuleWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: DiscountRuleWhereInput | DiscountRuleWhereInput[]
+    OR?: DiscountRuleWhereInput[]
+    NOT?: DiscountRuleWhereInput | DiscountRuleWhereInput[]
+    name?: StringFilter<"DiscountRule"> | string
+    description?: StringNullableFilter<"DiscountRule"> | string | null
+    type?: EnumDiscountTypeFilter<"DiscountRule"> | $Enums.DiscountType
+    value?: DecimalFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string
+    max_value?: DecimalNullableFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: DecimalNullableFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFilter<"DiscountRule"> | $Enums.DiscountScope
+    company_id?: IntNullableFilter<"DiscountRule"> | number | null
+    branch_id?: IntNullableFilter<"DiscountRule"> | number | null
+    status?: EnumDiscountStatusFilter<"DiscountRule"> | $Enums.DiscountStatus
+    valid_from?: DateTimeFilter<"DiscountRule"> | Date | string
+    valid_until?: DateTimeNullableFilter<"DiscountRule"> | Date | string | null
+    created_by?: IntFilter<"DiscountRule"> | number
+    created_at?: DateTimeFilter<"DiscountRule"> | Date | string
+    updated_at?: DateTimeFilter<"DiscountRule"> | Date | string
+    company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
+    createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approvals?: DiscountApprovalListRelationFilter
+    applications?: DiscountApplicationListRelationFilter
+  }, "id">
+
+  export type DiscountRuleOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrderInput | SortOrder
+    min_purchase?: SortOrderInput | SortOrder
+    scope?: SortOrder
+    company_id?: SortOrderInput | SortOrder
+    branch_id?: SortOrderInput | SortOrder
+    status?: SortOrder
+    valid_from?: SortOrder
+    valid_until?: SortOrderInput | SortOrder
+    created_by?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: DiscountRuleCountOrderByAggregateInput
+    _avg?: DiscountRuleAvgOrderByAggregateInput
+    _max?: DiscountRuleMaxOrderByAggregateInput
+    _min?: DiscountRuleMinOrderByAggregateInput
+    _sum?: DiscountRuleSumOrderByAggregateInput
+  }
+
+  export type DiscountRuleScalarWhereWithAggregatesInput = {
+    AND?: DiscountRuleScalarWhereWithAggregatesInput | DiscountRuleScalarWhereWithAggregatesInput[]
+    OR?: DiscountRuleScalarWhereWithAggregatesInput[]
+    NOT?: DiscountRuleScalarWhereWithAggregatesInput | DiscountRuleScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DiscountRule"> | number
+    name?: StringWithAggregatesFilter<"DiscountRule"> | string
+    description?: StringNullableWithAggregatesFilter<"DiscountRule"> | string | null
+    type?: EnumDiscountTypeWithAggregatesFilter<"DiscountRule"> | $Enums.DiscountType
+    value?: DecimalWithAggregatesFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string
+    max_value?: DecimalNullableWithAggregatesFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: DecimalNullableWithAggregatesFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeWithAggregatesFilter<"DiscountRule"> | $Enums.DiscountScope
+    company_id?: IntNullableWithAggregatesFilter<"DiscountRule"> | number | null
+    branch_id?: IntNullableWithAggregatesFilter<"DiscountRule"> | number | null
+    status?: EnumDiscountStatusWithAggregatesFilter<"DiscountRule"> | $Enums.DiscountStatus
+    valid_from?: DateTimeWithAggregatesFilter<"DiscountRule"> | Date | string
+    valid_until?: DateTimeNullableWithAggregatesFilter<"DiscountRule"> | Date | string | null
+    created_by?: IntWithAggregatesFilter<"DiscountRule"> | number
+    created_at?: DateTimeWithAggregatesFilter<"DiscountRule"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"DiscountRule"> | Date | string
+  }
+
+  export type DiscountApprovalWhereInput = {
+    AND?: DiscountApprovalWhereInput | DiscountApprovalWhereInput[]
+    OR?: DiscountApprovalWhereInput[]
+    NOT?: DiscountApprovalWhereInput | DiscountApprovalWhereInput[]
+    id?: IntFilter<"DiscountApproval"> | number
+    discount_rule_id?: IntFilter<"DiscountApproval"> | number
+    requested_by?: IntFilter<"DiscountApproval"> | number
+    approved_by?: IntNullableFilter<"DiscountApproval"> | number | null
+    status?: EnumDiscountApprovalStatusFilter<"DiscountApproval"> | $Enums.DiscountApprovalStatus
+    notes?: StringNullableFilter<"DiscountApproval"> | string | null
+    created_at?: DateTimeFilter<"DiscountApproval"> | Date | string
+    updated_at?: DateTimeFilter<"DiscountApproval"> | Date | string
+    discountRule?: XOR<DiscountRuleScalarRelationFilter, DiscountRuleWhereInput>
+    requestedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approver?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type DiscountApprovalOrderByWithRelationInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    discountRule?: DiscountRuleOrderByWithRelationInput
+    requestedBy?: UserOrderByWithRelationInput
+    approver?: UserOrderByWithRelationInput
+  }
+
+  export type DiscountApprovalWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: DiscountApprovalWhereInput | DiscountApprovalWhereInput[]
+    OR?: DiscountApprovalWhereInput[]
+    NOT?: DiscountApprovalWhereInput | DiscountApprovalWhereInput[]
+    discount_rule_id?: IntFilter<"DiscountApproval"> | number
+    requested_by?: IntFilter<"DiscountApproval"> | number
+    approved_by?: IntNullableFilter<"DiscountApproval"> | number | null
+    status?: EnumDiscountApprovalStatusFilter<"DiscountApproval"> | $Enums.DiscountApprovalStatus
+    notes?: StringNullableFilter<"DiscountApproval"> | string | null
+    created_at?: DateTimeFilter<"DiscountApproval"> | Date | string
+    updated_at?: DateTimeFilter<"DiscountApproval"> | Date | string
+    discountRule?: XOR<DiscountRuleScalarRelationFilter, DiscountRuleWhereInput>
+    requestedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approver?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type DiscountApprovalOrderByWithAggregationInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: DiscountApprovalCountOrderByAggregateInput
+    _avg?: DiscountApprovalAvgOrderByAggregateInput
+    _max?: DiscountApprovalMaxOrderByAggregateInput
+    _min?: DiscountApprovalMinOrderByAggregateInput
+    _sum?: DiscountApprovalSumOrderByAggregateInput
+  }
+
+  export type DiscountApprovalScalarWhereWithAggregatesInput = {
+    AND?: DiscountApprovalScalarWhereWithAggregatesInput | DiscountApprovalScalarWhereWithAggregatesInput[]
+    OR?: DiscountApprovalScalarWhereWithAggregatesInput[]
+    NOT?: DiscountApprovalScalarWhereWithAggregatesInput | DiscountApprovalScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DiscountApproval"> | number
+    discount_rule_id?: IntWithAggregatesFilter<"DiscountApproval"> | number
+    requested_by?: IntWithAggregatesFilter<"DiscountApproval"> | number
+    approved_by?: IntNullableWithAggregatesFilter<"DiscountApproval"> | number | null
+    status?: EnumDiscountApprovalStatusWithAggregatesFilter<"DiscountApproval"> | $Enums.DiscountApprovalStatus
+    notes?: StringNullableWithAggregatesFilter<"DiscountApproval"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"DiscountApproval"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"DiscountApproval"> | Date | string
+  }
+
+  export type DiscountApplicationWhereInput = {
+    AND?: DiscountApplicationWhereInput | DiscountApplicationWhereInput[]
+    OR?: DiscountApplicationWhereInput[]
+    NOT?: DiscountApplicationWhereInput | DiscountApplicationWhereInput[]
+    id?: IntFilter<"DiscountApplication"> | number
+    discount_rule_id?: IntFilter<"DiscountApplication"> | number
+    bill_id?: IntNullableFilter<"DiscountApplication"> | number | null
+    applied_by?: IntFilter<"DiscountApplication"> | number
+    amount_deducted?: DecimalFilter<"DiscountApplication"> | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFilter<"DiscountApplication"> | Date | string
+    discountRule?: XOR<DiscountRuleScalarRelationFilter, DiscountRuleWhereInput>
+    appliedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    bill?: XOR<BillNullableScalarRelationFilter, BillWhereInput> | null
+  }
+
+  export type DiscountApplicationOrderByWithRelationInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrderInput | SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+    created_at?: SortOrder
+    discountRule?: DiscountRuleOrderByWithRelationInput
+    appliedBy?: UserOrderByWithRelationInput
+    bill?: BillOrderByWithRelationInput
+  }
+
+  export type DiscountApplicationWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: DiscountApplicationWhereInput | DiscountApplicationWhereInput[]
+    OR?: DiscountApplicationWhereInput[]
+    NOT?: DiscountApplicationWhereInput | DiscountApplicationWhereInput[]
+    discount_rule_id?: IntFilter<"DiscountApplication"> | number
+    bill_id?: IntNullableFilter<"DiscountApplication"> | number | null
+    applied_by?: IntFilter<"DiscountApplication"> | number
+    amount_deducted?: DecimalFilter<"DiscountApplication"> | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFilter<"DiscountApplication"> | Date | string
+    discountRule?: XOR<DiscountRuleScalarRelationFilter, DiscountRuleWhereInput>
+    appliedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    bill?: XOR<BillNullableScalarRelationFilter, BillWhereInput> | null
+  }, "id">
+
+  export type DiscountApplicationOrderByWithAggregationInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrderInput | SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+    created_at?: SortOrder
+    _count?: DiscountApplicationCountOrderByAggregateInput
+    _avg?: DiscountApplicationAvgOrderByAggregateInput
+    _max?: DiscountApplicationMaxOrderByAggregateInput
+    _min?: DiscountApplicationMinOrderByAggregateInput
+    _sum?: DiscountApplicationSumOrderByAggregateInput
+  }
+
+  export type DiscountApplicationScalarWhereWithAggregatesInput = {
+    AND?: DiscountApplicationScalarWhereWithAggregatesInput | DiscountApplicationScalarWhereWithAggregatesInput[]
+    OR?: DiscountApplicationScalarWhereWithAggregatesInput[]
+    NOT?: DiscountApplicationScalarWhereWithAggregatesInput | DiscountApplicationScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DiscountApplication"> | number
+    discount_rule_id?: IntWithAggregatesFilter<"DiscountApplication"> | number
+    bill_id?: IntNullableWithAggregatesFilter<"DiscountApplication"> | number | null
+    applied_by?: IntWithAggregatesFilter<"DiscountApplication"> | number
+    amount_deducted?: DecimalWithAggregatesFilter<"DiscountApplication"> | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeWithAggregatesFilter<"DiscountApplication"> | Date | string
+  }
+
   export type CompanyCreateInput = {
     name: string
     code: string
@@ -67428,6 +72577,7 @@ export namespace Prisma {
     users?: UserCreateNestedManyWithoutCompanyInput
     products?: ProductCreateNestedManyWithoutCompanyInput
     bills?: BillCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -67444,6 +72594,7 @@ export namespace Prisma {
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
     products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
     bills?: BillUncheckedCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUpdateInput = {
@@ -67459,6 +72610,7 @@ export namespace Prisma {
     users?: UserUpdateManyWithoutCompanyNestedInput
     products?: ProductUpdateManyWithoutCompanyNestedInput
     bills?: BillUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -67475,6 +72627,7 @@ export namespace Prisma {
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
     products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
     bills?: BillUncheckedUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -67541,6 +72694,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateInput = {
@@ -67573,6 +72729,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUpdateInput = {
@@ -67604,6 +72763,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateInput = {
@@ -67636,6 +72798,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateManyInput = {
@@ -67704,6 +72869,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -67730,6 +72899,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserUpdateInput = {
@@ -67755,6 +72928,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -67781,6 +72958,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -69123,6 +74304,7 @@ export namespace Prisma {
     branch: BranchCreateNestedOneWithoutBillsInput
     cashier: UserCreateNestedOneWithoutBillsInput
     items?: BillItemCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutBillInput
   }
 
   export type BillUncheckedCreateInput = {
@@ -69141,6 +74323,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     items?: BillItemUncheckedCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutBillInput
   }
 
   export type BillUpdateInput = {
@@ -69158,6 +74341,7 @@ export namespace Prisma {
     branch?: BranchUpdateOneRequiredWithoutBillsNestedInput
     cashier?: UserUpdateOneRequiredWithoutBillsNestedInput
     items?: BillItemUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateInput = {
@@ -69176,6 +74360,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: BillItemUncheckedUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutBillNestedInput
   }
 
   export type BillCreateManyInput = {
@@ -70439,11 +75624,11 @@ export namespace Prisma {
     reportType: string
     startDate: string
     endDate: string
-    branch_id?: number | null
     categoryId?: number | null
     created_at?: Date | string
     updated_at?: Date | string
     user: UserCreateNestedOneWithoutSavedReportsInput
+    branch?: BranchCreateNestedOneWithoutSavedReportConfigsInput
   }
 
   export type SavedReportConfigUncheckedCreateInput = {
@@ -70464,11 +75649,11 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     startDate?: StringFieldUpdateOperationsInput | string
     endDate?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSavedReportsNestedInput
+    branch?: BranchUpdateOneWithoutSavedReportConfigsNestedInput
   }
 
   export type SavedReportConfigUncheckedUpdateInput = {
@@ -70502,7 +75687,6 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     startDate?: StringFieldUpdateOperationsInput | string
     endDate?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70526,12 +75710,12 @@ export namespace Prisma {
     reportType: string
     frequency: string
     recipientEmail: string
-    branch_id?: number | null
     isActive?: boolean
     nextRunAt?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
     user: UserCreateNestedOneWithoutReportSchedulesInput
+    branch?: BranchCreateNestedOneWithoutReportSchedulesInput
     deliveries?: ReportDeliveryCreateNestedManyWithoutScheduleInput
   }
 
@@ -70555,12 +75739,12 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     frequency?: StringFieldUpdateOperationsInput | string
     recipientEmail?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutReportSchedulesNestedInput
+    branch?: BranchUpdateOneWithoutReportSchedulesNestedInput
     deliveries?: ReportDeliveryUpdateManyWithoutScheduleNestedInput
   }
 
@@ -70598,7 +75782,6 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     frequency?: StringFieldUpdateOperationsInput | string
     recipientEmail?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71227,6 +76410,269 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DiscountRuleCreateInput = {
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company?: CompanyCreateNestedOneWithoutDiscountRulesInput
+    branch?: BranchCreateNestedOneWithoutDiscountRulesInput
+    createdBy: UserCreateNestedOneWithoutCreatedDiscountsInput
+    approvals?: DiscountApprovalCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUncheckedCreateInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    approvals?: DiscountApprovalUncheckedCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationUncheckedCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneWithoutDiscountRulesNestedInput
+    branch?: BranchUpdateOneWithoutDiscountRulesNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedDiscountsNestedInput
+    approvals?: DiscountApprovalUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvals?: DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleCreateManyInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountRuleUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountRuleUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalCreateInput = {
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    discountRule: DiscountRuleCreateNestedOneWithoutApprovalsInput
+    requestedBy: UserCreateNestedOneWithoutDiscountRequestsInput
+    approver?: UserCreateNestedOneWithoutDiscountApprovalsInput
+  }
+
+  export type DiscountApprovalUncheckedCreateInput = {
+    id?: number
+    discount_rule_id: number
+    requested_by: number
+    approved_by?: number | null
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApprovalUpdateInput = {
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountRule?: DiscountRuleUpdateOneRequiredWithoutApprovalsNestedInput
+    requestedBy?: UserUpdateOneRequiredWithoutDiscountRequestsNestedInput
+    approver?: UserUpdateOneWithoutDiscountApprovalsNestedInput
+  }
+
+  export type DiscountApprovalUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    requested_by?: IntFieldUpdateOperationsInput | number
+    approved_by?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalCreateManyInput = {
+    id?: number
+    discount_rule_id: number
+    requested_by: number
+    approved_by?: number | null
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApprovalUpdateManyMutationInput = {
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    requested_by?: IntFieldUpdateOperationsInput | number
+    approved_by?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationCreateInput = {
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+    discountRule: DiscountRuleCreateNestedOneWithoutApplicationsInput
+    appliedBy: UserCreateNestedOneWithoutDiscountApplicationsInput
+    bill?: BillCreateNestedOneWithoutDiscountApplicationsInput
+  }
+
+  export type DiscountApplicationUncheckedCreateInput = {
+    id?: number
+    discount_rule_id: number
+    bill_id?: number | null
+    applied_by: number
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApplicationUpdateInput = {
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountRule?: DiscountRuleUpdateOneRequiredWithoutApplicationsNestedInput
+    appliedBy?: UserUpdateOneRequiredWithoutDiscountApplicationsNestedInput
+    bill?: BillUpdateOneWithoutDiscountApplicationsNestedInput
+  }
+
+  export type DiscountApplicationUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    bill_id?: NullableIntFieldUpdateOperationsInput | number | null
+    applied_by?: IntFieldUpdateOperationsInput | number
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationCreateManyInput = {
+    id?: number
+    discount_rule_id: number
+    bill_id?: number | null
+    applied_by: number
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApplicationUpdateManyMutationInput = {
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    bill_id?: NullableIntFieldUpdateOperationsInput | number | null
+    applied_by?: IntFieldUpdateOperationsInput | number
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -71308,6 +76754,12 @@ export namespace Prisma {
     none?: BillWhereInput
   }
 
+  export type DiscountRuleListRelationFilter = {
+    every?: DiscountRuleWhereInput
+    some?: DiscountRuleWhereInput
+    none?: DiscountRuleWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -71326,6 +76778,10 @@ export namespace Prisma {
   }
 
   export type BillOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DiscountRuleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -71530,6 +76986,18 @@ export namespace Prisma {
     none?: DailySummaryWhereInput
   }
 
+  export type SavedReportConfigListRelationFilter = {
+    every?: SavedReportConfigWhereInput
+    some?: SavedReportConfigWhereInput
+    none?: SavedReportConfigWhereInput
+  }
+
+  export type ReportScheduleListRelationFilter = {
+    every?: ReportScheduleWhereInput
+    some?: ReportScheduleWhereInput
+    none?: ReportScheduleWhereInput
+  }
+
   export type UserLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -71579,6 +77047,14 @@ export namespace Prisma {
   }
 
   export type DailySummaryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SavedReportConfigOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReportScheduleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -71694,37 +77170,37 @@ export namespace Prisma {
     none?: UserRoleWhereInput
   }
 
-  export type SavedReportConfigListRelationFilter = {
-    every?: SavedReportConfigWhereInput
-    some?: SavedReportConfigWhereInput
-    none?: SavedReportConfigWhereInput
-  }
-
-  export type ReportScheduleListRelationFilter = {
-    every?: ReportScheduleWhereInput
-    some?: ReportScheduleWhereInput
-    none?: ReportScheduleWhereInput
-  }
-
   export type AuditLogListRelationFilter = {
     every?: AuditLogWhereInput
     some?: AuditLogWhereInput
     none?: AuditLogWhereInput
   }
 
+  export type DiscountApprovalListRelationFilter = {
+    every?: DiscountApprovalWhereInput
+    some?: DiscountApprovalWhereInput
+    none?: DiscountApprovalWhereInput
+  }
+
+  export type DiscountApplicationListRelationFilter = {
+    every?: DiscountApplicationWhereInput
+    some?: DiscountApplicationWhereInput
+    none?: DiscountApplicationWhereInput
+  }
+
   export type UserRoleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type SavedReportConfigOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type ReportScheduleOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type AuditLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DiscountApprovalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DiscountApplicationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -74633,6 +80109,261 @@ export namespace Prisma {
     id?: SortOrder
   }
 
+  export type EnumDiscountTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountType | EnumDiscountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountTypeFilter<$PrismaModel> | $Enums.DiscountType
+  }
+
+  export type EnumDiscountScopeFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountScope | EnumDiscountScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountScopeFilter<$PrismaModel> | $Enums.DiscountScope
+  }
+
+  export type EnumDiscountStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
+  }
+
+  export type CompanyNullableScalarRelationFilter = {
+    is?: CompanyWhereInput | null
+    isNot?: CompanyWhereInput | null
+  }
+
+  export type DiscountRuleCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrder
+    min_purchase?: SortOrder
+    scope?: SortOrder
+    company_id?: SortOrder
+    branch_id?: SortOrder
+    status?: SortOrder
+    valid_from?: SortOrder
+    valid_until?: SortOrder
+    created_by?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DiscountRuleAvgOrderByAggregateInput = {
+    id?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrder
+    min_purchase?: SortOrder
+    company_id?: SortOrder
+    branch_id?: SortOrder
+    created_by?: SortOrder
+  }
+
+  export type DiscountRuleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrder
+    min_purchase?: SortOrder
+    scope?: SortOrder
+    company_id?: SortOrder
+    branch_id?: SortOrder
+    status?: SortOrder
+    valid_from?: SortOrder
+    valid_until?: SortOrder
+    created_by?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DiscountRuleMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrder
+    min_purchase?: SortOrder
+    scope?: SortOrder
+    company_id?: SortOrder
+    branch_id?: SortOrder
+    status?: SortOrder
+    valid_from?: SortOrder
+    valid_until?: SortOrder
+    created_by?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DiscountRuleSumOrderByAggregateInput = {
+    id?: SortOrder
+    value?: SortOrder
+    max_value?: SortOrder
+    min_purchase?: SortOrder
+    company_id?: SortOrder
+    branch_id?: SortOrder
+    created_by?: SortOrder
+  }
+
+  export type EnumDiscountTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountType | EnumDiscountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountTypeWithAggregatesFilter<$PrismaModel> | $Enums.DiscountType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountTypeFilter<$PrismaModel>
+    _max?: NestedEnumDiscountTypeFilter<$PrismaModel>
+  }
+
+  export type EnumDiscountScopeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountScope | EnumDiscountScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountScopeWithAggregatesFilter<$PrismaModel> | $Enums.DiscountScope
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountScopeFilter<$PrismaModel>
+    _max?: NestedEnumDiscountScopeFilter<$PrismaModel>
+  }
+
+  export type EnumDiscountStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
+  }
+
+  export type EnumDiscountApprovalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountApprovalStatus | EnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountApprovalStatusFilter<$PrismaModel> | $Enums.DiscountApprovalStatus
+  }
+
+  export type DiscountRuleScalarRelationFilter = {
+    is?: DiscountRuleWhereInput
+    isNot?: DiscountRuleWhereInput
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type DiscountApprovalCountOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DiscountApprovalAvgOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrder
+  }
+
+  export type DiscountApprovalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DiscountApprovalMinOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DiscountApprovalSumOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    requested_by?: SortOrder
+    approved_by?: SortOrder
+  }
+
+  export type EnumDiscountApprovalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountApprovalStatus | EnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountApprovalStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountApprovalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountApprovalStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscountApprovalStatusFilter<$PrismaModel>
+  }
+
+  export type BillNullableScalarRelationFilter = {
+    is?: BillWhereInput | null
+    isNot?: BillWhereInput | null
+  }
+
+  export type DiscountApplicationCountOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DiscountApplicationAvgOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+  }
+
+  export type DiscountApplicationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DiscountApplicationMinOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DiscountApplicationSumOrderByAggregateInput = {
+    id?: SortOrder
+    discount_rule_id?: SortOrder
+    bill_id?: SortOrder
+    applied_by?: SortOrder
+    amount_deducted?: SortOrder
+  }
+
   export type BranchCreateNestedManyWithoutCompanyInput = {
     create?: XOR<BranchCreateWithoutCompanyInput, BranchUncheckedCreateWithoutCompanyInput> | BranchCreateWithoutCompanyInput[] | BranchUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: BranchCreateOrConnectWithoutCompanyInput | BranchCreateOrConnectWithoutCompanyInput[]
@@ -74661,6 +80392,13 @@ export namespace Prisma {
     connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
   }
 
+  export type DiscountRuleCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<DiscountRuleCreateWithoutCompanyInput, DiscountRuleUncheckedCreateWithoutCompanyInput> | DiscountRuleCreateWithoutCompanyInput[] | DiscountRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCompanyInput | DiscountRuleCreateOrConnectWithoutCompanyInput[]
+    createMany?: DiscountRuleCreateManyCompanyInputEnvelope
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+  }
+
   export type BranchUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<BranchCreateWithoutCompanyInput, BranchUncheckedCreateWithoutCompanyInput> | BranchCreateWithoutCompanyInput[] | BranchUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: BranchCreateOrConnectWithoutCompanyInput | BranchCreateOrConnectWithoutCompanyInput[]
@@ -74687,6 +80425,13 @@ export namespace Prisma {
     connectOrCreate?: BillCreateOrConnectWithoutCompanyInput | BillCreateOrConnectWithoutCompanyInput[]
     createMany?: BillCreateManyCompanyInputEnvelope
     connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+  }
+
+  export type DiscountRuleUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<DiscountRuleCreateWithoutCompanyInput, DiscountRuleUncheckedCreateWithoutCompanyInput> | DiscountRuleCreateWithoutCompanyInput[] | DiscountRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCompanyInput | DiscountRuleCreateOrConnectWithoutCompanyInput[]
+    createMany?: DiscountRuleCreateManyCompanyInputEnvelope
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -74761,6 +80506,20 @@ export namespace Prisma {
     deleteMany?: BillScalarWhereInput | BillScalarWhereInput[]
   }
 
+  export type DiscountRuleUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutCompanyInput, DiscountRuleUncheckedCreateWithoutCompanyInput> | DiscountRuleCreateWithoutCompanyInput[] | DiscountRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCompanyInput | DiscountRuleCreateOrConnectWithoutCompanyInput[]
+    upsert?: DiscountRuleUpsertWithWhereUniqueWithoutCompanyInput | DiscountRuleUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: DiscountRuleCreateManyCompanyInputEnvelope
+    set?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    disconnect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    delete?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    update?: DiscountRuleUpdateWithWhereUniqueWithoutCompanyInput | DiscountRuleUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: DiscountRuleUpdateManyWithWhereWithoutCompanyInput | DiscountRuleUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -74823,6 +80582,20 @@ export namespace Prisma {
     update?: BillUpdateWithWhereUniqueWithoutCompanyInput | BillUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: BillUpdateManyWithWhereWithoutCompanyInput | BillUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: BillScalarWhereInput | BillScalarWhereInput[]
+  }
+
+  export type DiscountRuleUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutCompanyInput, DiscountRuleUncheckedCreateWithoutCompanyInput> | DiscountRuleCreateWithoutCompanyInput[] | DiscountRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCompanyInput | DiscountRuleCreateOrConnectWithoutCompanyInput[]
+    upsert?: DiscountRuleUpsertWithWhereUniqueWithoutCompanyInput | DiscountRuleUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: DiscountRuleCreateManyCompanyInputEnvelope
+    set?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    disconnect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    delete?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    update?: DiscountRuleUpdateWithWhereUniqueWithoutCompanyInput | DiscountRuleUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: DiscountRuleUpdateManyWithWhereWithoutCompanyInput | DiscountRuleUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutBranchesInput = {
@@ -74950,6 +80723,27 @@ export namespace Prisma {
     connect?: DailySummaryWhereUniqueInput | DailySummaryWhereUniqueInput[]
   }
 
+  export type SavedReportConfigCreateNestedManyWithoutBranchInput = {
+    create?: XOR<SavedReportConfigCreateWithoutBranchInput, SavedReportConfigUncheckedCreateWithoutBranchInput> | SavedReportConfigCreateWithoutBranchInput[] | SavedReportConfigUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: SavedReportConfigCreateOrConnectWithoutBranchInput | SavedReportConfigCreateOrConnectWithoutBranchInput[]
+    createMany?: SavedReportConfigCreateManyBranchInputEnvelope
+    connect?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+  }
+
+  export type ReportScheduleCreateNestedManyWithoutBranchInput = {
+    create?: XOR<ReportScheduleCreateWithoutBranchInput, ReportScheduleUncheckedCreateWithoutBranchInput> | ReportScheduleCreateWithoutBranchInput[] | ReportScheduleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ReportScheduleCreateOrConnectWithoutBranchInput | ReportScheduleCreateOrConnectWithoutBranchInput[]
+    createMany?: ReportScheduleCreateManyBranchInputEnvelope
+    connect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+  }
+
+  export type DiscountRuleCreateNestedManyWithoutBranchInput = {
+    create?: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput> | DiscountRuleCreateWithoutBranchInput[] | DiscountRuleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutBranchInput | DiscountRuleCreateOrConnectWithoutBranchInput[]
+    createMany?: DiscountRuleCreateManyBranchInputEnvelope
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutBranchInput = {
     create?: XOR<UserCreateWithoutBranchInput, UserUncheckedCreateWithoutBranchInput> | UserCreateWithoutBranchInput[] | UserUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: UserCreateOrConnectWithoutBranchInput | UserCreateOrConnectWithoutBranchInput[]
@@ -75067,6 +80861,27 @@ export namespace Prisma {
     connectOrCreate?: DailySummaryCreateOrConnectWithoutBranchInput | DailySummaryCreateOrConnectWithoutBranchInput[]
     createMany?: DailySummaryCreateManyBranchInputEnvelope
     connect?: DailySummaryWhereUniqueInput | DailySummaryWhereUniqueInput[]
+  }
+
+  export type SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<SavedReportConfigCreateWithoutBranchInput, SavedReportConfigUncheckedCreateWithoutBranchInput> | SavedReportConfigCreateWithoutBranchInput[] | SavedReportConfigUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: SavedReportConfigCreateOrConnectWithoutBranchInput | SavedReportConfigCreateOrConnectWithoutBranchInput[]
+    createMany?: SavedReportConfigCreateManyBranchInputEnvelope
+    connect?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+  }
+
+  export type ReportScheduleUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<ReportScheduleCreateWithoutBranchInput, ReportScheduleUncheckedCreateWithoutBranchInput> | ReportScheduleCreateWithoutBranchInput[] | ReportScheduleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ReportScheduleCreateOrConnectWithoutBranchInput | ReportScheduleCreateOrConnectWithoutBranchInput[]
+    createMany?: ReportScheduleCreateManyBranchInputEnvelope
+    connect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+  }
+
+  export type DiscountRuleUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput> | DiscountRuleCreateWithoutBranchInput[] | DiscountRuleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutBranchInput | DiscountRuleCreateOrConnectWithoutBranchInput[]
+    createMany?: DiscountRuleCreateManyBranchInputEnvelope
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
   }
 
   export type CompanyUpdateOneRequiredWithoutBranchesNestedInput = {
@@ -75315,6 +81130,48 @@ export namespace Prisma {
     deleteMany?: DailySummaryScalarWhereInput | DailySummaryScalarWhereInput[]
   }
 
+  export type SavedReportConfigUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<SavedReportConfigCreateWithoutBranchInput, SavedReportConfigUncheckedCreateWithoutBranchInput> | SavedReportConfigCreateWithoutBranchInput[] | SavedReportConfigUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: SavedReportConfigCreateOrConnectWithoutBranchInput | SavedReportConfigCreateOrConnectWithoutBranchInput[]
+    upsert?: SavedReportConfigUpsertWithWhereUniqueWithoutBranchInput | SavedReportConfigUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: SavedReportConfigCreateManyBranchInputEnvelope
+    set?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    disconnect?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    delete?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    connect?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    update?: SavedReportConfigUpdateWithWhereUniqueWithoutBranchInput | SavedReportConfigUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: SavedReportConfigUpdateManyWithWhereWithoutBranchInput | SavedReportConfigUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: SavedReportConfigScalarWhereInput | SavedReportConfigScalarWhereInput[]
+  }
+
+  export type ReportScheduleUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<ReportScheduleCreateWithoutBranchInput, ReportScheduleUncheckedCreateWithoutBranchInput> | ReportScheduleCreateWithoutBranchInput[] | ReportScheduleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ReportScheduleCreateOrConnectWithoutBranchInput | ReportScheduleCreateOrConnectWithoutBranchInput[]
+    upsert?: ReportScheduleUpsertWithWhereUniqueWithoutBranchInput | ReportScheduleUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: ReportScheduleCreateManyBranchInputEnvelope
+    set?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    disconnect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    delete?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    connect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    update?: ReportScheduleUpdateWithWhereUniqueWithoutBranchInput | ReportScheduleUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: ReportScheduleUpdateManyWithWhereWithoutBranchInput | ReportScheduleUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
+  }
+
+  export type DiscountRuleUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput> | DiscountRuleCreateWithoutBranchInput[] | DiscountRuleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutBranchInput | DiscountRuleCreateOrConnectWithoutBranchInput[]
+    upsert?: DiscountRuleUpsertWithWhereUniqueWithoutBranchInput | DiscountRuleUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: DiscountRuleCreateManyBranchInputEnvelope
+    set?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    disconnect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    delete?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    update?: DiscountRuleUpdateWithWhereUniqueWithoutBranchInput | DiscountRuleUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: DiscountRuleUpdateManyWithWhereWithoutBranchInput | DiscountRuleUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutBranchNestedInput = {
     create?: XOR<UserCreateWithoutBranchInput, UserUncheckedCreateWithoutBranchInput> | UserCreateWithoutBranchInput[] | UserUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: UserCreateOrConnectWithoutBranchInput | UserCreateOrConnectWithoutBranchInput[]
@@ -75553,6 +81410,48 @@ export namespace Prisma {
     deleteMany?: DailySummaryScalarWhereInput | DailySummaryScalarWhereInput[]
   }
 
+  export type SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<SavedReportConfigCreateWithoutBranchInput, SavedReportConfigUncheckedCreateWithoutBranchInput> | SavedReportConfigCreateWithoutBranchInput[] | SavedReportConfigUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: SavedReportConfigCreateOrConnectWithoutBranchInput | SavedReportConfigCreateOrConnectWithoutBranchInput[]
+    upsert?: SavedReportConfigUpsertWithWhereUniqueWithoutBranchInput | SavedReportConfigUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: SavedReportConfigCreateManyBranchInputEnvelope
+    set?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    disconnect?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    delete?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    connect?: SavedReportConfigWhereUniqueInput | SavedReportConfigWhereUniqueInput[]
+    update?: SavedReportConfigUpdateWithWhereUniqueWithoutBranchInput | SavedReportConfigUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: SavedReportConfigUpdateManyWithWhereWithoutBranchInput | SavedReportConfigUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: SavedReportConfigScalarWhereInput | SavedReportConfigScalarWhereInput[]
+  }
+
+  export type ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<ReportScheduleCreateWithoutBranchInput, ReportScheduleUncheckedCreateWithoutBranchInput> | ReportScheduleCreateWithoutBranchInput[] | ReportScheduleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ReportScheduleCreateOrConnectWithoutBranchInput | ReportScheduleCreateOrConnectWithoutBranchInput[]
+    upsert?: ReportScheduleUpsertWithWhereUniqueWithoutBranchInput | ReportScheduleUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: ReportScheduleCreateManyBranchInputEnvelope
+    set?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    disconnect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    delete?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    connect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+    update?: ReportScheduleUpdateWithWhereUniqueWithoutBranchInput | ReportScheduleUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: ReportScheduleUpdateManyWithWhereWithoutBranchInput | ReportScheduleUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
+  }
+
+  export type DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput> | DiscountRuleCreateWithoutBranchInput[] | DiscountRuleUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutBranchInput | DiscountRuleCreateOrConnectWithoutBranchInput[]
+    upsert?: DiscountRuleUpsertWithWhereUniqueWithoutBranchInput | DiscountRuleUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: DiscountRuleCreateManyBranchInputEnvelope
+    set?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    disconnect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    delete?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    update?: DiscountRuleUpdateWithWhereUniqueWithoutBranchInput | DiscountRuleUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: DiscountRuleUpdateManyWithWhereWithoutBranchInput | DiscountRuleUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+  }
+
   export type CompanyCreateNestedOneWithoutUsersInput = {
     create?: XOR<CompanyCreateWithoutUsersInput, CompanyUncheckedCreateWithoutUsersInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutUsersInput
@@ -75634,6 +81533,34 @@ export namespace Prisma {
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
+  export type DiscountRuleCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<DiscountRuleCreateWithoutCreatedByInput, DiscountRuleUncheckedCreateWithoutCreatedByInput> | DiscountRuleCreateWithoutCreatedByInput[] | DiscountRuleUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCreatedByInput | DiscountRuleCreateOrConnectWithoutCreatedByInput[]
+    createMany?: DiscountRuleCreateManyCreatedByInputEnvelope
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+  }
+
+  export type DiscountApprovalCreateNestedManyWithoutRequestedByInput = {
+    create?: XOR<DiscountApprovalCreateWithoutRequestedByInput, DiscountApprovalUncheckedCreateWithoutRequestedByInput> | DiscountApprovalCreateWithoutRequestedByInput[] | DiscountApprovalUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutRequestedByInput | DiscountApprovalCreateOrConnectWithoutRequestedByInput[]
+    createMany?: DiscountApprovalCreateManyRequestedByInputEnvelope
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+  }
+
+  export type DiscountApplicationCreateNestedManyWithoutAppliedByInput = {
+    create?: XOR<DiscountApplicationCreateWithoutAppliedByInput, DiscountApplicationUncheckedCreateWithoutAppliedByInput> | DiscountApplicationCreateWithoutAppliedByInput[] | DiscountApplicationUncheckedCreateWithoutAppliedByInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutAppliedByInput | DiscountApplicationCreateOrConnectWithoutAppliedByInput[]
+    createMany?: DiscountApplicationCreateManyAppliedByInputEnvelope
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+  }
+
+  export type DiscountApprovalCreateNestedManyWithoutApproverInput = {
+    create?: XOR<DiscountApprovalCreateWithoutApproverInput, DiscountApprovalUncheckedCreateWithoutApproverInput> | DiscountApprovalCreateWithoutApproverInput[] | DiscountApprovalUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutApproverInput | DiscountApprovalCreateOrConnectWithoutApproverInput[]
+    createMany?: DiscountApprovalCreateManyApproverInputEnvelope
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+  }
+
   export type UserInfoUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<UserInfoCreateWithoutUserInput, UserInfoUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserInfoCreateOrConnectWithoutUserInput
@@ -75701,6 +81628,34 @@ export namespace Prisma {
     connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
     createMany?: AuditLogCreateManyUserInputEnvelope
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<DiscountRuleCreateWithoutCreatedByInput, DiscountRuleUncheckedCreateWithoutCreatedByInput> | DiscountRuleCreateWithoutCreatedByInput[] | DiscountRuleUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCreatedByInput | DiscountRuleCreateOrConnectWithoutCreatedByInput[]
+    createMany?: DiscountRuleCreateManyCreatedByInputEnvelope
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+  }
+
+  export type DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput = {
+    create?: XOR<DiscountApprovalCreateWithoutRequestedByInput, DiscountApprovalUncheckedCreateWithoutRequestedByInput> | DiscountApprovalCreateWithoutRequestedByInput[] | DiscountApprovalUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutRequestedByInput | DiscountApprovalCreateOrConnectWithoutRequestedByInput[]
+    createMany?: DiscountApprovalCreateManyRequestedByInputEnvelope
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+  }
+
+  export type DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput = {
+    create?: XOR<DiscountApplicationCreateWithoutAppliedByInput, DiscountApplicationUncheckedCreateWithoutAppliedByInput> | DiscountApplicationCreateWithoutAppliedByInput[] | DiscountApplicationUncheckedCreateWithoutAppliedByInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutAppliedByInput | DiscountApplicationCreateOrConnectWithoutAppliedByInput[]
+    createMany?: DiscountApplicationCreateManyAppliedByInputEnvelope
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+  }
+
+  export type DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput = {
+    create?: XOR<DiscountApprovalCreateWithoutApproverInput, DiscountApprovalUncheckedCreateWithoutApproverInput> | DiscountApprovalCreateWithoutApproverInput[] | DiscountApprovalUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutApproverInput | DiscountApprovalCreateOrConnectWithoutApproverInput[]
+    createMany?: DiscountApprovalCreateManyApproverInputEnvelope
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
   }
 
   export type EnumUserTypeFieldUpdateOperationsInput = {
@@ -75869,6 +81824,62 @@ export namespace Prisma {
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
+  export type DiscountRuleUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutCreatedByInput, DiscountRuleUncheckedCreateWithoutCreatedByInput> | DiscountRuleCreateWithoutCreatedByInput[] | DiscountRuleUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCreatedByInput | DiscountRuleCreateOrConnectWithoutCreatedByInput[]
+    upsert?: DiscountRuleUpsertWithWhereUniqueWithoutCreatedByInput | DiscountRuleUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: DiscountRuleCreateManyCreatedByInputEnvelope
+    set?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    disconnect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    delete?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    update?: DiscountRuleUpdateWithWhereUniqueWithoutCreatedByInput | DiscountRuleUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: DiscountRuleUpdateManyWithWhereWithoutCreatedByInput | DiscountRuleUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+  }
+
+  export type DiscountApprovalUpdateManyWithoutRequestedByNestedInput = {
+    create?: XOR<DiscountApprovalCreateWithoutRequestedByInput, DiscountApprovalUncheckedCreateWithoutRequestedByInput> | DiscountApprovalCreateWithoutRequestedByInput[] | DiscountApprovalUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutRequestedByInput | DiscountApprovalCreateOrConnectWithoutRequestedByInput[]
+    upsert?: DiscountApprovalUpsertWithWhereUniqueWithoutRequestedByInput | DiscountApprovalUpsertWithWhereUniqueWithoutRequestedByInput[]
+    createMany?: DiscountApprovalCreateManyRequestedByInputEnvelope
+    set?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    disconnect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    delete?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    update?: DiscountApprovalUpdateWithWhereUniqueWithoutRequestedByInput | DiscountApprovalUpdateWithWhereUniqueWithoutRequestedByInput[]
+    updateMany?: DiscountApprovalUpdateManyWithWhereWithoutRequestedByInput | DiscountApprovalUpdateManyWithWhereWithoutRequestedByInput[]
+    deleteMany?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+  }
+
+  export type DiscountApplicationUpdateManyWithoutAppliedByNestedInput = {
+    create?: XOR<DiscountApplicationCreateWithoutAppliedByInput, DiscountApplicationUncheckedCreateWithoutAppliedByInput> | DiscountApplicationCreateWithoutAppliedByInput[] | DiscountApplicationUncheckedCreateWithoutAppliedByInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutAppliedByInput | DiscountApplicationCreateOrConnectWithoutAppliedByInput[]
+    upsert?: DiscountApplicationUpsertWithWhereUniqueWithoutAppliedByInput | DiscountApplicationUpsertWithWhereUniqueWithoutAppliedByInput[]
+    createMany?: DiscountApplicationCreateManyAppliedByInputEnvelope
+    set?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    disconnect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    delete?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    update?: DiscountApplicationUpdateWithWhereUniqueWithoutAppliedByInput | DiscountApplicationUpdateWithWhereUniqueWithoutAppliedByInput[]
+    updateMany?: DiscountApplicationUpdateManyWithWhereWithoutAppliedByInput | DiscountApplicationUpdateManyWithWhereWithoutAppliedByInput[]
+    deleteMany?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+  }
+
+  export type DiscountApprovalUpdateManyWithoutApproverNestedInput = {
+    create?: XOR<DiscountApprovalCreateWithoutApproverInput, DiscountApprovalUncheckedCreateWithoutApproverInput> | DiscountApprovalCreateWithoutApproverInput[] | DiscountApprovalUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutApproverInput | DiscountApprovalCreateOrConnectWithoutApproverInput[]
+    upsert?: DiscountApprovalUpsertWithWhereUniqueWithoutApproverInput | DiscountApprovalUpsertWithWhereUniqueWithoutApproverInput[]
+    createMany?: DiscountApprovalCreateManyApproverInputEnvelope
+    set?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    disconnect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    delete?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    update?: DiscountApprovalUpdateWithWhereUniqueWithoutApproverInput | DiscountApprovalUpdateWithWhereUniqueWithoutApproverInput[]
+    updateMany?: DiscountApprovalUpdateManyWithWhereWithoutApproverInput | DiscountApprovalUpdateManyWithWhereWithoutApproverInput[]
+    deleteMany?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+  }
+
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -76011,6 +82022,62 @@ export namespace Prisma {
     update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutCreatedByInput, DiscountRuleUncheckedCreateWithoutCreatedByInput> | DiscountRuleCreateWithoutCreatedByInput[] | DiscountRuleUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutCreatedByInput | DiscountRuleCreateOrConnectWithoutCreatedByInput[]
+    upsert?: DiscountRuleUpsertWithWhereUniqueWithoutCreatedByInput | DiscountRuleUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: DiscountRuleCreateManyCreatedByInputEnvelope
+    set?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    disconnect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    delete?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    connect?: DiscountRuleWhereUniqueInput | DiscountRuleWhereUniqueInput[]
+    update?: DiscountRuleUpdateWithWhereUniqueWithoutCreatedByInput | DiscountRuleUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: DiscountRuleUpdateManyWithWhereWithoutCreatedByInput | DiscountRuleUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput = {
+    create?: XOR<DiscountApprovalCreateWithoutRequestedByInput, DiscountApprovalUncheckedCreateWithoutRequestedByInput> | DiscountApprovalCreateWithoutRequestedByInput[] | DiscountApprovalUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutRequestedByInput | DiscountApprovalCreateOrConnectWithoutRequestedByInput[]
+    upsert?: DiscountApprovalUpsertWithWhereUniqueWithoutRequestedByInput | DiscountApprovalUpsertWithWhereUniqueWithoutRequestedByInput[]
+    createMany?: DiscountApprovalCreateManyRequestedByInputEnvelope
+    set?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    disconnect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    delete?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    update?: DiscountApprovalUpdateWithWhereUniqueWithoutRequestedByInput | DiscountApprovalUpdateWithWhereUniqueWithoutRequestedByInput[]
+    updateMany?: DiscountApprovalUpdateManyWithWhereWithoutRequestedByInput | DiscountApprovalUpdateManyWithWhereWithoutRequestedByInput[]
+    deleteMany?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput = {
+    create?: XOR<DiscountApplicationCreateWithoutAppliedByInput, DiscountApplicationUncheckedCreateWithoutAppliedByInput> | DiscountApplicationCreateWithoutAppliedByInput[] | DiscountApplicationUncheckedCreateWithoutAppliedByInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutAppliedByInput | DiscountApplicationCreateOrConnectWithoutAppliedByInput[]
+    upsert?: DiscountApplicationUpsertWithWhereUniqueWithoutAppliedByInput | DiscountApplicationUpsertWithWhereUniqueWithoutAppliedByInput[]
+    createMany?: DiscountApplicationCreateManyAppliedByInputEnvelope
+    set?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    disconnect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    delete?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    update?: DiscountApplicationUpdateWithWhereUniqueWithoutAppliedByInput | DiscountApplicationUpdateWithWhereUniqueWithoutAppliedByInput[]
+    updateMany?: DiscountApplicationUpdateManyWithWhereWithoutAppliedByInput | DiscountApplicationUpdateManyWithWhereWithoutAppliedByInput[]
+    deleteMany?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput = {
+    create?: XOR<DiscountApprovalCreateWithoutApproverInput, DiscountApprovalUncheckedCreateWithoutApproverInput> | DiscountApprovalCreateWithoutApproverInput[] | DiscountApprovalUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutApproverInput | DiscountApprovalCreateOrConnectWithoutApproverInput[]
+    upsert?: DiscountApprovalUpsertWithWhereUniqueWithoutApproverInput | DiscountApprovalUpsertWithWhereUniqueWithoutApproverInput[]
+    createMany?: DiscountApprovalCreateManyApproverInputEnvelope
+    set?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    disconnect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    delete?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    update?: DiscountApprovalUpdateWithWhereUniqueWithoutApproverInput | DiscountApprovalUpdateWithWhereUniqueWithoutApproverInput[]
+    updateMany?: DiscountApprovalUpdateManyWithWhereWithoutApproverInput | DiscountApprovalUpdateManyWithWhereWithoutApproverInput[]
+    deleteMany?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutInfoInput = {
@@ -77326,11 +83393,25 @@ export namespace Prisma {
     connect?: BillItemWhereUniqueInput | BillItemWhereUniqueInput[]
   }
 
+  export type DiscountApplicationCreateNestedManyWithoutBillInput = {
+    create?: XOR<DiscountApplicationCreateWithoutBillInput, DiscountApplicationUncheckedCreateWithoutBillInput> | DiscountApplicationCreateWithoutBillInput[] | DiscountApplicationUncheckedCreateWithoutBillInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutBillInput | DiscountApplicationCreateOrConnectWithoutBillInput[]
+    createMany?: DiscountApplicationCreateManyBillInputEnvelope
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+  }
+
   export type BillItemUncheckedCreateNestedManyWithoutBillInput = {
     create?: XOR<BillItemCreateWithoutBillInput, BillItemUncheckedCreateWithoutBillInput> | BillItemCreateWithoutBillInput[] | BillItemUncheckedCreateWithoutBillInput[]
     connectOrCreate?: BillItemCreateOrConnectWithoutBillInput | BillItemCreateOrConnectWithoutBillInput[]
     createMany?: BillItemCreateManyBillInputEnvelope
     connect?: BillItemWhereUniqueInput | BillItemWhereUniqueInput[]
+  }
+
+  export type DiscountApplicationUncheckedCreateNestedManyWithoutBillInput = {
+    create?: XOR<DiscountApplicationCreateWithoutBillInput, DiscountApplicationUncheckedCreateWithoutBillInput> | DiscountApplicationCreateWithoutBillInput[] | DiscountApplicationUncheckedCreateWithoutBillInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutBillInput | DiscountApplicationCreateOrConnectWithoutBillInput[]
+    createMany?: DiscountApplicationCreateManyBillInputEnvelope
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
   }
 
   export type EnumBillStatusFieldUpdateOperationsInput = {
@@ -77379,6 +83460,20 @@ export namespace Prisma {
     deleteMany?: BillItemScalarWhereInput | BillItemScalarWhereInput[]
   }
 
+  export type DiscountApplicationUpdateManyWithoutBillNestedInput = {
+    create?: XOR<DiscountApplicationCreateWithoutBillInput, DiscountApplicationUncheckedCreateWithoutBillInput> | DiscountApplicationCreateWithoutBillInput[] | DiscountApplicationUncheckedCreateWithoutBillInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutBillInput | DiscountApplicationCreateOrConnectWithoutBillInput[]
+    upsert?: DiscountApplicationUpsertWithWhereUniqueWithoutBillInput | DiscountApplicationUpsertWithWhereUniqueWithoutBillInput[]
+    createMany?: DiscountApplicationCreateManyBillInputEnvelope
+    set?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    disconnect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    delete?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    update?: DiscountApplicationUpdateWithWhereUniqueWithoutBillInput | DiscountApplicationUpdateWithWhereUniqueWithoutBillInput[]
+    updateMany?: DiscountApplicationUpdateManyWithWhereWithoutBillInput | DiscountApplicationUpdateManyWithWhereWithoutBillInput[]
+    deleteMany?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+  }
+
   export type BillItemUncheckedUpdateManyWithoutBillNestedInput = {
     create?: XOR<BillItemCreateWithoutBillInput, BillItemUncheckedCreateWithoutBillInput> | BillItemCreateWithoutBillInput[] | BillItemUncheckedCreateWithoutBillInput[]
     connectOrCreate?: BillItemCreateOrConnectWithoutBillInput | BillItemCreateOrConnectWithoutBillInput[]
@@ -77391,6 +83486,20 @@ export namespace Prisma {
     update?: BillItemUpdateWithWhereUniqueWithoutBillInput | BillItemUpdateWithWhereUniqueWithoutBillInput[]
     updateMany?: BillItemUpdateManyWithWhereWithoutBillInput | BillItemUpdateManyWithWhereWithoutBillInput[]
     deleteMany?: BillItemScalarWhereInput | BillItemScalarWhereInput[]
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyWithoutBillNestedInput = {
+    create?: XOR<DiscountApplicationCreateWithoutBillInput, DiscountApplicationUncheckedCreateWithoutBillInput> | DiscountApplicationCreateWithoutBillInput[] | DiscountApplicationUncheckedCreateWithoutBillInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutBillInput | DiscountApplicationCreateOrConnectWithoutBillInput[]
+    upsert?: DiscountApplicationUpsertWithWhereUniqueWithoutBillInput | DiscountApplicationUpsertWithWhereUniqueWithoutBillInput[]
+    createMany?: DiscountApplicationCreateManyBillInputEnvelope
+    set?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    disconnect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    delete?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    update?: DiscountApplicationUpdateWithWhereUniqueWithoutBillInput | DiscountApplicationUpdateWithWhereUniqueWithoutBillInput[]
+    updateMany?: DiscountApplicationUpdateManyWithWhereWithoutBillInput | DiscountApplicationUpdateManyWithWhereWithoutBillInput[]
+    deleteMany?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
   }
 
   export type BillCreateNestedOneWithoutItemsInput = {
@@ -77899,6 +84008,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type BranchCreateNestedOneWithoutSavedReportConfigsInput = {
+    create?: XOR<BranchCreateWithoutSavedReportConfigsInput, BranchUncheckedCreateWithoutSavedReportConfigsInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutSavedReportConfigsInput
+    connect?: BranchWhereUniqueInput
+  }
+
   export type UserUpdateOneRequiredWithoutSavedReportsNestedInput = {
     create?: XOR<UserCreateWithoutSavedReportsInput, UserUncheckedCreateWithoutSavedReportsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSavedReportsInput
@@ -77907,10 +84022,26 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSavedReportsInput, UserUpdateWithoutSavedReportsInput>, UserUncheckedUpdateWithoutSavedReportsInput>
   }
 
+  export type BranchUpdateOneWithoutSavedReportConfigsNestedInput = {
+    create?: XOR<BranchCreateWithoutSavedReportConfigsInput, BranchUncheckedCreateWithoutSavedReportConfigsInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutSavedReportConfigsInput
+    upsert?: BranchUpsertWithoutSavedReportConfigsInput
+    disconnect?: BranchWhereInput | boolean
+    delete?: BranchWhereInput | boolean
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutSavedReportConfigsInput, BranchUpdateWithoutSavedReportConfigsInput>, BranchUncheckedUpdateWithoutSavedReportConfigsInput>
+  }
+
   export type UserCreateNestedOneWithoutReportSchedulesInput = {
     create?: XOR<UserCreateWithoutReportSchedulesInput, UserUncheckedCreateWithoutReportSchedulesInput>
     connectOrCreate?: UserCreateOrConnectWithoutReportSchedulesInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type BranchCreateNestedOneWithoutReportSchedulesInput = {
+    create?: XOR<BranchCreateWithoutReportSchedulesInput, BranchUncheckedCreateWithoutReportSchedulesInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutReportSchedulesInput
+    connect?: BranchWhereUniqueInput
   }
 
   export type ReportDeliveryCreateNestedManyWithoutScheduleInput = {
@@ -77933,6 +84064,16 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutReportSchedulesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReportSchedulesInput, UserUpdateWithoutReportSchedulesInput>, UserUncheckedUpdateWithoutReportSchedulesInput>
+  }
+
+  export type BranchUpdateOneWithoutReportSchedulesNestedInput = {
+    create?: XOR<BranchCreateWithoutReportSchedulesInput, BranchUncheckedCreateWithoutReportSchedulesInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutReportSchedulesInput
+    upsert?: BranchUpsertWithoutReportSchedulesInput
+    disconnect?: BranchWhereInput | boolean
+    delete?: BranchWhereInput | boolean
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutReportSchedulesInput, BranchUpdateWithoutReportSchedulesInput>, BranchUncheckedUpdateWithoutReportSchedulesInput>
   }
 
   export type ReportDeliveryUpdateManyWithoutScheduleNestedInput = {
@@ -77989,6 +84130,240 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutAuditLogsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutDiscountRulesInput = {
+    create?: XOR<CompanyCreateWithoutDiscountRulesInput, CompanyUncheckedCreateWithoutDiscountRulesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutDiscountRulesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type BranchCreateNestedOneWithoutDiscountRulesInput = {
+    create?: XOR<BranchCreateWithoutDiscountRulesInput, BranchUncheckedCreateWithoutDiscountRulesInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutDiscountRulesInput
+    connect?: BranchWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCreatedDiscountsInput = {
+    create?: XOR<UserCreateWithoutCreatedDiscountsInput, UserUncheckedCreateWithoutCreatedDiscountsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreatedDiscountsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type DiscountApprovalCreateNestedManyWithoutDiscountRuleInput = {
+    create?: XOR<DiscountApprovalCreateWithoutDiscountRuleInput, DiscountApprovalUncheckedCreateWithoutDiscountRuleInput> | DiscountApprovalCreateWithoutDiscountRuleInput[] | DiscountApprovalUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutDiscountRuleInput | DiscountApprovalCreateOrConnectWithoutDiscountRuleInput[]
+    createMany?: DiscountApprovalCreateManyDiscountRuleInputEnvelope
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+  }
+
+  export type DiscountApplicationCreateNestedManyWithoutDiscountRuleInput = {
+    create?: XOR<DiscountApplicationCreateWithoutDiscountRuleInput, DiscountApplicationUncheckedCreateWithoutDiscountRuleInput> | DiscountApplicationCreateWithoutDiscountRuleInput[] | DiscountApplicationUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutDiscountRuleInput | DiscountApplicationCreateOrConnectWithoutDiscountRuleInput[]
+    createMany?: DiscountApplicationCreateManyDiscountRuleInputEnvelope
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+  }
+
+  export type DiscountApprovalUncheckedCreateNestedManyWithoutDiscountRuleInput = {
+    create?: XOR<DiscountApprovalCreateWithoutDiscountRuleInput, DiscountApprovalUncheckedCreateWithoutDiscountRuleInput> | DiscountApprovalCreateWithoutDiscountRuleInput[] | DiscountApprovalUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutDiscountRuleInput | DiscountApprovalCreateOrConnectWithoutDiscountRuleInput[]
+    createMany?: DiscountApprovalCreateManyDiscountRuleInputEnvelope
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+  }
+
+  export type DiscountApplicationUncheckedCreateNestedManyWithoutDiscountRuleInput = {
+    create?: XOR<DiscountApplicationCreateWithoutDiscountRuleInput, DiscountApplicationUncheckedCreateWithoutDiscountRuleInput> | DiscountApplicationCreateWithoutDiscountRuleInput[] | DiscountApplicationUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutDiscountRuleInput | DiscountApplicationCreateOrConnectWithoutDiscountRuleInput[]
+    createMany?: DiscountApplicationCreateManyDiscountRuleInputEnvelope
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+  }
+
+  export type EnumDiscountTypeFieldUpdateOperationsInput = {
+    set?: $Enums.DiscountType
+  }
+
+  export type EnumDiscountScopeFieldUpdateOperationsInput = {
+    set?: $Enums.DiscountScope
+  }
+
+  export type EnumDiscountStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DiscountStatus
+  }
+
+  export type CompanyUpdateOneWithoutDiscountRulesNestedInput = {
+    create?: XOR<CompanyCreateWithoutDiscountRulesInput, CompanyUncheckedCreateWithoutDiscountRulesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutDiscountRulesInput
+    upsert?: CompanyUpsertWithoutDiscountRulesInput
+    disconnect?: CompanyWhereInput | boolean
+    delete?: CompanyWhereInput | boolean
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutDiscountRulesInput, CompanyUpdateWithoutDiscountRulesInput>, CompanyUncheckedUpdateWithoutDiscountRulesInput>
+  }
+
+  export type BranchUpdateOneWithoutDiscountRulesNestedInput = {
+    create?: XOR<BranchCreateWithoutDiscountRulesInput, BranchUncheckedCreateWithoutDiscountRulesInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutDiscountRulesInput
+    upsert?: BranchUpsertWithoutDiscountRulesInput
+    disconnect?: BranchWhereInput | boolean
+    delete?: BranchWhereInput | boolean
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutDiscountRulesInput, BranchUpdateWithoutDiscountRulesInput>, BranchUncheckedUpdateWithoutDiscountRulesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutCreatedDiscountsNestedInput = {
+    create?: XOR<UserCreateWithoutCreatedDiscountsInput, UserUncheckedCreateWithoutCreatedDiscountsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreatedDiscountsInput
+    upsert?: UserUpsertWithoutCreatedDiscountsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreatedDiscountsInput, UserUpdateWithoutCreatedDiscountsInput>, UserUncheckedUpdateWithoutCreatedDiscountsInput>
+  }
+
+  export type DiscountApprovalUpdateManyWithoutDiscountRuleNestedInput = {
+    create?: XOR<DiscountApprovalCreateWithoutDiscountRuleInput, DiscountApprovalUncheckedCreateWithoutDiscountRuleInput> | DiscountApprovalCreateWithoutDiscountRuleInput[] | DiscountApprovalUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutDiscountRuleInput | DiscountApprovalCreateOrConnectWithoutDiscountRuleInput[]
+    upsert?: DiscountApprovalUpsertWithWhereUniqueWithoutDiscountRuleInput | DiscountApprovalUpsertWithWhereUniqueWithoutDiscountRuleInput[]
+    createMany?: DiscountApprovalCreateManyDiscountRuleInputEnvelope
+    set?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    disconnect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    delete?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    update?: DiscountApprovalUpdateWithWhereUniqueWithoutDiscountRuleInput | DiscountApprovalUpdateWithWhereUniqueWithoutDiscountRuleInput[]
+    updateMany?: DiscountApprovalUpdateManyWithWhereWithoutDiscountRuleInput | DiscountApprovalUpdateManyWithWhereWithoutDiscountRuleInput[]
+    deleteMany?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+  }
+
+  export type DiscountApplicationUpdateManyWithoutDiscountRuleNestedInput = {
+    create?: XOR<DiscountApplicationCreateWithoutDiscountRuleInput, DiscountApplicationUncheckedCreateWithoutDiscountRuleInput> | DiscountApplicationCreateWithoutDiscountRuleInput[] | DiscountApplicationUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutDiscountRuleInput | DiscountApplicationCreateOrConnectWithoutDiscountRuleInput[]
+    upsert?: DiscountApplicationUpsertWithWhereUniqueWithoutDiscountRuleInput | DiscountApplicationUpsertWithWhereUniqueWithoutDiscountRuleInput[]
+    createMany?: DiscountApplicationCreateManyDiscountRuleInputEnvelope
+    set?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    disconnect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    delete?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    update?: DiscountApplicationUpdateWithWhereUniqueWithoutDiscountRuleInput | DiscountApplicationUpdateWithWhereUniqueWithoutDiscountRuleInput[]
+    updateMany?: DiscountApplicationUpdateManyWithWhereWithoutDiscountRuleInput | DiscountApplicationUpdateManyWithWhereWithoutDiscountRuleInput[]
+    deleteMany?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleNestedInput = {
+    create?: XOR<DiscountApprovalCreateWithoutDiscountRuleInput, DiscountApprovalUncheckedCreateWithoutDiscountRuleInput> | DiscountApprovalCreateWithoutDiscountRuleInput[] | DiscountApprovalUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApprovalCreateOrConnectWithoutDiscountRuleInput | DiscountApprovalCreateOrConnectWithoutDiscountRuleInput[]
+    upsert?: DiscountApprovalUpsertWithWhereUniqueWithoutDiscountRuleInput | DiscountApprovalUpsertWithWhereUniqueWithoutDiscountRuleInput[]
+    createMany?: DiscountApprovalCreateManyDiscountRuleInputEnvelope
+    set?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    disconnect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    delete?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    connect?: DiscountApprovalWhereUniqueInput | DiscountApprovalWhereUniqueInput[]
+    update?: DiscountApprovalUpdateWithWhereUniqueWithoutDiscountRuleInput | DiscountApprovalUpdateWithWhereUniqueWithoutDiscountRuleInput[]
+    updateMany?: DiscountApprovalUpdateManyWithWhereWithoutDiscountRuleInput | DiscountApprovalUpdateManyWithWhereWithoutDiscountRuleInput[]
+    deleteMany?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleNestedInput = {
+    create?: XOR<DiscountApplicationCreateWithoutDiscountRuleInput, DiscountApplicationUncheckedCreateWithoutDiscountRuleInput> | DiscountApplicationCreateWithoutDiscountRuleInput[] | DiscountApplicationUncheckedCreateWithoutDiscountRuleInput[]
+    connectOrCreate?: DiscountApplicationCreateOrConnectWithoutDiscountRuleInput | DiscountApplicationCreateOrConnectWithoutDiscountRuleInput[]
+    upsert?: DiscountApplicationUpsertWithWhereUniqueWithoutDiscountRuleInput | DiscountApplicationUpsertWithWhereUniqueWithoutDiscountRuleInput[]
+    createMany?: DiscountApplicationCreateManyDiscountRuleInputEnvelope
+    set?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    disconnect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    delete?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    connect?: DiscountApplicationWhereUniqueInput | DiscountApplicationWhereUniqueInput[]
+    update?: DiscountApplicationUpdateWithWhereUniqueWithoutDiscountRuleInput | DiscountApplicationUpdateWithWhereUniqueWithoutDiscountRuleInput[]
+    updateMany?: DiscountApplicationUpdateManyWithWhereWithoutDiscountRuleInput | DiscountApplicationUpdateManyWithWhereWithoutDiscountRuleInput[]
+    deleteMany?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+  }
+
+  export type DiscountRuleCreateNestedOneWithoutApprovalsInput = {
+    create?: XOR<DiscountRuleCreateWithoutApprovalsInput, DiscountRuleUncheckedCreateWithoutApprovalsInput>
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutApprovalsInput
+    connect?: DiscountRuleWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDiscountRequestsInput = {
+    create?: XOR<UserCreateWithoutDiscountRequestsInput, UserUncheckedCreateWithoutDiscountRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscountRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDiscountApprovalsInput = {
+    create?: XOR<UserCreateWithoutDiscountApprovalsInput, UserUncheckedCreateWithoutDiscountApprovalsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscountApprovalsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumDiscountApprovalStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DiscountApprovalStatus
+  }
+
+  export type DiscountRuleUpdateOneRequiredWithoutApprovalsNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutApprovalsInput, DiscountRuleUncheckedCreateWithoutApprovalsInput>
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutApprovalsInput
+    upsert?: DiscountRuleUpsertWithoutApprovalsInput
+    connect?: DiscountRuleWhereUniqueInput
+    update?: XOR<XOR<DiscountRuleUpdateToOneWithWhereWithoutApprovalsInput, DiscountRuleUpdateWithoutApprovalsInput>, DiscountRuleUncheckedUpdateWithoutApprovalsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutDiscountRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutDiscountRequestsInput, UserUncheckedCreateWithoutDiscountRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscountRequestsInput
+    upsert?: UserUpsertWithoutDiscountRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDiscountRequestsInput, UserUpdateWithoutDiscountRequestsInput>, UserUncheckedUpdateWithoutDiscountRequestsInput>
+  }
+
+  export type UserUpdateOneWithoutDiscountApprovalsNestedInput = {
+    create?: XOR<UserCreateWithoutDiscountApprovalsInput, UserUncheckedCreateWithoutDiscountApprovalsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscountApprovalsInput
+    upsert?: UserUpsertWithoutDiscountApprovalsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDiscountApprovalsInput, UserUpdateWithoutDiscountApprovalsInput>, UserUncheckedUpdateWithoutDiscountApprovalsInput>
+  }
+
+  export type DiscountRuleCreateNestedOneWithoutApplicationsInput = {
+    create?: XOR<DiscountRuleCreateWithoutApplicationsInput, DiscountRuleUncheckedCreateWithoutApplicationsInput>
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutApplicationsInput
+    connect?: DiscountRuleWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDiscountApplicationsInput = {
+    create?: XOR<UserCreateWithoutDiscountApplicationsInput, UserUncheckedCreateWithoutDiscountApplicationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscountApplicationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BillCreateNestedOneWithoutDiscountApplicationsInput = {
+    create?: XOR<BillCreateWithoutDiscountApplicationsInput, BillUncheckedCreateWithoutDiscountApplicationsInput>
+    connectOrCreate?: BillCreateOrConnectWithoutDiscountApplicationsInput
+    connect?: BillWhereUniqueInput
+  }
+
+  export type DiscountRuleUpdateOneRequiredWithoutApplicationsNestedInput = {
+    create?: XOR<DiscountRuleCreateWithoutApplicationsInput, DiscountRuleUncheckedCreateWithoutApplicationsInput>
+    connectOrCreate?: DiscountRuleCreateOrConnectWithoutApplicationsInput
+    upsert?: DiscountRuleUpsertWithoutApplicationsInput
+    connect?: DiscountRuleWhereUniqueInput
+    update?: XOR<XOR<DiscountRuleUpdateToOneWithWhereWithoutApplicationsInput, DiscountRuleUpdateWithoutApplicationsInput>, DiscountRuleUncheckedUpdateWithoutApplicationsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutDiscountApplicationsNestedInput = {
+    create?: XOR<UserCreateWithoutDiscountApplicationsInput, UserUncheckedCreateWithoutDiscountApplicationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscountApplicationsInput
+    upsert?: UserUpsertWithoutDiscountApplicationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDiscountApplicationsInput, UserUpdateWithoutDiscountApplicationsInput>, UserUncheckedUpdateWithoutDiscountApplicationsInput>
+  }
+
+  export type BillUpdateOneWithoutDiscountApplicationsNestedInput = {
+    create?: XOR<BillCreateWithoutDiscountApplicationsInput, BillUncheckedCreateWithoutDiscountApplicationsInput>
+    connectOrCreate?: BillCreateOrConnectWithoutDiscountApplicationsInput
+    upsert?: BillUpsertWithoutDiscountApplicationsInput
+    disconnect?: BillWhereInput | boolean
+    delete?: BillWhereInput | boolean
+    connect?: BillWhereUniqueInput
+    update?: XOR<XOR<BillUpdateToOneWithWhereWithoutDiscountApplicationsInput, BillUpdateWithoutDiscountApplicationsInput>, BillUncheckedUpdateWithoutDiscountApplicationsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -78614,6 +84989,74 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedEnumDiscountTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountType | EnumDiscountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountTypeFilter<$PrismaModel> | $Enums.DiscountType
+  }
+
+  export type NestedEnumDiscountScopeFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountScope | EnumDiscountScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountScopeFilter<$PrismaModel> | $Enums.DiscountScope
+  }
+
+  export type NestedEnumDiscountStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
+  }
+
+  export type NestedEnumDiscountTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountType | EnumDiscountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountType[] | ListEnumDiscountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountTypeWithAggregatesFilter<$PrismaModel> | $Enums.DiscountType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountTypeFilter<$PrismaModel>
+    _max?: NestedEnumDiscountTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDiscountScopeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountScope | EnumDiscountScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountScope[] | ListEnumDiscountScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountScopeWithAggregatesFilter<$PrismaModel> | $Enums.DiscountScope
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountScopeFilter<$PrismaModel>
+    _max?: NestedEnumDiscountScopeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDiscountApprovalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountApprovalStatus | EnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountApprovalStatusFilter<$PrismaModel> | $Enums.DiscountApprovalStatus
+  }
+
+  export type NestedEnumDiscountApprovalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountApprovalStatus | EnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountApprovalStatus[] | ListEnumDiscountApprovalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountApprovalStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountApprovalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountApprovalStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscountApprovalStatusFilter<$PrismaModel>
+  }
+
   export type BranchCreateWithoutCompanyInput = {
     name: string
     code: string
@@ -78642,6 +85085,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutCompanyInput = {
@@ -78673,6 +85119,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutCompanyInput = {
@@ -78707,6 +85156,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutCompanyInput = {
@@ -78732,6 +85185,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutCompanyInput = {
@@ -78825,6 +85282,7 @@ export namespace Prisma {
     branch: BranchCreateNestedOneWithoutBillsInput
     cashier: UserCreateNestedOneWithoutBillsInput
     items?: BillItemCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutBillInput
   }
 
   export type BillUncheckedCreateWithoutCompanyInput = {
@@ -78842,6 +85300,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     items?: BillItemUncheckedCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutBillInput
   }
 
   export type BillCreateOrConnectWithoutCompanyInput = {
@@ -78851,6 +85310,55 @@ export namespace Prisma {
 
   export type BillCreateManyCompanyInputEnvelope = {
     data: BillCreateManyCompanyInput | BillCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DiscountRuleCreateWithoutCompanyInput = {
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    branch?: BranchCreateNestedOneWithoutDiscountRulesInput
+    createdBy: UserCreateNestedOneWithoutCreatedDiscountsInput
+    approvals?: DiscountApprovalCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUncheckedCreateWithoutCompanyInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    approvals?: DiscountApprovalUncheckedCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationUncheckedCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleCreateOrConnectWithoutCompanyInput = {
+    where: DiscountRuleWhereUniqueInput
+    create: XOR<DiscountRuleCreateWithoutCompanyInput, DiscountRuleUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type DiscountRuleCreateManyCompanyInputEnvelope = {
+    data: DiscountRuleCreateManyCompanyInput | DiscountRuleCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -79000,6 +85508,44 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"Bill"> | Date | string
   }
 
+  export type DiscountRuleUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: DiscountRuleWhereUniqueInput
+    update: XOR<DiscountRuleUpdateWithoutCompanyInput, DiscountRuleUncheckedUpdateWithoutCompanyInput>
+    create: XOR<DiscountRuleCreateWithoutCompanyInput, DiscountRuleUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type DiscountRuleUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: DiscountRuleWhereUniqueInput
+    data: XOR<DiscountRuleUpdateWithoutCompanyInput, DiscountRuleUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type DiscountRuleUpdateManyWithWhereWithoutCompanyInput = {
+    where: DiscountRuleScalarWhereInput
+    data: XOR<DiscountRuleUpdateManyMutationInput, DiscountRuleUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type DiscountRuleScalarWhereInput = {
+    AND?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+    OR?: DiscountRuleScalarWhereInput[]
+    NOT?: DiscountRuleScalarWhereInput | DiscountRuleScalarWhereInput[]
+    id?: IntFilter<"DiscountRule"> | number
+    name?: StringFilter<"DiscountRule"> | string
+    description?: StringNullableFilter<"DiscountRule"> | string | null
+    type?: EnumDiscountTypeFilter<"DiscountRule"> | $Enums.DiscountType
+    value?: DecimalFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string
+    max_value?: DecimalNullableFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: DecimalNullableFilter<"DiscountRule"> | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFilter<"DiscountRule"> | $Enums.DiscountScope
+    company_id?: IntNullableFilter<"DiscountRule"> | number | null
+    branch_id?: IntNullableFilter<"DiscountRule"> | number | null
+    status?: EnumDiscountStatusFilter<"DiscountRule"> | $Enums.DiscountStatus
+    valid_from?: DateTimeFilter<"DiscountRule"> | Date | string
+    valid_until?: DateTimeNullableFilter<"DiscountRule"> | Date | string | null
+    created_by?: IntFilter<"DiscountRule"> | number
+    created_at?: DateTimeFilter<"DiscountRule"> | Date | string
+    updated_at?: DateTimeFilter<"DiscountRule"> | Date | string
+  }
+
   export type CompanyCreateWithoutBranchesInput = {
     name: string
     code: string
@@ -79012,6 +85558,7 @@ export namespace Prisma {
     users?: UserCreateNestedManyWithoutCompanyInput
     products?: ProductCreateNestedManyWithoutCompanyInput
     bills?: BillCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutBranchesInput = {
@@ -79027,6 +85574,7 @@ export namespace Prisma {
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
     products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
     bills?: BillUncheckedCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutBranchesInput = {
@@ -79056,6 +85604,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutBranchInput = {
@@ -79081,6 +85633,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutBranchInput = {
@@ -79205,6 +85761,7 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutBillsInput
     cashier: UserCreateNestedOneWithoutBillsInput
     items?: BillItemCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutBillInput
   }
 
   export type BillUncheckedCreateWithoutBranchInput = {
@@ -79222,6 +85779,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     items?: BillItemUncheckedCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutBillInput
   }
 
   export type BillCreateOrConnectWithoutBranchInput = {
@@ -79629,6 +86187,125 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SavedReportConfigCreateWithoutBranchInput = {
+    configName: string
+    reportType: string
+    startDate: string
+    endDate: string
+    categoryId?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    user: UserCreateNestedOneWithoutSavedReportsInput
+  }
+
+  export type SavedReportConfigUncheckedCreateWithoutBranchInput = {
+    id?: number
+    configName: string
+    reportType: string
+    startDate: string
+    endDate: string
+    categoryId?: number | null
+    user_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type SavedReportConfigCreateOrConnectWithoutBranchInput = {
+    where: SavedReportConfigWhereUniqueInput
+    create: XOR<SavedReportConfigCreateWithoutBranchInput, SavedReportConfigUncheckedCreateWithoutBranchInput>
+  }
+
+  export type SavedReportConfigCreateManyBranchInputEnvelope = {
+    data: SavedReportConfigCreateManyBranchInput | SavedReportConfigCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportScheduleCreateWithoutBranchInput = {
+    scheduleName: string
+    reportType: string
+    frequency: string
+    recipientEmail: string
+    isActive?: boolean
+    nextRunAt?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    user: UserCreateNestedOneWithoutReportSchedulesInput
+    deliveries?: ReportDeliveryCreateNestedManyWithoutScheduleInput
+  }
+
+  export type ReportScheduleUncheckedCreateWithoutBranchInput = {
+    id?: number
+    scheduleName: string
+    reportType: string
+    frequency: string
+    recipientEmail: string
+    isActive?: boolean
+    nextRunAt?: Date | string | null
+    user_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    deliveries?: ReportDeliveryUncheckedCreateNestedManyWithoutScheduleInput
+  }
+
+  export type ReportScheduleCreateOrConnectWithoutBranchInput = {
+    where: ReportScheduleWhereUniqueInput
+    create: XOR<ReportScheduleCreateWithoutBranchInput, ReportScheduleUncheckedCreateWithoutBranchInput>
+  }
+
+  export type ReportScheduleCreateManyBranchInputEnvelope = {
+    data: ReportScheduleCreateManyBranchInput | ReportScheduleCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DiscountRuleCreateWithoutBranchInput = {
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company?: CompanyCreateNestedOneWithoutDiscountRulesInput
+    createdBy: UserCreateNestedOneWithoutCreatedDiscountsInput
+    approvals?: DiscountApprovalCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUncheckedCreateWithoutBranchInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    approvals?: DiscountApprovalUncheckedCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationUncheckedCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleCreateOrConnectWithoutBranchInput = {
+    where: DiscountRuleWhereUniqueInput
+    create: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput>
+  }
+
+  export type DiscountRuleCreateManyBranchInputEnvelope = {
+    data: DiscountRuleCreateManyBranchInput | DiscountRuleCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutBranchesInput = {
     update: XOR<CompanyUpdateWithoutBranchesInput, CompanyUncheckedUpdateWithoutBranchesInput>
     create: XOR<CompanyCreateWithoutBranchesInput, CompanyUncheckedCreateWithoutBranchesInput>
@@ -79652,6 +86329,7 @@ export namespace Prisma {
     users?: UserUpdateManyWithoutCompanyNestedInput
     products?: ProductUpdateManyWithoutCompanyNestedInput
     bills?: BillUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutBranchesInput = {
@@ -79667,6 +86345,7 @@ export namespace Prisma {
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
     products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
     bills?: BillUncheckedUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutBranchInput = {
@@ -80126,6 +86805,87 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"DailySummary"> | Date | string
   }
 
+  export type SavedReportConfigUpsertWithWhereUniqueWithoutBranchInput = {
+    where: SavedReportConfigWhereUniqueInput
+    update: XOR<SavedReportConfigUpdateWithoutBranchInput, SavedReportConfigUncheckedUpdateWithoutBranchInput>
+    create: XOR<SavedReportConfigCreateWithoutBranchInput, SavedReportConfigUncheckedCreateWithoutBranchInput>
+  }
+
+  export type SavedReportConfigUpdateWithWhereUniqueWithoutBranchInput = {
+    where: SavedReportConfigWhereUniqueInput
+    data: XOR<SavedReportConfigUpdateWithoutBranchInput, SavedReportConfigUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type SavedReportConfigUpdateManyWithWhereWithoutBranchInput = {
+    where: SavedReportConfigScalarWhereInput
+    data: XOR<SavedReportConfigUpdateManyMutationInput, SavedReportConfigUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type SavedReportConfigScalarWhereInput = {
+    AND?: SavedReportConfigScalarWhereInput | SavedReportConfigScalarWhereInput[]
+    OR?: SavedReportConfigScalarWhereInput[]
+    NOT?: SavedReportConfigScalarWhereInput | SavedReportConfigScalarWhereInput[]
+    id?: IntFilter<"SavedReportConfig"> | number
+    configName?: StringFilter<"SavedReportConfig"> | string
+    reportType?: StringFilter<"SavedReportConfig"> | string
+    startDate?: StringFilter<"SavedReportConfig"> | string
+    endDate?: StringFilter<"SavedReportConfig"> | string
+    branch_id?: IntNullableFilter<"SavedReportConfig"> | number | null
+    categoryId?: IntNullableFilter<"SavedReportConfig"> | number | null
+    user_id?: IntFilter<"SavedReportConfig"> | number
+    created_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
+    updated_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
+  }
+
+  export type ReportScheduleUpsertWithWhereUniqueWithoutBranchInput = {
+    where: ReportScheduleWhereUniqueInput
+    update: XOR<ReportScheduleUpdateWithoutBranchInput, ReportScheduleUncheckedUpdateWithoutBranchInput>
+    create: XOR<ReportScheduleCreateWithoutBranchInput, ReportScheduleUncheckedCreateWithoutBranchInput>
+  }
+
+  export type ReportScheduleUpdateWithWhereUniqueWithoutBranchInput = {
+    where: ReportScheduleWhereUniqueInput
+    data: XOR<ReportScheduleUpdateWithoutBranchInput, ReportScheduleUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type ReportScheduleUpdateManyWithWhereWithoutBranchInput = {
+    where: ReportScheduleScalarWhereInput
+    data: XOR<ReportScheduleUpdateManyMutationInput, ReportScheduleUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type ReportScheduleScalarWhereInput = {
+    AND?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
+    OR?: ReportScheduleScalarWhereInput[]
+    NOT?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
+    id?: IntFilter<"ReportSchedule"> | number
+    scheduleName?: StringFilter<"ReportSchedule"> | string
+    reportType?: StringFilter<"ReportSchedule"> | string
+    frequency?: StringFilter<"ReportSchedule"> | string
+    recipientEmail?: StringFilter<"ReportSchedule"> | string
+    branch_id?: IntNullableFilter<"ReportSchedule"> | number | null
+    isActive?: BoolFilter<"ReportSchedule"> | boolean
+    nextRunAt?: DateTimeNullableFilter<"ReportSchedule"> | Date | string | null
+    user_id?: IntFilter<"ReportSchedule"> | number
+    created_at?: DateTimeFilter<"ReportSchedule"> | Date | string
+    updated_at?: DateTimeFilter<"ReportSchedule"> | Date | string
+  }
+
+  export type DiscountRuleUpsertWithWhereUniqueWithoutBranchInput = {
+    where: DiscountRuleWhereUniqueInput
+    update: XOR<DiscountRuleUpdateWithoutBranchInput, DiscountRuleUncheckedUpdateWithoutBranchInput>
+    create: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput>
+  }
+
+  export type DiscountRuleUpdateWithWhereUniqueWithoutBranchInput = {
+    where: DiscountRuleWhereUniqueInput
+    data: XOR<DiscountRuleUpdateWithoutBranchInput, DiscountRuleUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type DiscountRuleUpdateManyWithWhereWithoutBranchInput = {
+    where: DiscountRuleScalarWhereInput
+    data: XOR<DiscountRuleUpdateManyMutationInput, DiscountRuleUncheckedUpdateManyWithoutBranchInput>
+  }
+
   export type CompanyCreateWithoutUsersInput = {
     name: string
     code: string
@@ -80138,6 +86898,7 @@ export namespace Prisma {
     branches?: BranchCreateNestedManyWithoutCompanyInput
     products?: ProductCreateNestedManyWithoutCompanyInput
     bills?: BillCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -80153,6 +86914,7 @@ export namespace Prisma {
     branches?: BranchUncheckedCreateNestedManyWithoutCompanyInput
     products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
     bills?: BillUncheckedCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -80188,6 +86950,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutUsersInput = {
@@ -80219,6 +86984,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutUsersInput = {
@@ -80314,6 +87082,7 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutBillsInput
     branch: BranchCreateNestedOneWithoutBillsInput
     items?: BillItemCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutBillInput
   }
 
   export type BillUncheckedCreateWithoutCashierInput = {
@@ -80331,6 +87100,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     items?: BillItemUncheckedCreateNestedManyWithoutBillInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutBillInput
   }
 
   export type BillCreateOrConnectWithoutCashierInput = {
@@ -80445,10 +87215,10 @@ export namespace Prisma {
     reportType: string
     startDate: string
     endDate: string
-    branch_id?: number | null
     categoryId?: number | null
     created_at?: Date | string
     updated_at?: Date | string
+    branch?: BranchCreateNestedOneWithoutSavedReportConfigsInput
   }
 
   export type SavedReportConfigUncheckedCreateWithoutUserInput = {
@@ -80478,11 +87248,11 @@ export namespace Prisma {
     reportType: string
     frequency: string
     recipientEmail: string
-    branch_id?: number | null
     isActive?: boolean
     nextRunAt?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
+    branch?: BranchCreateNestedOneWithoutReportSchedulesInput
     deliveries?: ReportDeliveryCreateNestedManyWithoutScheduleInput
   }
 
@@ -80541,6 +87311,138 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type DiscountRuleCreateWithoutCreatedByInput = {
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company?: CompanyCreateNestedOneWithoutDiscountRulesInput
+    branch?: BranchCreateNestedOneWithoutDiscountRulesInput
+    approvals?: DiscountApprovalCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUncheckedCreateWithoutCreatedByInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    approvals?: DiscountApprovalUncheckedCreateNestedManyWithoutDiscountRuleInput
+    applications?: DiscountApplicationUncheckedCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleCreateOrConnectWithoutCreatedByInput = {
+    where: DiscountRuleWhereUniqueInput
+    create: XOR<DiscountRuleCreateWithoutCreatedByInput, DiscountRuleUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type DiscountRuleCreateManyCreatedByInputEnvelope = {
+    data: DiscountRuleCreateManyCreatedByInput | DiscountRuleCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DiscountApprovalCreateWithoutRequestedByInput = {
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    discountRule: DiscountRuleCreateNestedOneWithoutApprovalsInput
+    approver?: UserCreateNestedOneWithoutDiscountApprovalsInput
+  }
+
+  export type DiscountApprovalUncheckedCreateWithoutRequestedByInput = {
+    id?: number
+    discount_rule_id: number
+    approved_by?: number | null
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApprovalCreateOrConnectWithoutRequestedByInput = {
+    where: DiscountApprovalWhereUniqueInput
+    create: XOR<DiscountApprovalCreateWithoutRequestedByInput, DiscountApprovalUncheckedCreateWithoutRequestedByInput>
+  }
+
+  export type DiscountApprovalCreateManyRequestedByInputEnvelope = {
+    data: DiscountApprovalCreateManyRequestedByInput | DiscountApprovalCreateManyRequestedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DiscountApplicationCreateWithoutAppliedByInput = {
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+    discountRule: DiscountRuleCreateNestedOneWithoutApplicationsInput
+    bill?: BillCreateNestedOneWithoutDiscountApplicationsInput
+  }
+
+  export type DiscountApplicationUncheckedCreateWithoutAppliedByInput = {
+    id?: number
+    discount_rule_id: number
+    bill_id?: number | null
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApplicationCreateOrConnectWithoutAppliedByInput = {
+    where: DiscountApplicationWhereUniqueInput
+    create: XOR<DiscountApplicationCreateWithoutAppliedByInput, DiscountApplicationUncheckedCreateWithoutAppliedByInput>
+  }
+
+  export type DiscountApplicationCreateManyAppliedByInputEnvelope = {
+    data: DiscountApplicationCreateManyAppliedByInput | DiscountApplicationCreateManyAppliedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DiscountApprovalCreateWithoutApproverInput = {
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    discountRule: DiscountRuleCreateNestedOneWithoutApprovalsInput
+    requestedBy: UserCreateNestedOneWithoutDiscountRequestsInput
+  }
+
+  export type DiscountApprovalUncheckedCreateWithoutApproverInput = {
+    id?: number
+    discount_rule_id: number
+    requested_by: number
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApprovalCreateOrConnectWithoutApproverInput = {
+    where: DiscountApprovalWhereUniqueInput
+    create: XOR<DiscountApprovalCreateWithoutApproverInput, DiscountApprovalUncheckedCreateWithoutApproverInput>
+  }
+
+  export type DiscountApprovalCreateManyApproverInputEnvelope = {
+    data: DiscountApprovalCreateManyApproverInput | DiscountApprovalCreateManyApproverInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutUsersInput = {
     update: XOR<CompanyUpdateWithoutUsersInput, CompanyUncheckedUpdateWithoutUsersInput>
     create: XOR<CompanyCreateWithoutUsersInput, CompanyUncheckedCreateWithoutUsersInput>
@@ -80564,6 +87466,7 @@ export namespace Prisma {
     branches?: BranchUpdateManyWithoutCompanyNestedInput
     products?: ProductUpdateManyWithoutCompanyNestedInput
     bills?: BillUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -80579,6 +87482,7 @@ export namespace Prisma {
     branches?: BranchUncheckedUpdateManyWithoutCompanyNestedInput
     products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
     bills?: BillUncheckedUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type BranchUpsertWithoutUsersInput = {
@@ -80620,6 +87524,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutUsersInput = {
@@ -80651,6 +87558,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserInfoUpsertWithoutUserInput = {
@@ -80804,22 +87714,6 @@ export namespace Prisma {
     data: XOR<SavedReportConfigUpdateManyMutationInput, SavedReportConfigUncheckedUpdateManyWithoutUserInput>
   }
 
-  export type SavedReportConfigScalarWhereInput = {
-    AND?: SavedReportConfigScalarWhereInput | SavedReportConfigScalarWhereInput[]
-    OR?: SavedReportConfigScalarWhereInput[]
-    NOT?: SavedReportConfigScalarWhereInput | SavedReportConfigScalarWhereInput[]
-    id?: IntFilter<"SavedReportConfig"> | number
-    configName?: StringFilter<"SavedReportConfig"> | string
-    reportType?: StringFilter<"SavedReportConfig"> | string
-    startDate?: StringFilter<"SavedReportConfig"> | string
-    endDate?: StringFilter<"SavedReportConfig"> | string
-    branch_id?: IntNullableFilter<"SavedReportConfig"> | number | null
-    categoryId?: IntNullableFilter<"SavedReportConfig"> | number | null
-    user_id?: IntFilter<"SavedReportConfig"> | number
-    created_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
-    updated_at?: DateTimeFilter<"SavedReportConfig"> | Date | string
-  }
-
   export type ReportScheduleUpsertWithWhereUniqueWithoutUserInput = {
     where: ReportScheduleWhereUniqueInput
     update: XOR<ReportScheduleUpdateWithoutUserInput, ReportScheduleUncheckedUpdateWithoutUserInput>
@@ -80834,23 +87728,6 @@ export namespace Prisma {
   export type ReportScheduleUpdateManyWithWhereWithoutUserInput = {
     where: ReportScheduleScalarWhereInput
     data: XOR<ReportScheduleUpdateManyMutationInput, ReportScheduleUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type ReportScheduleScalarWhereInput = {
-    AND?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
-    OR?: ReportScheduleScalarWhereInput[]
-    NOT?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
-    id?: IntFilter<"ReportSchedule"> | number
-    scheduleName?: StringFilter<"ReportSchedule"> | string
-    reportType?: StringFilter<"ReportSchedule"> | string
-    frequency?: StringFilter<"ReportSchedule"> | string
-    recipientEmail?: StringFilter<"ReportSchedule"> | string
-    branch_id?: IntNullableFilter<"ReportSchedule"> | number | null
-    isActive?: BoolFilter<"ReportSchedule"> | boolean
-    nextRunAt?: DateTimeNullableFilter<"ReportSchedule"> | Date | string | null
-    user_id?: IntFilter<"ReportSchedule"> | number
-    created_at?: DateTimeFilter<"ReportSchedule"> | Date | string
-    updated_at?: DateTimeFilter<"ReportSchedule"> | Date | string
   }
 
   export type AuditLogUpsertWithWhereUniqueWithoutUserInput = {
@@ -80884,6 +87761,96 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
+  export type DiscountRuleUpsertWithWhereUniqueWithoutCreatedByInput = {
+    where: DiscountRuleWhereUniqueInput
+    update: XOR<DiscountRuleUpdateWithoutCreatedByInput, DiscountRuleUncheckedUpdateWithoutCreatedByInput>
+    create: XOR<DiscountRuleCreateWithoutCreatedByInput, DiscountRuleUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type DiscountRuleUpdateWithWhereUniqueWithoutCreatedByInput = {
+    where: DiscountRuleWhereUniqueInput
+    data: XOR<DiscountRuleUpdateWithoutCreatedByInput, DiscountRuleUncheckedUpdateWithoutCreatedByInput>
+  }
+
+  export type DiscountRuleUpdateManyWithWhereWithoutCreatedByInput = {
+    where: DiscountRuleScalarWhereInput
+    data: XOR<DiscountRuleUpdateManyMutationInput, DiscountRuleUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
+  export type DiscountApprovalUpsertWithWhereUniqueWithoutRequestedByInput = {
+    where: DiscountApprovalWhereUniqueInput
+    update: XOR<DiscountApprovalUpdateWithoutRequestedByInput, DiscountApprovalUncheckedUpdateWithoutRequestedByInput>
+    create: XOR<DiscountApprovalCreateWithoutRequestedByInput, DiscountApprovalUncheckedCreateWithoutRequestedByInput>
+  }
+
+  export type DiscountApprovalUpdateWithWhereUniqueWithoutRequestedByInput = {
+    where: DiscountApprovalWhereUniqueInput
+    data: XOR<DiscountApprovalUpdateWithoutRequestedByInput, DiscountApprovalUncheckedUpdateWithoutRequestedByInput>
+  }
+
+  export type DiscountApprovalUpdateManyWithWhereWithoutRequestedByInput = {
+    where: DiscountApprovalScalarWhereInput
+    data: XOR<DiscountApprovalUpdateManyMutationInput, DiscountApprovalUncheckedUpdateManyWithoutRequestedByInput>
+  }
+
+  export type DiscountApprovalScalarWhereInput = {
+    AND?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+    OR?: DiscountApprovalScalarWhereInput[]
+    NOT?: DiscountApprovalScalarWhereInput | DiscountApprovalScalarWhereInput[]
+    id?: IntFilter<"DiscountApproval"> | number
+    discount_rule_id?: IntFilter<"DiscountApproval"> | number
+    requested_by?: IntFilter<"DiscountApproval"> | number
+    approved_by?: IntNullableFilter<"DiscountApproval"> | number | null
+    status?: EnumDiscountApprovalStatusFilter<"DiscountApproval"> | $Enums.DiscountApprovalStatus
+    notes?: StringNullableFilter<"DiscountApproval"> | string | null
+    created_at?: DateTimeFilter<"DiscountApproval"> | Date | string
+    updated_at?: DateTimeFilter<"DiscountApproval"> | Date | string
+  }
+
+  export type DiscountApplicationUpsertWithWhereUniqueWithoutAppliedByInput = {
+    where: DiscountApplicationWhereUniqueInput
+    update: XOR<DiscountApplicationUpdateWithoutAppliedByInput, DiscountApplicationUncheckedUpdateWithoutAppliedByInput>
+    create: XOR<DiscountApplicationCreateWithoutAppliedByInput, DiscountApplicationUncheckedCreateWithoutAppliedByInput>
+  }
+
+  export type DiscountApplicationUpdateWithWhereUniqueWithoutAppliedByInput = {
+    where: DiscountApplicationWhereUniqueInput
+    data: XOR<DiscountApplicationUpdateWithoutAppliedByInput, DiscountApplicationUncheckedUpdateWithoutAppliedByInput>
+  }
+
+  export type DiscountApplicationUpdateManyWithWhereWithoutAppliedByInput = {
+    where: DiscountApplicationScalarWhereInput
+    data: XOR<DiscountApplicationUpdateManyMutationInput, DiscountApplicationUncheckedUpdateManyWithoutAppliedByInput>
+  }
+
+  export type DiscountApplicationScalarWhereInput = {
+    AND?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+    OR?: DiscountApplicationScalarWhereInput[]
+    NOT?: DiscountApplicationScalarWhereInput | DiscountApplicationScalarWhereInput[]
+    id?: IntFilter<"DiscountApplication"> | number
+    discount_rule_id?: IntFilter<"DiscountApplication"> | number
+    bill_id?: IntNullableFilter<"DiscountApplication"> | number | null
+    applied_by?: IntFilter<"DiscountApplication"> | number
+    amount_deducted?: DecimalFilter<"DiscountApplication"> | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFilter<"DiscountApplication"> | Date | string
+  }
+
+  export type DiscountApprovalUpsertWithWhereUniqueWithoutApproverInput = {
+    where: DiscountApprovalWhereUniqueInput
+    update: XOR<DiscountApprovalUpdateWithoutApproverInput, DiscountApprovalUncheckedUpdateWithoutApproverInput>
+    create: XOR<DiscountApprovalCreateWithoutApproverInput, DiscountApprovalUncheckedCreateWithoutApproverInput>
+  }
+
+  export type DiscountApprovalUpdateWithWhereUniqueWithoutApproverInput = {
+    where: DiscountApprovalWhereUniqueInput
+    data: XOR<DiscountApprovalUpdateWithoutApproverInput, DiscountApprovalUncheckedUpdateWithoutApproverInput>
+  }
+
+  export type DiscountApprovalUpdateManyWithWhereWithoutApproverInput = {
+    where: DiscountApprovalScalarWhereInput
+    data: XOR<DiscountApprovalUpdateManyMutationInput, DiscountApprovalUncheckedUpdateManyWithoutApproverInput>
+  }
+
   export type UserCreateWithoutInfoInput = {
     username: string
     password: string
@@ -80906,6 +87873,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutInfoInput = {
@@ -80931,6 +87902,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutInfoInput = {
@@ -80971,6 +87946,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInfoInput = {
@@ -80996,6 +87975,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type UserRoleCreateWithoutRoleInput = {
@@ -81134,6 +88117,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutUserRolesInput = {
@@ -81159,6 +88146,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutUserRolesInput = {
@@ -81217,6 +88208,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserRolesInput = {
@@ -81242,6 +88237,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type RoleUpsertWithoutUserRolesInput = {
@@ -81370,6 +88369,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutLogsInput = {
@@ -81395,6 +88398,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutLogsInput = {
@@ -81430,6 +88437,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutLogsInput = {
@@ -81461,6 +88471,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutLogsInput = {
@@ -81501,6 +88514,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLogsInput = {
@@ -81526,6 +88543,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type BranchUpsertWithoutLogsInput = {
@@ -81567,6 +88588,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutLogsInput = {
@@ -81598,6 +88622,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ProductCreateWithoutSupplierInput = {
@@ -81829,6 +88856,7 @@ export namespace Prisma {
     branches?: BranchCreateNestedManyWithoutCompanyInput
     users?: UserCreateNestedManyWithoutCompanyInput
     bills?: BillCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutProductsInput = {
@@ -81844,6 +88872,7 @@ export namespace Prisma {
     branches?: BranchUncheckedCreateNestedManyWithoutCompanyInput
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
     bills?: BillUncheckedCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutProductsInput = {
@@ -81879,6 +88908,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutProductsInput = {
@@ -81910,6 +88942,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutProductsInput = {
@@ -82222,6 +89257,7 @@ export namespace Prisma {
     branches?: BranchUpdateManyWithoutCompanyNestedInput
     users?: UserUpdateManyWithoutCompanyNestedInput
     bills?: BillUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutProductsInput = {
@@ -82237,6 +89273,7 @@ export namespace Prisma {
     branches?: BranchUncheckedUpdateManyWithoutCompanyNestedInput
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
     bills?: BillUncheckedUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type BranchUpsertWithoutProductsInput = {
@@ -82278,6 +89315,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutProductsInput = {
@@ -82309,6 +89349,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type CategoryUpsertWithoutProductsInput = {
@@ -82594,6 +89637,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutBranchProductsInput = {
@@ -82625,6 +89671,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutBranchProductsInput = {
@@ -82764,6 +89813,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutBranchProductsInput = {
@@ -82795,6 +89847,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ProductUpsertWithoutBranchProductsInput = {
@@ -82903,6 +89958,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutInventoryLogsInput = {
@@ -82928,6 +89987,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutInventoryLogsInput = {
@@ -83025,6 +90088,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutInventoryLogsInput = {
@@ -83056,6 +90122,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutInventoryLogsInput = {
@@ -83120,6 +90189,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInventoryLogsInput = {
@@ -83145,6 +90218,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type ProductUpsertWithoutInventoryLogsInput = {
@@ -83254,6 +90331,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutInventoryLogsInput = {
@@ -83285,6 +90365,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchProductUpsertWithoutInventoryLogsInput = {
@@ -83407,6 +90490,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutStockAlertsInput = {
@@ -83438,6 +90524,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutStockAlertsInput = {
@@ -83582,6 +90671,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutStockAlertsInput = {
@@ -83613,6 +90705,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type PurchaseOrderUpsertWithoutStockAlertInput = {
@@ -83711,6 +90806,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutPurchaseOrdersInput = {
@@ -83742,6 +90840,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutPurchaseOrdersInput = {
@@ -83771,6 +90872,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutPurchaseOrdersInput = {
@@ -83796,6 +90901,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutPurchaseOrdersInput = {
@@ -83961,6 +91070,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutPurchaseOrdersInput = {
@@ -83992,6 +91104,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutPurchaseOrdersInput = {
@@ -84027,6 +91142,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPurchaseOrdersInput = {
@@ -84052,6 +91171,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type StockAlertUpsertWithoutPurchaseOrderInput = {
@@ -84428,6 +91551,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutTransfersFromInput = {
@@ -84459,6 +91585,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutTransfersFromInput = {
@@ -84494,6 +91623,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutTransfersToInput = {
@@ -84525,6 +91657,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutTransfersToInput = {
@@ -84554,6 +91689,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutTransfersInput = {
@@ -84579,6 +91718,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutTransfersInput = {
@@ -84646,6 +91789,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutTransfersFromInput = {
@@ -84677,6 +91823,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUpsertWithoutTransfersToInput = {
@@ -84718,6 +91867,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutTransfersToInput = {
@@ -84749,6 +91901,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutTransfersInput = {
@@ -84784,6 +91939,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransfersInput = {
@@ -84809,6 +91968,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type TransferItemUpsertWithWhereUniqueWithoutTransferInput = {
@@ -85157,6 +92320,7 @@ export namespace Prisma {
     branches?: BranchCreateNestedManyWithoutCompanyInput
     users?: UserCreateNestedManyWithoutCompanyInput
     products?: ProductCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutBillsInput = {
@@ -85172,6 +92336,7 @@ export namespace Prisma {
     branches?: BranchUncheckedCreateNestedManyWithoutCompanyInput
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
     products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutBillsInput = {
@@ -85207,6 +92372,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutBillsInput = {
@@ -85238,6 +92406,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutBillsInput = {
@@ -85267,6 +92438,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutBillsInput = {
@@ -85292,6 +92467,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutBillsInput = {
@@ -85324,6 +92503,31 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type DiscountApplicationCreateWithoutBillInput = {
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+    discountRule: DiscountRuleCreateNestedOneWithoutApplicationsInput
+    appliedBy: UserCreateNestedOneWithoutDiscountApplicationsInput
+  }
+
+  export type DiscountApplicationUncheckedCreateWithoutBillInput = {
+    id?: number
+    discount_rule_id: number
+    applied_by: number
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApplicationCreateOrConnectWithoutBillInput = {
+    where: DiscountApplicationWhereUniqueInput
+    create: XOR<DiscountApplicationCreateWithoutBillInput, DiscountApplicationUncheckedCreateWithoutBillInput>
+  }
+
+  export type DiscountApplicationCreateManyBillInputEnvelope = {
+    data: DiscountApplicationCreateManyBillInput | DiscountApplicationCreateManyBillInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithoutBillsInput = {
     update: XOR<CompanyUpdateWithoutBillsInput, CompanyUncheckedUpdateWithoutBillsInput>
     create: XOR<CompanyCreateWithoutBillsInput, CompanyUncheckedCreateWithoutBillsInput>
@@ -85347,6 +92551,7 @@ export namespace Prisma {
     branches?: BranchUpdateManyWithoutCompanyNestedInput
     users?: UserUpdateManyWithoutCompanyNestedInput
     products?: ProductUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutBillsInput = {
@@ -85362,6 +92567,7 @@ export namespace Prisma {
     branches?: BranchUncheckedUpdateManyWithoutCompanyNestedInput
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
     products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type BranchUpsertWithoutBillsInput = {
@@ -85403,6 +92609,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutBillsInput = {
@@ -85434,6 +92643,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutBillsInput = {
@@ -85469,6 +92681,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBillsInput = {
@@ -85494,6 +92710,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type BillItemUpsertWithWhereUniqueWithoutBillInput = {
@@ -85512,6 +92732,22 @@ export namespace Prisma {
     data: XOR<BillItemUpdateManyMutationInput, BillItemUncheckedUpdateManyWithoutBillInput>
   }
 
+  export type DiscountApplicationUpsertWithWhereUniqueWithoutBillInput = {
+    where: DiscountApplicationWhereUniqueInput
+    update: XOR<DiscountApplicationUpdateWithoutBillInput, DiscountApplicationUncheckedUpdateWithoutBillInput>
+    create: XOR<DiscountApplicationCreateWithoutBillInput, DiscountApplicationUncheckedCreateWithoutBillInput>
+  }
+
+  export type DiscountApplicationUpdateWithWhereUniqueWithoutBillInput = {
+    where: DiscountApplicationWhereUniqueInput
+    data: XOR<DiscountApplicationUpdateWithoutBillInput, DiscountApplicationUncheckedUpdateWithoutBillInput>
+  }
+
+  export type DiscountApplicationUpdateManyWithWhereWithoutBillInput = {
+    where: DiscountApplicationScalarWhereInput
+    data: XOR<DiscountApplicationUpdateManyMutationInput, DiscountApplicationUncheckedUpdateManyWithoutBillInput>
+  }
+
   export type BillCreateWithoutItemsInput = {
     bill_number: string
     status?: $Enums.BillStatus
@@ -85526,6 +92762,7 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutBillsInput
     branch: BranchCreateNestedOneWithoutBillsInput
     cashier: UserCreateNestedOneWithoutBillsInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutBillInput
   }
 
   export type BillUncheckedCreateWithoutItemsInput = {
@@ -85543,6 +92780,7 @@ export namespace Prisma {
     notes?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutBillInput
   }
 
   export type BillCreateOrConnectWithoutItemsInput = {
@@ -85637,6 +92875,7 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutBillsNestedInput
     branch?: BranchUpdateOneRequiredWithoutBillsNestedInput
     cashier?: UserUpdateOneRequiredWithoutBillsNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateWithoutItemsInput = {
@@ -85654,6 +92893,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutBillNestedInput
   }
 
   export type ProductUpsertWithoutBillItemsInput = {
@@ -86571,6 +93811,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSyncLogsInput = {
@@ -86602,6 +93845,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSyncLogsInput = {
@@ -86676,6 +93922,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSyncLogsInput = {
@@ -86707,6 +93956,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type SyncConflictUpsertWithoutSyncLogInput = {
@@ -86771,6 +94023,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSyncDevicesInput = {
@@ -86802,6 +94057,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSyncDevicesInput = {
@@ -86848,6 +94106,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSyncDevicesInput = {
@@ -86879,6 +94140,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutSyncSettingsInput = {
@@ -86909,6 +94173,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSyncSettingsInput = {
@@ -86940,6 +94207,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSyncSettingsInput = {
@@ -86986,6 +94256,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSyncSettingsInput = {
@@ -87017,6 +94290,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type SyncLogCreateWithoutConflictInput = {
@@ -87113,6 +94389,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSyncBackupsInput = {
@@ -87144,6 +94423,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSyncBackupsInput = {
@@ -87190,6 +94472,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSyncBackupsInput = {
@@ -87221,6 +94506,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutSyncSchedulesInput = {
@@ -87251,6 +94539,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSyncSchedulesInput = {
@@ -87282,6 +94573,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSyncSchedulesInput = {
@@ -87328,6 +94622,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSyncSchedulesInput = {
@@ -87359,6 +94656,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutSyncMetricsInput = {
@@ -87389,6 +94689,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSyncMetricsInput = {
@@ -87420,6 +94723,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSyncMetricsInput = {
@@ -87466,6 +94772,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSyncMetricsInput = {
@@ -87497,6 +94806,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutDailySummariesInput = {
@@ -87527,6 +94839,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
     syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutDailySummariesInput = {
@@ -87558,6 +94873,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
     syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutDailySummariesInput = {
@@ -87604,6 +94922,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutDailySummariesInput = {
@@ -87635,6 +94956,9 @@ export namespace Prisma {
     syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserCreateWithoutSavedReportsInput = {
@@ -87659,6 +94983,10 @@ export namespace Prisma {
     transfers?: TransferCreateNestedManyWithoutCreatedByInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutSavedReportsInput = {
@@ -87684,11 +95012,87 @@ export namespace Prisma {
     transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutSavedReportsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutSavedReportsInput, UserUncheckedCreateWithoutSavedReportsInput>
+  }
+
+  export type BranchCreateWithoutSavedReportConfigsInput = {
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutBranchesInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    logs?: UserLogCreateNestedManyWithoutBranchInput
+    products?: ProductCreateNestedManyWithoutBranchInput
+    bills?: BillCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutSavedReportConfigsInput = {
+    id?: number
+    company_id: number
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutBranchInput
+    products?: ProductUncheckedCreateNestedManyWithoutBranchInput
+    bills?: BillUncheckedCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductUncheckedCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertUncheckedCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogUncheckedCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceUncheckedCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingUncheckedCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutSavedReportConfigsInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutSavedReportConfigsInput, BranchUncheckedCreateWithoutSavedReportConfigsInput>
   }
 
   export type UserUpsertWithoutSavedReportsInput = {
@@ -87724,6 +95128,10 @@ export namespace Prisma {
     transfers?: TransferUpdateManyWithoutCreatedByNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSavedReportsInput = {
@@ -87749,6 +95157,88 @@ export namespace Prisma {
     transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type BranchUpsertWithoutSavedReportConfigsInput = {
+    update: XOR<BranchUpdateWithoutSavedReportConfigsInput, BranchUncheckedUpdateWithoutSavedReportConfigsInput>
+    create: XOR<BranchCreateWithoutSavedReportConfigsInput, BranchUncheckedCreateWithoutSavedReportConfigsInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutSavedReportConfigsInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutSavedReportConfigsInput, BranchUncheckedUpdateWithoutSavedReportConfigsInput>
+  }
+
+  export type BranchUpdateWithoutSavedReportConfigsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBranchesNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUpdateManyWithoutBranchNestedInput
+    products?: ProductUpdateManyWithoutBranchNestedInput
+    bills?: BillUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutSavedReportConfigsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    company_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutBranchNestedInput
+    products?: ProductUncheckedUpdateManyWithoutBranchNestedInput
+    bills?: BillUncheckedUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUncheckedUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUncheckedUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUncheckedUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUncheckedUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUncheckedUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserCreateWithoutReportSchedulesInput = {
@@ -87773,6 +95263,10 @@ export namespace Prisma {
     transfers?: TransferCreateNestedManyWithoutCreatedByInput
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutReportSchedulesInput = {
@@ -87798,11 +95292,87 @@ export namespace Prisma {
     transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutReportSchedulesInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutReportSchedulesInput, UserUncheckedCreateWithoutReportSchedulesInput>
+  }
+
+  export type BranchCreateWithoutReportSchedulesInput = {
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutBranchesInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    logs?: UserLogCreateNestedManyWithoutBranchInput
+    products?: ProductCreateNestedManyWithoutBranchInput
+    bills?: BillCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutReportSchedulesInput = {
+    id?: number
+    company_id: number
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutBranchInput
+    products?: ProductUncheckedCreateNestedManyWithoutBranchInput
+    bills?: BillUncheckedCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductUncheckedCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertUncheckedCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogUncheckedCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceUncheckedCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingUncheckedCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutReportSchedulesInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutReportSchedulesInput, BranchUncheckedCreateWithoutReportSchedulesInput>
   }
 
   export type ReportDeliveryCreateWithoutScheduleInput = {
@@ -87865,6 +95435,10 @@ export namespace Prisma {
     transfers?: TransferUpdateManyWithoutCreatedByNestedInput
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReportSchedulesInput = {
@@ -87890,6 +95464,88 @@ export namespace Prisma {
     transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type BranchUpsertWithoutReportSchedulesInput = {
+    update: XOR<BranchUpdateWithoutReportSchedulesInput, BranchUncheckedUpdateWithoutReportSchedulesInput>
+    create: XOR<BranchCreateWithoutReportSchedulesInput, BranchUncheckedCreateWithoutReportSchedulesInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutReportSchedulesInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutReportSchedulesInput, BranchUncheckedUpdateWithoutReportSchedulesInput>
+  }
+
+  export type BranchUpdateWithoutReportSchedulesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBranchesNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUpdateManyWithoutBranchNestedInput
+    products?: ProductUpdateManyWithoutBranchNestedInput
+    bills?: BillUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutReportSchedulesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    company_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutBranchNestedInput
+    products?: ProductUncheckedUpdateManyWithoutBranchNestedInput
+    bills?: BillUncheckedUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUncheckedUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUncheckedUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUncheckedUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUncheckedUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUncheckedUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ReportDeliveryUpsertWithWhereUniqueWithoutScheduleInput = {
@@ -87926,12 +95582,12 @@ export namespace Prisma {
     reportType: string
     frequency: string
     recipientEmail: string
-    branch_id?: number | null
     isActive?: boolean
     nextRunAt?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
     user: UserCreateNestedOneWithoutReportSchedulesInput
+    branch?: BranchCreateNestedOneWithoutReportSchedulesInput
   }
 
   export type ReportScheduleUncheckedCreateWithoutDeliveriesInput = {
@@ -87969,12 +95625,12 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     frequency?: StringFieldUpdateOperationsInput | string
     recipientEmail?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutReportSchedulesNestedInput
+    branch?: BranchUpdateOneWithoutReportSchedulesNestedInput
   }
 
   export type ReportScheduleUncheckedUpdateWithoutDeliveriesInput = {
@@ -88013,6 +95669,10 @@ export namespace Prisma {
     transfers?: TransferCreateNestedManyWithoutCreatedByInput
     savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -88038,6 +95698,10 @@ export namespace Prisma {
     transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
     savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -88078,6 +95742,10 @@ export namespace Prisma {
     transfers?: TransferUpdateManyWithoutCreatedByNestedInput
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -88103,6 +95771,1118 @@ export namespace Prisma {
     transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type CompanyCreateWithoutDiscountRulesInput = {
+    name: string
+    code: string
+    email?: string | null
+    phone?: string | null
+    address?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    branches?: BranchCreateNestedManyWithoutCompanyInput
+    users?: UserCreateNestedManyWithoutCompanyInput
+    products?: ProductCreateNestedManyWithoutCompanyInput
+    bills?: BillCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutDiscountRulesInput = {
+    id?: number
+    name: string
+    code: string
+    email?: string | null
+    phone?: string | null
+    address?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    branches?: BranchUncheckedCreateNestedManyWithoutCompanyInput
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
+    bills?: BillUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutDiscountRulesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutDiscountRulesInput, CompanyUncheckedCreateWithoutDiscountRulesInput>
+  }
+
+  export type BranchCreateWithoutDiscountRulesInput = {
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutBranchesInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    logs?: UserLogCreateNestedManyWithoutBranchInput
+    products?: ProductCreateNestedManyWithoutBranchInput
+    bills?: BillCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutDiscountRulesInput = {
+    id?: number
+    company_id: number
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutBranchInput
+    products?: ProductUncheckedCreateNestedManyWithoutBranchInput
+    bills?: BillUncheckedCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductUncheckedCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertUncheckedCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogUncheckedCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceUncheckedCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingUncheckedCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutDiscountRulesInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutDiscountRulesInput, BranchUncheckedCreateWithoutDiscountRulesInput>
+  }
+
+  export type UserCreateWithoutCreatedDiscountsInput = {
+    username: string
+    password: string
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    info?: UserInfoCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleCreateNestedManyWithoutUserInput
+    logs?: UserLogCreateNestedManyWithoutUserInput
+    bills?: BillCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserUncheckedCreateWithoutCreatedDiscountsInput = {
+    id?: number
+    username: string
+    password: string
+    company_id: number
+    branch_id?: number | null
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    info?: UserInfoUncheckedCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutUserInput
+    bills?: BillUncheckedCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserCreateOrConnectWithoutCreatedDiscountsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCreatedDiscountsInput, UserUncheckedCreateWithoutCreatedDiscountsInput>
+  }
+
+  export type DiscountApprovalCreateWithoutDiscountRuleInput = {
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    requestedBy: UserCreateNestedOneWithoutDiscountRequestsInput
+    approver?: UserCreateNestedOneWithoutDiscountApprovalsInput
+  }
+
+  export type DiscountApprovalUncheckedCreateWithoutDiscountRuleInput = {
+    id?: number
+    requested_by: number
+    approved_by?: number | null
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApprovalCreateOrConnectWithoutDiscountRuleInput = {
+    where: DiscountApprovalWhereUniqueInput
+    create: XOR<DiscountApprovalCreateWithoutDiscountRuleInput, DiscountApprovalUncheckedCreateWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApprovalCreateManyDiscountRuleInputEnvelope = {
+    data: DiscountApprovalCreateManyDiscountRuleInput | DiscountApprovalCreateManyDiscountRuleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DiscountApplicationCreateWithoutDiscountRuleInput = {
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+    appliedBy: UserCreateNestedOneWithoutDiscountApplicationsInput
+    bill?: BillCreateNestedOneWithoutDiscountApplicationsInput
+  }
+
+  export type DiscountApplicationUncheckedCreateWithoutDiscountRuleInput = {
+    id?: number
+    bill_id?: number | null
+    applied_by: number
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApplicationCreateOrConnectWithoutDiscountRuleInput = {
+    where: DiscountApplicationWhereUniqueInput
+    create: XOR<DiscountApplicationCreateWithoutDiscountRuleInput, DiscountApplicationUncheckedCreateWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApplicationCreateManyDiscountRuleInputEnvelope = {
+    data: DiscountApplicationCreateManyDiscountRuleInput | DiscountApplicationCreateManyDiscountRuleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutDiscountRulesInput = {
+    update: XOR<CompanyUpdateWithoutDiscountRulesInput, CompanyUncheckedUpdateWithoutDiscountRulesInput>
+    create: XOR<CompanyCreateWithoutDiscountRulesInput, CompanyUncheckedCreateWithoutDiscountRulesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutDiscountRulesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutDiscountRulesInput, CompanyUncheckedUpdateWithoutDiscountRulesInput>
+  }
+
+  export type CompanyUpdateWithoutDiscountRulesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    branches?: BranchUpdateManyWithoutCompanyNestedInput
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    products?: ProductUpdateManyWithoutCompanyNestedInput
+    bills?: BillUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutDiscountRulesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    branches?: BranchUncheckedUpdateManyWithoutCompanyNestedInput
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
+    bills?: BillUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type BranchUpsertWithoutDiscountRulesInput = {
+    update: XOR<BranchUpdateWithoutDiscountRulesInput, BranchUncheckedUpdateWithoutDiscountRulesInput>
+    create: XOR<BranchCreateWithoutDiscountRulesInput, BranchUncheckedCreateWithoutDiscountRulesInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutDiscountRulesInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutDiscountRulesInput, BranchUncheckedUpdateWithoutDiscountRulesInput>
+  }
+
+  export type BranchUpdateWithoutDiscountRulesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBranchesNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUpdateManyWithoutBranchNestedInput
+    products?: ProductUpdateManyWithoutBranchNestedInput
+    bills?: BillUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutDiscountRulesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    company_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutBranchNestedInput
+    products?: ProductUncheckedUpdateManyWithoutBranchNestedInput
+    bills?: BillUncheckedUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUncheckedUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUncheckedUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUncheckedUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUncheckedUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUncheckedUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type UserUpsertWithoutCreatedDiscountsInput = {
+    update: XOR<UserUpdateWithoutCreatedDiscountsInput, UserUncheckedUpdateWithoutCreatedDiscountsInput>
+    create: XOR<UserCreateWithoutCreatedDiscountsInput, UserUncheckedCreateWithoutCreatedDiscountsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCreatedDiscountsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCreatedDiscountsInput, UserUncheckedUpdateWithoutCreatedDiscountsInput>
+  }
+
+  export type UserUpdateWithoutCreatedDiscountsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    info?: UserInfoUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUpdateManyWithoutUserNestedInput
+    logs?: UserLogUpdateManyWithoutUserNestedInput
+    bills?: BillUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCreatedDiscountsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    company_id?: IntFieldUpdateOperationsInput | number
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    info?: UserInfoUncheckedUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutUserNestedInput
+    bills?: BillUncheckedUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type DiscountApprovalUpsertWithWhereUniqueWithoutDiscountRuleInput = {
+    where: DiscountApprovalWhereUniqueInput
+    update: XOR<DiscountApprovalUpdateWithoutDiscountRuleInput, DiscountApprovalUncheckedUpdateWithoutDiscountRuleInput>
+    create: XOR<DiscountApprovalCreateWithoutDiscountRuleInput, DiscountApprovalUncheckedCreateWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApprovalUpdateWithWhereUniqueWithoutDiscountRuleInput = {
+    where: DiscountApprovalWhereUniqueInput
+    data: XOR<DiscountApprovalUpdateWithoutDiscountRuleInput, DiscountApprovalUncheckedUpdateWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApprovalUpdateManyWithWhereWithoutDiscountRuleInput = {
+    where: DiscountApprovalScalarWhereInput
+    data: XOR<DiscountApprovalUpdateManyMutationInput, DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApplicationUpsertWithWhereUniqueWithoutDiscountRuleInput = {
+    where: DiscountApplicationWhereUniqueInput
+    update: XOR<DiscountApplicationUpdateWithoutDiscountRuleInput, DiscountApplicationUncheckedUpdateWithoutDiscountRuleInput>
+    create: XOR<DiscountApplicationCreateWithoutDiscountRuleInput, DiscountApplicationUncheckedCreateWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApplicationUpdateWithWhereUniqueWithoutDiscountRuleInput = {
+    where: DiscountApplicationWhereUniqueInput
+    data: XOR<DiscountApplicationUpdateWithoutDiscountRuleInput, DiscountApplicationUncheckedUpdateWithoutDiscountRuleInput>
+  }
+
+  export type DiscountApplicationUpdateManyWithWhereWithoutDiscountRuleInput = {
+    where: DiscountApplicationScalarWhereInput
+    data: XOR<DiscountApplicationUpdateManyMutationInput, DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleInput>
+  }
+
+  export type DiscountRuleCreateWithoutApprovalsInput = {
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company?: CompanyCreateNestedOneWithoutDiscountRulesInput
+    branch?: BranchCreateNestedOneWithoutDiscountRulesInput
+    createdBy: UserCreateNestedOneWithoutCreatedDiscountsInput
+    applications?: DiscountApplicationCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUncheckedCreateWithoutApprovalsInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    applications?: DiscountApplicationUncheckedCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleCreateOrConnectWithoutApprovalsInput = {
+    where: DiscountRuleWhereUniqueInput
+    create: XOR<DiscountRuleCreateWithoutApprovalsInput, DiscountRuleUncheckedCreateWithoutApprovalsInput>
+  }
+
+  export type UserCreateWithoutDiscountRequestsInput = {
+    username: string
+    password: string
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    info?: UserInfoCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleCreateNestedManyWithoutUserInput
+    logs?: UserLogCreateNestedManyWithoutUserInput
+    bills?: BillCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserUncheckedCreateWithoutDiscountRequestsInput = {
+    id?: number
+    username: string
+    password: string
+    company_id: number
+    branch_id?: number | null
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    info?: UserInfoUncheckedCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutUserInput
+    bills?: BillUncheckedCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserCreateOrConnectWithoutDiscountRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDiscountRequestsInput, UserUncheckedCreateWithoutDiscountRequestsInput>
+  }
+
+  export type UserCreateWithoutDiscountApprovalsInput = {
+    username: string
+    password: string
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    info?: UserInfoCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleCreateNestedManyWithoutUserInput
+    logs?: UserLogCreateNestedManyWithoutUserInput
+    bills?: BillCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationCreateNestedManyWithoutAppliedByInput
+  }
+
+  export type UserUncheckedCreateWithoutDiscountApprovalsInput = {
+    id?: number
+    username: string
+    password: string
+    company_id: number
+    branch_id?: number | null
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    info?: UserInfoUncheckedCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutUserInput
+    bills?: BillUncheckedCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApplications?: DiscountApplicationUncheckedCreateNestedManyWithoutAppliedByInput
+  }
+
+  export type UserCreateOrConnectWithoutDiscountApprovalsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDiscountApprovalsInput, UserUncheckedCreateWithoutDiscountApprovalsInput>
+  }
+
+  export type DiscountRuleUpsertWithoutApprovalsInput = {
+    update: XOR<DiscountRuleUpdateWithoutApprovalsInput, DiscountRuleUncheckedUpdateWithoutApprovalsInput>
+    create: XOR<DiscountRuleCreateWithoutApprovalsInput, DiscountRuleUncheckedCreateWithoutApprovalsInput>
+    where?: DiscountRuleWhereInput
+  }
+
+  export type DiscountRuleUpdateToOneWithWhereWithoutApprovalsInput = {
+    where?: DiscountRuleWhereInput
+    data: XOR<DiscountRuleUpdateWithoutApprovalsInput, DiscountRuleUncheckedUpdateWithoutApprovalsInput>
+  }
+
+  export type DiscountRuleUpdateWithoutApprovalsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneWithoutDiscountRulesNestedInput
+    branch?: BranchUpdateOneWithoutDiscountRulesNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedDiscountsNestedInput
+    applications?: DiscountApplicationUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateWithoutApprovalsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    applications?: DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type UserUpsertWithoutDiscountRequestsInput = {
+    update: XOR<UserUpdateWithoutDiscountRequestsInput, UserUncheckedUpdateWithoutDiscountRequestsInput>
+    create: XOR<UserCreateWithoutDiscountRequestsInput, UserUncheckedCreateWithoutDiscountRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDiscountRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDiscountRequestsInput, UserUncheckedUpdateWithoutDiscountRequestsInput>
+  }
+
+  export type UserUpdateWithoutDiscountRequestsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    info?: UserInfoUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUpdateManyWithoutUserNestedInput
+    logs?: UserLogUpdateManyWithoutUserNestedInput
+    bills?: BillUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDiscountRequestsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    company_id?: IntFieldUpdateOperationsInput | number
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    info?: UserInfoUncheckedUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutUserNestedInput
+    bills?: BillUncheckedUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type UserUpsertWithoutDiscountApprovalsInput = {
+    update: XOR<UserUpdateWithoutDiscountApprovalsInput, UserUncheckedUpdateWithoutDiscountApprovalsInput>
+    create: XOR<UserCreateWithoutDiscountApprovalsInput, UserUncheckedCreateWithoutDiscountApprovalsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDiscountApprovalsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDiscountApprovalsInput, UserUncheckedUpdateWithoutDiscountApprovalsInput>
+  }
+
+  export type UserUpdateWithoutDiscountApprovalsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    info?: UserInfoUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUpdateManyWithoutUserNestedInput
+    logs?: UserLogUpdateManyWithoutUserNestedInput
+    bills?: BillUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDiscountApprovalsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    company_id?: IntFieldUpdateOperationsInput | number
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    info?: UserInfoUncheckedUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutUserNestedInput
+    bills?: BillUncheckedUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+  }
+
+  export type DiscountRuleCreateWithoutApplicationsInput = {
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company?: CompanyCreateNestedOneWithoutDiscountRulesInput
+    branch?: BranchCreateNestedOneWithoutDiscountRulesInput
+    createdBy: UserCreateNestedOneWithoutCreatedDiscountsInput
+    approvals?: DiscountApprovalCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleUncheckedCreateWithoutApplicationsInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    approvals?: DiscountApprovalUncheckedCreateNestedManyWithoutDiscountRuleInput
+  }
+
+  export type DiscountRuleCreateOrConnectWithoutApplicationsInput = {
+    where: DiscountRuleWhereUniqueInput
+    create: XOR<DiscountRuleCreateWithoutApplicationsInput, DiscountRuleUncheckedCreateWithoutApplicationsInput>
+  }
+
+  export type UserCreateWithoutDiscountApplicationsInput = {
+    username: string
+    password: string
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    info?: UserInfoCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleCreateNestedManyWithoutUserInput
+    logs?: UserLogCreateNestedManyWithoutUserInput
+    bills?: BillCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalCreateNestedManyWithoutRequestedByInput
+    discountApprovals?: DiscountApprovalCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserUncheckedCreateWithoutDiscountApplicationsInput = {
+    id?: number
+    username: string
+    password: string
+    company_id: number
+    branch_id?: number | null
+    user_type?: $Enums.UserType
+    status?: $Enums.UserStatus
+    failed_login_attempts?: number
+    last_failed_login?: Date | string | null
+    account_locked_until?: Date | string | null
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    info?: UserInfoUncheckedCreateNestedOneWithoutUserInput
+    userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutUserInput
+    bills?: BillUncheckedCreateNestedManyWithoutCashierInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutUserInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCreatedByInput
+    savedReports?: SavedReportConfigUncheckedCreateNestedManyWithoutUserInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    createdDiscounts?: DiscountRuleUncheckedCreateNestedManyWithoutCreatedByInput
+    discountRequests?: DiscountApprovalUncheckedCreateNestedManyWithoutRequestedByInput
+    discountApprovals?: DiscountApprovalUncheckedCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserCreateOrConnectWithoutDiscountApplicationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDiscountApplicationsInput, UserUncheckedCreateWithoutDiscountApplicationsInput>
+  }
+
+  export type BillCreateWithoutDiscountApplicationsInput = {
+    bill_number: string
+    status?: $Enums.BillStatus
+    payment_method?: $Enums.BillPaymentMethod
+    subtotal: Decimal | DecimalJsLike | number | string
+    discount?: Decimal | DecimalJsLike | number | string
+    tax?: Decimal | DecimalJsLike | number | string
+    total: Decimal | DecimalJsLike | number | string
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutBillsInput
+    branch: BranchCreateNestedOneWithoutBillsInput
+    cashier: UserCreateNestedOneWithoutBillsInput
+    items?: BillItemCreateNestedManyWithoutBillInput
+  }
+
+  export type BillUncheckedCreateWithoutDiscountApplicationsInput = {
+    id?: number
+    bill_number: string
+    company_id: number
+    branch_id: number
+    cashier_id: number
+    status?: $Enums.BillStatus
+    payment_method?: $Enums.BillPaymentMethod
+    subtotal: Decimal | DecimalJsLike | number | string
+    discount?: Decimal | DecimalJsLike | number | string
+    tax?: Decimal | DecimalJsLike | number | string
+    total: Decimal | DecimalJsLike | number | string
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    items?: BillItemUncheckedCreateNestedManyWithoutBillInput
+  }
+
+  export type BillCreateOrConnectWithoutDiscountApplicationsInput = {
+    where: BillWhereUniqueInput
+    create: XOR<BillCreateWithoutDiscountApplicationsInput, BillUncheckedCreateWithoutDiscountApplicationsInput>
+  }
+
+  export type DiscountRuleUpsertWithoutApplicationsInput = {
+    update: XOR<DiscountRuleUpdateWithoutApplicationsInput, DiscountRuleUncheckedUpdateWithoutApplicationsInput>
+    create: XOR<DiscountRuleCreateWithoutApplicationsInput, DiscountRuleUncheckedCreateWithoutApplicationsInput>
+    where?: DiscountRuleWhereInput
+  }
+
+  export type DiscountRuleUpdateToOneWithWhereWithoutApplicationsInput = {
+    where?: DiscountRuleWhereInput
+    data: XOR<DiscountRuleUpdateWithoutApplicationsInput, DiscountRuleUncheckedUpdateWithoutApplicationsInput>
+  }
+
+  export type DiscountRuleUpdateWithoutApplicationsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneWithoutDiscountRulesNestedInput
+    branch?: BranchUpdateOneWithoutDiscountRulesNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedDiscountsNestedInput
+    approvals?: DiscountApprovalUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateWithoutApplicationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvals?: DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type UserUpsertWithoutDiscountApplicationsInput = {
+    update: XOR<UserUpdateWithoutDiscountApplicationsInput, UserUncheckedUpdateWithoutDiscountApplicationsInput>
+    create: XOR<UserCreateWithoutDiscountApplicationsInput, UserUncheckedCreateWithoutDiscountApplicationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDiscountApplicationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDiscountApplicationsInput, UserUncheckedUpdateWithoutDiscountApplicationsInput>
+  }
+
+  export type UserUpdateWithoutDiscountApplicationsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    info?: UserInfoUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUpdateManyWithoutUserNestedInput
+    logs?: UserLogUpdateManyWithoutUserNestedInput
+    bills?: BillUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDiscountApplicationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    company_id?: IntFieldUpdateOperationsInput | number
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_type?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    last_failed_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    account_locked_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    info?: UserInfoUncheckedUpdateOneWithoutUserNestedInput
+    userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutUserNestedInput
+    bills?: BillUncheckedUpdateManyWithoutCashierNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutUserNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCreatedByNestedInput
+    savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type BillUpsertWithoutDiscountApplicationsInput = {
+    update: XOR<BillUpdateWithoutDiscountApplicationsInput, BillUncheckedUpdateWithoutDiscountApplicationsInput>
+    create: XOR<BillCreateWithoutDiscountApplicationsInput, BillUncheckedCreateWithoutDiscountApplicationsInput>
+    where?: BillWhereInput
+  }
+
+  export type BillUpdateToOneWithWhereWithoutDiscountApplicationsInput = {
+    where?: BillWhereInput
+    data: XOR<BillUpdateWithoutDiscountApplicationsInput, BillUncheckedUpdateWithoutDiscountApplicationsInput>
+  }
+
+  export type BillUpdateWithoutDiscountApplicationsInput = {
+    bill_number?: StringFieldUpdateOperationsInput | string
+    status?: EnumBillStatusFieldUpdateOperationsInput | $Enums.BillStatus
+    payment_method?: EnumBillPaymentMethodFieldUpdateOperationsInput | $Enums.BillPaymentMethod
+    subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    discount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBillsNestedInput
+    branch?: BranchUpdateOneRequiredWithoutBillsNestedInput
+    cashier?: UserUpdateOneRequiredWithoutBillsNestedInput
+    items?: BillItemUpdateManyWithoutBillNestedInput
+  }
+
+  export type BillUncheckedUpdateWithoutDiscountApplicationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bill_number?: StringFieldUpdateOperationsInput | string
+    company_id?: IntFieldUpdateOperationsInput | number
+    branch_id?: IntFieldUpdateOperationsInput | number
+    cashier_id?: IntFieldUpdateOperationsInput | number
+    status?: EnumBillStatusFieldUpdateOperationsInput | $Enums.BillStatus
+    payment_method?: EnumBillPaymentMethodFieldUpdateOperationsInput | $Enums.BillPaymentMethod
+    subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    discount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: BillItemUncheckedUpdateManyWithoutBillNestedInput
   }
 
   export type BranchCreateManyCompanyInput = {
@@ -88171,6 +96951,24 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
+  export type DiscountRuleCreateManyCompanyInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
   export type BranchUpdateWithoutCompanyInput = {
     name?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
@@ -88199,6 +96997,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutCompanyInput = {
@@ -88230,6 +97031,9 @@ export namespace Prisma {
     syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateManyWithoutCompanyInput = {
@@ -88268,6 +97072,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -88293,6 +97101,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -88402,6 +97214,7 @@ export namespace Prisma {
     branch?: BranchUpdateOneRequiredWithoutBillsNestedInput
     cashier?: UserUpdateOneRequiredWithoutBillsNestedInput
     items?: BillItemUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateWithoutCompanyInput = {
@@ -88419,6 +97232,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: BillItemUncheckedUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateManyWithoutCompanyInput = {
@@ -88433,6 +97247,63 @@ export namespace Prisma {
     tax?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountRuleUpdateWithoutCompanyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneWithoutDiscountRulesNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedDiscountsNestedInput
+    approvals?: DiscountApprovalUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateWithoutCompanyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvals?: DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateManyWithoutCompanyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -88632,6 +97503,49 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
+  export type SavedReportConfigCreateManyBranchInput = {
+    id?: number
+    configName: string
+    reportType: string
+    startDate: string
+    endDate: string
+    categoryId?: number | null
+    user_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type ReportScheduleCreateManyBranchInput = {
+    id?: number
+    scheduleName: string
+    reportType: string
+    frequency: string
+    recipientEmail: string
+    isActive?: boolean
+    nextRunAt?: Date | string | null
+    user_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountRuleCreateManyBranchInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_by: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
   export type UserUpdateWithoutBranchInput = {
     username?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
@@ -88654,6 +97568,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBranchInput = {
@@ -88679,6 +97597,10 @@ export namespace Prisma {
     savedReports?: SavedReportConfigUncheckedUpdateManyWithoutUserNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdDiscounts?: DiscountRuleUncheckedUpdateManyWithoutCreatedByNestedInput
+    discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
+    discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutBranchInput = {
@@ -88820,6 +97742,7 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutBillsNestedInput
     cashier?: UserUpdateOneRequiredWithoutBillsNestedInput
     items?: BillItemUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateWithoutBranchInput = {
@@ -88837,6 +97760,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: BillItemUncheckedUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateManyWithoutBranchInput = {
@@ -89252,6 +98176,138 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SavedReportConfigUpdateWithoutBranchInput = {
+    configName?: StringFieldUpdateOperationsInput | string
+    reportType?: StringFieldUpdateOperationsInput | string
+    startDate?: StringFieldUpdateOperationsInput | string
+    endDate?: StringFieldUpdateOperationsInput | string
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSavedReportsNestedInput
+  }
+
+  export type SavedReportConfigUncheckedUpdateWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    configName?: StringFieldUpdateOperationsInput | string
+    reportType?: StringFieldUpdateOperationsInput | string
+    startDate?: StringFieldUpdateOperationsInput | string
+    endDate?: StringFieldUpdateOperationsInput | string
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    user_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SavedReportConfigUncheckedUpdateManyWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    configName?: StringFieldUpdateOperationsInput | string
+    reportType?: StringFieldUpdateOperationsInput | string
+    startDate?: StringFieldUpdateOperationsInput | string
+    endDate?: StringFieldUpdateOperationsInput | string
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    user_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportScheduleUpdateWithoutBranchInput = {
+    scheduleName?: StringFieldUpdateOperationsInput | string
+    reportType?: StringFieldUpdateOperationsInput | string
+    frequency?: StringFieldUpdateOperationsInput | string
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutReportSchedulesNestedInput
+    deliveries?: ReportDeliveryUpdateManyWithoutScheduleNestedInput
+  }
+
+  export type ReportScheduleUncheckedUpdateWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    scheduleName?: StringFieldUpdateOperationsInput | string
+    reportType?: StringFieldUpdateOperationsInput | string
+    frequency?: StringFieldUpdateOperationsInput | string
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveries?: ReportDeliveryUncheckedUpdateManyWithoutScheduleNestedInput
+  }
+
+  export type ReportScheduleUncheckedUpdateManyWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    scheduleName?: StringFieldUpdateOperationsInput | string
+    reportType?: StringFieldUpdateOperationsInput | string
+    frequency?: StringFieldUpdateOperationsInput | string
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountRuleUpdateWithoutBranchInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneWithoutDiscountRulesNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedDiscountsNestedInput
+    approvals?: DiscountApprovalUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvals?: DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateManyWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_by?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserRoleCreateManyUserInput = {
     id?: number
     roleId: number
@@ -89352,6 +98408,52 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
+  export type DiscountRuleCreateManyCreatedByInput = {
+    id?: number
+    name: string
+    description?: string | null
+    type: $Enums.DiscountType
+    value: Decimal | DecimalJsLike | number | string
+    max_value?: Decimal | DecimalJsLike | number | string | null
+    min_purchase?: Decimal | DecimalJsLike | number | string | null
+    scope?: $Enums.DiscountScope
+    company_id?: number | null
+    branch_id?: number | null
+    status?: $Enums.DiscountStatus
+    valid_from: Date | string
+    valid_until?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApprovalCreateManyRequestedByInput = {
+    id?: number
+    discount_rule_id: number
+    approved_by?: number | null
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApplicationCreateManyAppliedByInput = {
+    id?: number
+    discount_rule_id: number
+    bill_id?: number | null
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApprovalCreateManyApproverInput = {
+    id?: number
+    discount_rule_id: number
+    requested_by: number
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
   export type UserRoleUpdateWithoutUserInput = {
     role?: RoleUpdateOneRequiredWithoutUserRolesNestedInput
   }
@@ -89412,6 +98514,7 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutBillsNestedInput
     branch?: BranchUpdateOneRequiredWithoutBillsNestedInput
     items?: BillItemUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateWithoutCashierInput = {
@@ -89429,6 +98532,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: BillItemUncheckedUpdateManyWithoutBillNestedInput
+    discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateManyWithoutCashierInput = {
@@ -89551,10 +98655,10 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     startDate?: StringFieldUpdateOperationsInput | string
     endDate?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneWithoutSavedReportConfigsNestedInput
   }
 
   export type SavedReportConfigUncheckedUpdateWithoutUserInput = {
@@ -89586,11 +98690,11 @@ export namespace Prisma {
     reportType?: StringFieldUpdateOperationsInput | string
     frequency?: StringFieldUpdateOperationsInput | string
     recipientEmail?: StringFieldUpdateOperationsInput | string
-    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneWithoutReportSchedulesNestedInput
     deliveries?: ReportDeliveryUpdateManyWithoutScheduleNestedInput
   }
 
@@ -89651,6 +98755,144 @@ export namespace Prisma {
     filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountRuleUpdateWithoutCreatedByInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneWithoutDiscountRulesNestedInput
+    branch?: BranchUpdateOneWithoutDiscountRulesNestedInput
+    approvals?: DiscountApprovalUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateWithoutCreatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvals?: DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleNestedInput
+    applications?: DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleNestedInput
+  }
+
+  export type DiscountRuleUncheckedUpdateManyWithoutCreatedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    max_value?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_purchase?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    scope?: EnumDiscountScopeFieldUpdateOperationsInput | $Enums.DiscountScope
+    company_id?: NullableIntFieldUpdateOperationsInput | number | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
+    valid_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    valid_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalUpdateWithoutRequestedByInput = {
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountRule?: DiscountRuleUpdateOneRequiredWithoutApprovalsNestedInput
+    approver?: UserUpdateOneWithoutDiscountApprovalsNestedInput
+  }
+
+  export type DiscountApprovalUncheckedUpdateWithoutRequestedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    approved_by?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyWithoutRequestedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    approved_by?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationUpdateWithoutAppliedByInput = {
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountRule?: DiscountRuleUpdateOneRequiredWithoutApplicationsNestedInput
+    bill?: BillUpdateOneWithoutDiscountApplicationsNestedInput
+  }
+
+  export type DiscountApplicationUncheckedUpdateWithoutAppliedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    bill_id?: NullableIntFieldUpdateOperationsInput | number | null
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyWithoutAppliedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    bill_id?: NullableIntFieldUpdateOperationsInput | number | null
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalUpdateWithoutApproverInput = {
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountRule?: DiscountRuleUpdateOneRequiredWithoutApprovalsNestedInput
+    requestedBy?: UserUpdateOneRequiredWithoutDiscountRequestsNestedInput
+  }
+
+  export type DiscountApprovalUncheckedUpdateWithoutApproverInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    requested_by?: IntFieldUpdateOperationsInput | number
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyWithoutApproverInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    requested_by?: IntFieldUpdateOperationsInput | number
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserRoleCreateManyRoleInput = {
@@ -90374,6 +99616,14 @@ export namespace Prisma {
     total: Decimal | DecimalJsLike | number | string
   }
 
+  export type DiscountApplicationCreateManyBillInput = {
+    id?: number
+    discount_rule_id: number
+    applied_by: number
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
   export type BillItemUpdateWithoutBillInput = {
     quantity?: IntFieldUpdateOperationsInput | number
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -90395,6 +99645,29 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type DiscountApplicationUpdateWithoutBillInput = {
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    discountRule?: DiscountRuleUpdateOneRequiredWithoutApplicationsNestedInput
+    appliedBy?: UserUpdateOneRequiredWithoutDiscountApplicationsNestedInput
+  }
+
+  export type DiscountApplicationUncheckedUpdateWithoutBillInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    applied_by?: IntFieldUpdateOperationsInput | number
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyWithoutBillInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    discount_rule_id?: IntFieldUpdateOperationsInput | number
+    applied_by?: IntFieldUpdateOperationsInput | number
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SaleItemCreateManySaleInput = {
@@ -90665,6 +99938,76 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     reportFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalCreateManyDiscountRuleInput = {
+    id?: number
+    requested_by: number
+    approved_by?: number | null
+    status?: $Enums.DiscountApprovalStatus
+    notes?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DiscountApplicationCreateManyDiscountRuleInput = {
+    id?: number
+    bill_id?: number | null
+    applied_by: number
+    amount_deducted: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string
+  }
+
+  export type DiscountApprovalUpdateWithoutDiscountRuleInput = {
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    requestedBy?: UserUpdateOneRequiredWithoutDiscountRequestsNestedInput
+    approver?: UserUpdateOneWithoutDiscountApprovalsNestedInput
+  }
+
+  export type DiscountApprovalUncheckedUpdateWithoutDiscountRuleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requested_by?: IntFieldUpdateOperationsInput | number
+    approved_by?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApprovalUncheckedUpdateManyWithoutDiscountRuleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requested_by?: IntFieldUpdateOperationsInput | number
+    approved_by?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumDiscountApprovalStatusFieldUpdateOperationsInput | $Enums.DiscountApprovalStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationUpdateWithoutDiscountRuleInput = {
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    appliedBy?: UserUpdateOneRequiredWithoutDiscountApplicationsNestedInput
+    bill?: BillUpdateOneWithoutDiscountApplicationsNestedInput
+  }
+
+  export type DiscountApplicationUncheckedUpdateWithoutDiscountRuleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bill_id?: NullableIntFieldUpdateOperationsInput | number | null
+    applied_by?: IntFieldUpdateOperationsInput | number
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscountApplicationUncheckedUpdateManyWithoutDiscountRuleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bill_id?: NullableIntFieldUpdateOperationsInput | number | null
+    applied_by?: IntFieldUpdateOperationsInput | number
+    amount_deducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

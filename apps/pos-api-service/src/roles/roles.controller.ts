@@ -19,13 +19,16 @@ import {
     CreateAuthoritySchema,
     AssignAuthoritySchema,
 } from '@ryzera/pos-schema';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('🛡 Roles & Authorities')
+@ApiBearerAuth('JWT-auth')
 @Controller()
 @UseGuards(AuthGuard('jwt'))
 export class RolesController {
     constructor(private readonly rolesService: RolesService) {}
 
-    // ─── Roles ────────────────────────────────────────────
+    // ─── Rolls ──────────────────────────────────────
 
     // GET /roles
     @Get('roles')

@@ -26,6 +26,7 @@ export const JwtPayloadSchema = z.object({
     companyId: z.number(),
     branchId: z.number().nullable(),
     roles: z.array(z.string()),
+    authorities: z.array(z.string()).optional(),
     userType: z.enum(['ADMIN', 'STAFF']),
 });
 

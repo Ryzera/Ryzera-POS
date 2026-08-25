@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { PushSyncSchema, PushSyncDto } from './schema/push-sync.schema';
 // import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -33,7 +33,7 @@ export class SyncController {
   @Post('fail/:id')
   // @UseGuards(RolesGuard)
   // @Roles('MANAGER', 'ADMIN')
-  fail(@Param('id', ParseUUIDPipe) id: string, @Body('error') error: string) {
+  fail(@Param('id', ParseIntPipe) id: number, @Body('error') error: string) {
     return this.syncService.fail(id, error);
   }
 
@@ -41,7 +41,7 @@ export class SyncController {
   @Post('retry/:id')
   // @UseGuards(RolesGuard)
   // @Roles('MANAGER', 'ADMIN')
-  retry(@Param('id', ParseUUIDPipe) id: string) {
+  retry(@Param('id', ParseIntPipe) id: number) {
     return this.syncService.retry(id);
   }
 
@@ -49,7 +49,7 @@ export class SyncController {
   @Post('success/:id')
   // @UseGuards(RolesGuard)
   // @Roles('MANAGER', 'ADMIN')
-  success(@Param('id', ParseUUIDPipe) id: string) {
+  success(@Param('id', ParseIntPipe) id: number) {
     return this.syncService.success(id);
   }
 
@@ -58,8 +58,8 @@ export class SyncController {
   // @UseGuards(RolesGuard)
   // @Roles('MANAGER', 'ADMIN')
   async checkQueue(
-    @Query('companyId') companyId?: string,
-    @Query('branchId') branchId?: string,
+      @Query('companyId') companyId?: string,
+      @Query('branchId') branchId?: string,
   ) {
     return this.syncService.checkQueueOverload(companyId, branchId);
   }

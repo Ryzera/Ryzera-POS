@@ -24,12 +24,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 7.4.0
- * Query Engine version: ab56fe763f921d033a6c195e7ddeb3e255bdbb57
+ * Prisma Client JS version: 7.9.1
+ * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
  */
 Prisma.prismaVersion = {
-  client: "7.4.0",
-  engine: "ab56fe763f921d033a6c195e7ddeb3e255bdbb57"
+  client: "7.9.1",
+  engine: "e922089b7d7502aff4249d5da3420f6fa55fc6ad"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -660,6 +660,45 @@ exports.Prisma.ScheduledReportScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.DiscountRuleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  value: 'value',
+  max_value: 'max_value',
+  min_purchase: 'min_purchase',
+  scope: 'scope',
+  company_id: 'company_id',
+  branch_id: 'branch_id',
+  status: 'status',
+  valid_from: 'valid_from',
+  valid_until: 'valid_until',
+  created_by: 'created_by',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.DiscountApprovalScalarFieldEnum = {
+  id: 'id',
+  discount_rule_id: 'discount_rule_id',
+  requested_by: 'requested_by',
+  approved_by: 'approved_by',
+  status: 'status',
+  notes: 'notes',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.DiscountApplicationScalarFieldEnum = {
+  id: 'id',
+  discount_rule_id: 'discount_rule_id',
+  bill_id: 'bill_id',
+  applied_by: 'applied_by',
+  amount_deducted: 'amount_deducted',
+  created_at: 'created_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -814,6 +853,28 @@ exports.ReturnStatus = exports.$Enums.ReturnStatus = {
   Rejected: 'Rejected'
 };
 
+exports.DiscountType = exports.$Enums.DiscountType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED'
+};
+
+exports.DiscountScope = exports.$Enums.DiscountScope = {
+  GLOBAL: 'GLOBAL',
+  BRANCH: 'BRANCH'
+};
+
+exports.DiscountStatus = exports.$Enums.DiscountStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  EXPIRED: 'EXPIRED'
+};
+
+exports.DiscountApprovalStatus = exports.$Enums.DiscountApprovalStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   Company: 'Company',
   Branch: 'Branch',
@@ -862,7 +923,10 @@ exports.Prisma.ModelName = {
   KpiNotificationRule: 'KpiNotificationRule',
   KpiReportDefault: 'KpiReportDefault',
   Notification: 'Notification',
-  ScheduledReport: 'ScheduledReport'
+  ScheduledReport: 'ScheduledReport',
+  DiscountRule: 'DiscountRule',
+  DiscountApproval: 'DiscountApproval',
+  DiscountApplication: 'DiscountApplication'
 };
 
 /**

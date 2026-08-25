@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { UsersRepository } from '../users/users.repository';
 import { UserLogRepository } from '../users/user-log.repository';
 import { LoginDto, ChangePasswordDto, JwtPayload } from '@ryzera/pos-schema';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Injectable()
 export class AuthService {
@@ -16,11 +17,12 @@ export class AuthService {
         private readonly usersRepository: UsersRepository,
         private readonly userLogRepository: UserLogRepository,
         private readonly jwtService: JwtService,
+        private readonly tokenBlacklistService: TokenBlacklistService,
     ) {}
 
-    // ─── Login ───────────────────────────────────────────
+    //  Login
     async login(dto: LoginDto, ip?: string, userAgent?: string) {
-        // 1. User find කරන්න
+        // 1. User find
         const user = await this.usersRepository.findByUsername(dto.username);
 
         if (!user) {
@@ -78,12 +80,24 @@ export class AuthService {
         // 6. Extract roles
         const roles = user.userRoles.map((ur) => ur.role.name);
 
+        // 6b. NEW — Extract authorities (flattened + deduped across all of the user's roles)
+        // Requires usersRepository.findByUsername() to include:
+        //   userRoles: { include: { role: { include: { authorities: { include: { authority: true } } } } } }
+        const authorities: string[] = Array.from(
+            new Set<string>(
+                user.userRoles.flatMap((ur) =>
+                    (ur.role.authorities ?? []).map((ra: any) => ra.authority.name as string),
+                ),
+            ),
+        );
+
         // 7. Build JWT payload
         const payload: JwtPayload = {
             userId: user.id,
             companyId: user.company_id,
             branchId: user.branch_id ?? null,
             roles,
+            authorities, // NEW — also add `authorities: string[]` to the JwtPayload type in @ryzera/pos-schema
             userType: user.user_type,
         };
 
@@ -110,6 +124,7 @@ export class AuthService {
                 company_id: user.company_id,
                 branch_id: user.branch_id,
                 roles,
+                authorities, // NEW — frontend auth.store.ts reads this into User.authorities
                 info: user.info,
             },
         };
@@ -150,10 +165,15 @@ export class AuthService {
         return { message: 'Password changed successfully' };
     }
 
-    // ─── Logout Log ───────────────────────────────────────
-    async logout(userId: number, ip?: string, userAgent?: string) {
-        const user = await this.usersRepository.findById(userId);
 
+// logout method update
+    async logout(userId: number, token?: string, ip?: string, userAgent?: string) {
+        // Token blacklist කරන්න
+        if (token) {
+            this.tokenBlacklistService.blacklist(token);
+        }
+
+        const user = await this.usersRepository.findById(userId);
         await this.userLogRepository.create({
             userId,
             branch_id: user?.branch_id ?? undefined,
@@ -163,6 +183,7 @@ export class AuthService {
             user_agent: userAgent,
         });
 
-        return { message: 'Logged out successfully' };
+        return { message: 'Logged out successfully. Token invalidated.' };
     }
+
 }

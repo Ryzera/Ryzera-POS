@@ -7,18 +7,23 @@ import { EmailService } from '../../email/email.service';
  * Implements the offline‑first sync logic.
  * Data is saved locally first (PENDING), then later synced to the cloud.
  * Failures are tracked, retried, and email alerts are sent to the admin.
+ *
+ * NOTE: SyncLog no longer has a `companyId` field, so email alert calls
+ * pass `null` in that slot instead of `record.companyId`. `id` is a
+ * `number` throughout, matching the Prisma-generated type. `branch_id`
+ * is `number | null` on the Prisma record but the email service expects
+ * `string | null | undefined`, so it is stringified before being passed.
  */
 @Injectable()
 export class SyncService {
   constructor(
-    private readonly syncRepository: SyncRepository,
-    private readonly emailService: EmailService,
+      private readonly syncRepository: SyncRepository,
+      private readonly emailService: EmailService,
   ) {}
 
   async push(data: PushSyncDto) {
     return this.syncRepository.create({
-      companyId: data.companyId ?? null,
-      branchId: data.branchId ?? null,
+      branch_id: (data as any).branchId ?? (data as any).branch_id ?? null,
       entity: data.entity,
       payload: data.payload,
       status: SyncStatus.PENDING,
@@ -34,34 +39,35 @@ export class SyncService {
     return { pending, synced, failed, total: pending + synced + failed };
   }
 
-  async fail(id: string, errorMessage: string) {
+  async fail(id: number, errorMessage: string) {
     const record = await this.syncRepository.findById(id);
     if (!record) throw new NotFoundException(`SyncLog with id ${id} not found`);
     const updated = await this.syncRepository.updateStatus(id, SyncStatus.FAILED, errorMessage, undefined, true);
+    const branchIdStr = record.branch_id != null ? String(record.branch_id) : null;
     await this.emailService.sendSyncFailureAlert(
-      updated.id,
-      updated.entity,
-      errorMessage,
-      updated.attempts,
-      record.branchId,
-      record.companyId,
-      'fail',
-    );
-    if (updated.attempts >= 3) {
-      await this.emailService.sendManualInterventionAlert(
-        updated.id,
+        String(updated.id),
         updated.entity,
         errorMessage,
         updated.attempts,
-        record.branchId,
-        record.companyId,
+        branchIdStr,
+        null,
         'fail',
+    );
+    if (updated.attempts >= 3) {
+      await this.emailService.sendManualInterventionAlert(
+          String(updated.id),
+          updated.entity,
+          errorMessage,
+          updated.attempts,
+          branchIdStr,
+          null,
+          'fail',
       );
     }
     return updated;
   }
 
-  async retry(id: string) {
+  async retry(id: number) {
     const record = await this.syncRepository.findById(id);
     if (!record) throw new NotFoundException(`SyncLog with id ${id} not found`);
     if (record.status !== SyncStatus.FAILED)
@@ -69,7 +75,7 @@ export class SyncService {
     return this.syncRepository.updateStatus(id, SyncStatus.PENDING, null, undefined, true);
   }
 
-  async success(id: string) {
+  async success(id: number) {
     const record = await this.syncRepository.findById(id);
     if (!record) throw new NotFoundException(`SyncLog with id ${id} not found`);
     return this.syncRepository.updateStatus(id, SyncStatus.SYNCED, null, new Date(), false);

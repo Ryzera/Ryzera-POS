@@ -66,12 +66,15 @@ export class UsersRepository {
                 branch: { select: { id: true, name: true } },
                 userRoles: {
                     include: {
-                        role: true,
+                        role: {
+                            include: { authorities: { include: { authority: true } } },
+                        },
                     },
                 },
             },
         });
     }
+
     // ─── Create ───────────────────────────────────────────
     async create(dto: CreateUserDto, hashedPassword: string) {
         return this.prisma.user.create({
@@ -193,5 +196,3 @@ export class UsersRepository {
         });
     }
 }
-
-

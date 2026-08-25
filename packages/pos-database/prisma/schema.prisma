@@ -157,6 +157,34 @@ enum ReturnStatus {
   @@map("return_status")
 }
 
+// DISCOUNT MODULE
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  @@map("discount_type")
+}
+
+enum DiscountScope {
+  GLOBAL
+  BRANCH
+  @@map("discount_scope")
+}
+
+enum DiscountStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  @@map("discount_status")
+}
+
+enum DiscountApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  @@map("discount_approval_status")
+}
+
 // CORE — COMPANY & BRANCH (AUTH MODULE BASE)
 
 model Company {
@@ -174,6 +202,7 @@ model Company {
   users    User[]
   products Product[]
   bills    Bill[]
+  discountRules DiscountRule[]
 
   @@map("company")
 }
@@ -216,6 +245,11 @@ model Branch {
 
   // Reporting
   dailySummaries DailySummary[]
+  savedReportConfigs SavedReportConfig[]
+  reportSchedules    ReportSchedule[]
+
+  //discounts
+  discountRules DiscountRule[]
 
   @@unique([company_id, code])
   @@map("branch")
@@ -256,6 +290,12 @@ model User {
   savedReports    SavedReportConfig[]
   reportSchedules ReportSchedule[]
   auditLogs       AuditLog[]
+
+  // Discounts
+  createdDiscounts     DiscountRule[]        @relation("DiscountCreator")
+  discountRequests     DiscountApproval[]    @relation("DiscountRequester")
+  discountApplications DiscountApplication[] @relation("DiscountApplier")
+  discountApprovals    DiscountApproval[]    @relation("DiscountApprover")
 
   @@map("user")
 }
@@ -587,6 +627,7 @@ model Bill {
   branch  Branch   @relation(fields: [branch_id], references: [id])
   cashier User     @relation("CashierBills", fields: [cashier_id], references: [id])
   items   BillItem[]
+  discountApplications DiscountApplication[]
 
   @@map("bill")
 }
@@ -855,7 +896,8 @@ model SavedReportConfig {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  user User @relation(fields: [user_id], references: [id])
+  user   User    @relation(fields: [user_id], references: [id])
+  branch Branch? @relation(fields: [branch_id], references: [id])  // ← ADD
 
   @@map("saved_report_config")
 }
@@ -874,6 +916,7 @@ model ReportSchedule {
   updated_at     DateTime  @updatedAt
 
   user       User             @relation(fields: [user_id], references: [id])
+  branch     Branch?          @relation(fields: [branch_id], references: [id])
   deliveries ReportDelivery[]
 
   @@map("report_schedule")
@@ -995,4 +1038,66 @@ model ScheduledReport {
   updated_at    DateTime @updatedAt
 
   @@map("scheduled_report")
+}
+
+model DiscountRule {
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String?
+  type          DiscountType
+  value         Decimal        @db.Decimal(10, 2)
+  max_value     Decimal?       @db.Decimal(10, 2)
+  min_purchase  Decimal?       @db.Decimal(10, 2)
+  scope         DiscountScope  @default(GLOBAL)
+  company_id    Int?           // ← ? add (duplicate line delete)
+  branch_id     Int?
+  status        DiscountStatus @default(ACTIVE)
+  valid_from    DateTime
+  valid_until   DateTime?
+  created_by    Int
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+
+  company   Company?  @relation(fields: [company_id], references: [id])
+  branch    Branch?   @relation(fields: [branch_id], references: [id])
+  createdBy User      @relation("DiscountCreator", fields: [created_by], references: [id])
+
+  approvals    DiscountApproval[]
+  applications DiscountApplication[]
+
+  @@map("discount_rule")
+}
+
+model DiscountApproval {
+  id               Int                    @id @default(autoincrement())
+  discount_rule_id Int
+  requested_by     Int
+  approved_by      Int?
+  status           DiscountApprovalStatus @default(PENDING)
+  notes            String?
+  created_at       DateTime               @default(now())
+  updated_at       DateTime               @updatedAt
+
+  discountRule   DiscountRule @relation(fields: [discount_rule_id], references: [id])
+  requestedBy User @relation("DiscountRequester", fields: [requested_by], references: [id])
+  approver       User?        @relation("DiscountApprover", fields: [approved_by], references: [id])
+
+  @@map("discount_approval")
+}
+
+model DiscountApplication {
+  id               Int      @id @default(autoincrement())
+  discount_rule_id Int
+  bill_id          Int?
+  applied_by       Int
+
+  amount_deducted  Decimal  @db.Decimal(10, 2)
+  created_at       DateTime @default(now())
+
+  discountRule DiscountRule @relation(fields: [discount_rule_id], references: [id])
+  appliedBy User @relation("DiscountApplier", fields: [applied_by], references: [id])
+  bill         Bill?        @relation(fields: [bill_id], references: [id])
+
+
+  @@map("discount_application")
 }

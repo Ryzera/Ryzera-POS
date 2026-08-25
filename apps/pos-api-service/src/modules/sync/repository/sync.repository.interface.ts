@@ -6,6 +6,6 @@
 export interface ISyncRepository {
   create(data: any): Promise<any>;
   countByStatus(status: string): Promise<number>;
-  findById(id: string): Promise<any>;
-  updateStatus(id: string, status: string, error?: string | null, syncedAt?: Date, incrementAttempts?: boolean): Promise<any>;
+  findById(id: number): Promise<any>;
+  updateStatus(id: number, status: string, error?: string | null, syncedAt?: Date, incrementAttempts?: boolean): Promise<any>;
 }

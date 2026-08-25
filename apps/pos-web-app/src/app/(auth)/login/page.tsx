@@ -46,16 +46,24 @@ export default function LoginPage() {
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex' }}>
-            {/* Left Panel */}
-            <div style={{
-                width: '50%',
-                background: '#0a0a1a',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                padding: '3rem',
-            }} className="hidden lg:flex">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+
+            {/* ── Left Panel ────────────────────────────────────────────────── */}
+            <div
+                style={{
+                    width: '50%',
+                    background: '#0a0a1a',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '3rem',
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+                className="hidden lg:flex"
+            >
+
+                {/* Logo */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', position: 'relative', zIndex: 1 }}>
                     <div style={{
                         width: '2.5rem', height: '2.5rem',
                         borderRadius: '0.75rem',
@@ -65,12 +73,16 @@ export default function LoginPage() {
                         <ShoppingCart size={20} color="white" />
                     </div>
                     <span style={{ color: 'white', fontWeight: 700, fontSize: '1.25rem' }}>
-            Ryzera POS
-          </span>
+                        Ryzera POS
+                    </span>
                 </div>
 
-                <div>
-                    <h1 style={{ fontSize: '3rem', fontWeight: 700, color: 'white', lineHeight: 1.2, marginBottom: '1.5rem' }}>
+                {/* Tagline */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <h1 style={{
+                        fontSize: '3rem', fontWeight: 700,
+                        color: 'white', lineHeight: 1.2, marginBottom: '1.5rem',
+                    }}>
                         Manage your<br />
                         <span style={{ color: '#93c5fd' }}>business</span><br />
                         smarter.
@@ -80,11 +92,12 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                {/* Stats */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', position: 'relative', zIndex: 1 }}>
                     {[
                         { label: 'Branches', value: '10+' },
                         { label: 'Products', value: '1K+' },
-                        { label: 'Uptime', value: '99.9%' },
+                        { label: 'Uptime',   value: '99.9%' },
                     ].map((stat) => (
                         <div key={stat.label} style={{
                             background: 'rgba(255,255,255,0.05)',
@@ -92,14 +105,18 @@ export default function LoginPage() {
                             padding: '1rem',
                             border: '1px solid rgba(255,255,255,0.1)',
                         }}>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white' }}>{stat.value}</div>
-                            <div style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{stat.label}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white' }}>
+                                {stat.value}
+                            </div>
+                            <div style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
+                                {stat.label}
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Right Panel */}
+            {/* ── Right Panel ───────────────────────────────────────────────── */}
             <div style={{
                 flex: 1,
                 display: 'flex',
@@ -107,8 +124,30 @@ export default function LoginPage() {
                 justifyContent: 'center',
                 padding: '2rem',
                 background: '#f9f9f9',
+                position: 'relative',
+                overflow: 'hidden',
             }}>
-                <div style={{ width: '100%', maxWidth: '28rem' }}>
+                {/* Watermark illustration  */}
+                <img
+                    src="/login-illustration.svg"
+                    alt=""
+                    aria-hidden="true"
+                    style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        width: '300px',
+                        height: 'auto',
+                        opacity: 1,
+                        pointerEvents: 'none',
+                        userSelect: 'none',
+                        zIndex: 999,
+                    }}
+                />
+
+                <div style={{ width: '100%', maxWidth: '28rem', position: 'relative', zIndex: 1 }}>
+
+                    {/* Heading */}
                     <div style={{ marginBottom: '2rem' }}>
                         <h2 style={{ fontSize: '1.875rem', fontWeight: 700, color: '#0a0a1a' }}>
                             Welcome back
@@ -118,10 +157,17 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    {/* Form */}
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+                    >
                         {/* Username */}
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: '#0a0a1a' }}>
+                            <label style={{
+                                display: 'block', fontSize: '0.875rem',
+                                fontWeight: 500, marginBottom: '0.5rem', color: '#0a0a1a',
+                            }}>
                                 Username
                             </label>
                             <input
@@ -148,7 +194,10 @@ export default function LoginPage() {
 
                         {/* Password */}
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: '#0a0a1a' }}>
+                            <label style={{
+                                display: 'block', fontSize: '0.875rem',
+                                fontWeight: 500, marginBottom: '0.5rem', color: '#0a0a1a',
+                            }}>
                                 Password
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -173,8 +222,8 @@ export default function LoginPage() {
                                     style={{
                                         position: 'absolute', right: '1rem', top: '50%',
                                         transform: 'translateY(-50%)',
-                                        background: 'none', border: 'none', cursor: 'pointer',
-                                        color: '#6b7280',
+                                        background: 'none', border: 'none',
+                                        cursor: 'pointer', color: '#6b7280',
                                     }}
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -215,29 +264,6 @@ export default function LoginPage() {
                             ) : 'Sign In'}
                         </button>
                     </form>
-
-                    {/* Demo credentials */}
-                    <div style={{
-                        marginTop: '2rem',
-                        padding: '1rem',
-                        borderRadius: '0.5rem',
-                        background: '#f1f2f6',
-                        border: '1px solid #e5e7eb',
-                    }}>
-                        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
-                            Demo Credentials
-                        </p>
-                        {[
-                            { role: 'Admin', username: 'admin', password: 'admin123' },
-                            { role: 'Manager', username: 'manager_hq', password: 'manager123' },
-                            { role: 'Cashier', username: 'cashier_hq', password: 'cashier123' },
-                        ].map((cred) => (
-                            <div key={cred.role} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-                                <span style={{ fontWeight: 500, color: '#0a0a1a' }}>{cred.role}</span>
-                                <span style={{ color: '#6b7280', fontFamily: 'monospace' }}>{cred.username} / {cred.password}</span>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </div>
         </div>

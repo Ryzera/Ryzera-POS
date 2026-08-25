@@ -1,92 +1,104 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Put,
-    Delete,
-    Body,
-    Param,
-    Query,
-    ParseIntPipe,
-    UseGuards,
-    HttpCode,
-    HttpStatus,
+    Controller, Get, Post, Put, Delete,
+    Body, Param, Query, Req, UseGuards, ParseIntPipe,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import {
+    ApiTags, ApiOperation, ApiResponse,
+    ApiBearerAuth, ApiParam, ApiQuery,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import {
-    CreateUserSchema,
-    UpdateUserSchema,
-    AssignRoleSchema,
-    UserFilterSchema,
-    JwtPayload,
-} from '@ryzera/pos-schema';
+import { UsersService } from './users.service';
+import { JwtPayload } from '@ryzera/pos-schema';
 
+@ApiTags('Users')
+@ApiBearerAuth('JWT-auth')
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)   // ← JWT + Roles දෙකම
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    // POST /users  — ADMIN only
     @Post()
-    @Roles('ADMIN')
-    async create(@Body() body: unknown) {
-        const dto = CreateUserSchema.parse(body);
-        return this.usersService.create(dto);
+    @Roles('ADMIN', 'MANAGER')
+    @ApiOperation({ summary: 'Create new user — ADMIN, or MANAGER (own branch, CASHIER/INVENTORY_MANAGER only)' })
+    @ApiResponse({ status: 201, description: 'User created' })
+    @ApiResponse({ status: 409, description: 'Username already exists' })
+    async create(@Body() body: any, @Req() req: { user: JwtPayload }) {
+        return this.usersService.create(body, req.user);
     }
 
-    // GET /users  — ADMIN, MANAGER
     @Get()
     @Roles('ADMIN', 'MANAGER')
-    async findAll(@Query() query: unknown) {
-        const filters = UserFilterSchema.parse(query);
-        return this.usersService.findAll(filters);
+    @ApiOperation({ summary: 'Get All Users — ADMIN sees all, MANAGER restricted to own branch' })
+    @ApiQuery({ name: 'status', required: false, enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'] })
+    @ApiQuery({ name: 'branch_id', required: false, type: 'number' })
+    @ApiResponse({ status: 200, description: 'Users list' })
+    async findAll(@Query() query: any, @Req() req: { user: JwtPayload }) {
+        const scopedQuery =
+            req.user.userType !== 'ADMIN'
+                ? { ...query, branch_id: req.user.branchId }
+                : query;
+        return this.usersService.findAll(scopedQuery);
     }
 
-    // GET /users/:id  — ADMIN, MANAGER
+    @Get('me/profile')
+    @ApiOperation({ summary: 'Get current user profile' })
+    async getProfile() {
+        return { message: 'Profile endpoint' };
+    }
+
     @Get(':id')
     @Roles('ADMIN', 'MANAGER')
-    async findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.findOne(id);
+    @ApiOperation({ summary: 'Get user by ID — MANAGER restricted to own branch' })
+    @ApiParam({ name: 'id', type: 'number' })
+    async findOne(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: { user: JwtPayload },
+    ) {
+        return this.usersService.findOneScoped(id, req.user);
     }
 
-    // PUT /users/:id  — ADMIN only
     @Put(':id')
-    @Roles('ADMIN')
+    @Roles('ADMIN', 'MANAGER')
+    @ApiOperation({ summary: 'Update user — ADMIN, or MANAGER (own branch only)' })
+    @ApiParam({ name: 'id', type: 'number' })
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() body: unknown,
+        @Body() body: any,
+        @Req() req: { user: JwtPayload },
     ) {
-        const dto = UpdateUserSchema.parse(body);
-        return this.usersService.update(id, dto);
+        await this.usersService.findOneScoped(id, req.user); // throws if out of scope
+        return this.usersService.update(id, body);
     }
 
-    // DELETE /users/:id  — ADMIN only
     @Delete(':id')
-    @Roles('ADMIN')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async remove(@Param('id', ParseIntPipe) id: number) {
+    @Roles('ADMIN', 'MANAGER')
+    @ApiOperation({ summary: 'Delete user — ADMIN, or MANAGER (own branch only)' })
+    @ApiParam({ name: 'id', type: 'number' })
+    async remove(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: { user: JwtPayload },
+    ) {
+        await this.usersService.findOneScoped(id, req.user); // throws if out of scope
         return this.usersService.remove(id);
     }
 
-    // POST /users/:id/roles  — ADMIN only
     @Post(':id/roles')
-    @Roles('ADMIN')
+    @Roles('ADMIN', 'MANAGER')
+    @ApiOperation({ summary: 'Assign role to user' })
+    @ApiParam({ name: 'id', type: 'number' })
     async assignRole(
         @Param('id', ParseIntPipe) id: number,
-        @Body() body: unknown,
+        @Body() body: any,
+        @Req() req: { user: JwtPayload },
     ) {
-        const dto = AssignRoleSchema.parse(body);
-        return this.usersService.assignRole(id, dto.roleId);
+        return this.usersService.assignRole(id, body.roleId, req.user);
     }
 
-    // DELETE /users/:id/roles/:roleId  — ADMIN only
     @Delete(':id/roles/:roleId')
     @Roles('ADMIN')
-    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Remove role from user' })
     async removeRole(
         @Param('id', ParseIntPipe) id: number,
         @Param('roleId', ParseIntPipe) roleId: number,
@@ -94,16 +106,15 @@ export class UsersController {
         return this.usersService.removeRole(id, roleId);
     }
 
-    // GET /users/:id/logs  — ADMIN, MANAGER
     @Get(':id/logs')
     @Roles('ADMIN', 'MANAGER')
-    async getLogs(@Param('id', ParseIntPipe) id: number) {
+    @ApiOperation({ summary: 'Get user audit logs — MANAGER restricted to own branch' })
+    @ApiParam({ name: 'id', type: 'number' })
+    async getLogs(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: { user: JwtPayload },
+    ) {
+        await this.usersService.findOneScoped(id, req.user); // throws if out of scope
         return this.usersService.getLogs(id);
-    }
-
-    // GET /users/me  — any logged user
-    @Get('me/profile')
-    async getMyProfile(@CurrentUser() user: JwtPayload) {
-        return this.usersService.findOne(user.userId);
     }
 }

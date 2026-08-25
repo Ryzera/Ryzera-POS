@@ -1,0 +1,68 @@
+﻿// inventory.controller.ts
+import {
+    Controller, Get, Post, Put, Delete,
+    Body, Param, Query, ParseIntPipe,
+    UseGuards, HttpCode, HttpStatus,
+} from '@nestjs/common';
+import { InventoryService } from './inventory.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { BranchScope, BranchScopeResult } from '../auth/decorators/branch-scope.decorator'; // adjust path to wherever you put it
+import { CreateProductSchema, UpdateProductSchema } from '@ryzera/pos-schema';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiTags(' Inventory')
+@ApiBearerAuth('JWT-auth')
+@Controller('inventory')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class InventoryController {
+    constructor(private readonly inventoryService: InventoryService) {}
+
+    // GET /inventory
+    // companyId/branchId query params still work for Admin (manual filtering),
+    // but a Manager/Staff's own branch always wins over anything they pass in.
+    @Get()
+    findAll(
+        @Query('companyId') companyId: string | undefined,
+        @Query('branchId') branchId: string | undefined,
+        @BranchScope() scope: BranchScopeResult,
+    ) {
+        return this.inventoryService.findAll(
+            companyId ? parseInt(companyId) : undefined,
+            branchId ? parseInt(branchId) : undefined,
+            scope,
+        );
+    }
+
+    // GET /inventory/:id
+    @Get(':id')
+    findOne(@Param('id', ParseIntPipe) id: number, @BranchScope() scope: BranchScopeResult) {
+        return this.inventoryService.findOne(id, scope);
+    }
+
+    // POST /inventory
+    @Post()
+    @Roles('ADMIN', 'MANAGER', 'INVENTORY_MANAGER')
+    create(@Body() body: unknown, @BranchScope() scope: BranchScopeResult) {
+        const dto = CreateProductSchema.parse(body);
+        return this.inventoryService.create(dto, scope);
+    }
+
+    // PUT /inventory/:id
+    @Put(':id')
+    @Roles('ADMIN', 'MANAGER', 'INVENTORY_MANAGER')
+    update(@Param('id', ParseIntPipe) id: number, @Body() body: unknown, @BranchScope() scope: BranchScopeResult) {
+        const dto = UpdateProductSchema.parse(body);
+        return this.inventoryService.update(id, dto, scope);
+    }
+
+    // DELETE /inventory/:id
+    @Delete(':id')
+    @Roles('ADMIN')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    remove(@Param('id', ParseIntPipe) id: number) {
+        // ADMIN only â€” no branch scope needed, Admin can delete from any branch.
+        return this.inventoryService.remove(id);
+    }
+}

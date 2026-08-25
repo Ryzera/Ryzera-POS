@@ -13,8 +13,8 @@ export const TransferQuerySchema = z.object({
     .optional()
     .transform((v) => (v ? parseInt(v, 10) : 20))
     .pipe(z.number().int().min(1).max(100)),
-  sourceBranchId: z.string().optional(),
-  destinationBranchId: z.string().optional(),
+  sourceBranchId: z.coerce.number().int().positive().optional(),
+  destinationBranchId: z.coerce.number().int().positive().optional(),
   status: TransferStatus.optional(),
 });
 

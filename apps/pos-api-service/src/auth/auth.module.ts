@@ -8,6 +8,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { UsersRepository } from '../users/users.repository';
 import { UserLogRepository } from '../users/user-log.repository';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { UserLogRepository } from '../users/user-log.repository';
         RolesGuard,
         UsersRepository,
         UserLogRepository,
+        TokenBlacklistService,
     ],
     exports: [
         AuthService,
@@ -32,6 +34,7 @@ import { UserLogRepository } from '../users/user-log.repository';
         PassportModule,
         JwtAuthGuard,
         RolesGuard,
+        TokenBlacklistService,
     ],
 })
 export class AuthModule {}

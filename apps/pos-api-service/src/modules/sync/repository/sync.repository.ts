@@ -12,6 +12,10 @@ export enum SyncStatus {
  * Stores and retrieves sync records using Prisma ORM.
  * All database queries are centralised here so that the service layer
  * never needs to know which database or ORM we use.
+ *
+ * NOTE: the SyncLog model does not have a `companyId` field. Its branch
+ * reference field is named `branch_id` (snake_case) in the Prisma client,
+ * and `id` is a `number`, not a `string`.
  */
 @Injectable()
 export class SyncRepository implements ISyncRepository {
@@ -20,8 +24,7 @@ export class SyncRepository implements ISyncRepository {
   async create(data: any) {
     return this.prisma.syncLog.create({
       data: {
-        companyId: data.companyId ?? null,
-        branchId: data.branchId ?? null,
+        branch_id: data.branchId ?? data.branch_id ?? null,
         entity: data.entity,
         payload: data.payload,
         status: data.status,
@@ -35,11 +38,11 @@ export class SyncRepository implements ISyncRepository {
     return this.prisma.syncLog.count({ where: { status } });
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     return this.prisma.syncLog.findUnique({ where: { id } });
   }
 
-  async updateStatus(id: string, status: SyncStatus, error?: string | null, syncedAt?: Date, incrementAttempts = false) {
+  async updateStatus(id: number, status: SyncStatus, error?: string | null, syncedAt?: Date, incrementAttempts = false) {
     const updateData: any = { status };
     if (error !== undefined) updateData.error = error;
     if (syncedAt !== undefined) updateData.syncedAt = syncedAt;

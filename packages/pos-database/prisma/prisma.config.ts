@@ -1,26 +1,13 @@
-import { defineConfig } from 'prisma/config';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
+import 'dotenv/config'
+import path from 'node:path'
+import { defineConfig, env } from 'prisma/config'
 
-// .env file explicitly load
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+console.log('DEBUG DATABASE_URL:', process.env.DATABASE_URL)
 
 export default defineConfig({
-  earlyAccess: true,
-  schema: './prisma/schema.prisma',
-  migrate: {
-    async adapter() {
-      const { PrismaPg } = await import('@prisma/adapter-pg');
-      const { default: pg } = await import('pg');
-
-      const connectionString = process.env.DATABASE_URL;
-      console.log('Connecting to:', connectionString?.substring(0, 50) + '...');
-
-      const pool = new pg.Pool({
-        connectionString,
-        ssl: { rejectUnauthorized: false },
-      });
-      return new PrismaPg(pool);
-    },
+  engine: 'classic',
+  schema: path.join('prisma', 'schema.prisma'),
+  datasource: {
+    url: env('DATABASE_URL'),
   },
-});
+})

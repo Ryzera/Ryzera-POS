@@ -15,47 +15,109 @@ import {
     User,
     Building2,
     Package,
-    Receipt
+    Receipt,
+    UserPlus,      // ← Manager "Add Staff" icon
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const router = useRouter();
+    const router   = useRouter();
     const pathname = usePathname();
     const { user, isAuthenticated, logout } = useAuthStore();
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
-        }
+        if (!isAuthenticated) router.push('/login');
     }, [isAuthenticated, router]);
 
     if (!isAuthenticated) return null;
 
-    const isAdmin = user?.roles?.includes('ADMIN') || user?.user_type === 'ADMIN';
+    // Inventory and Billing have their own full-page layouts (with their own
+    // sidebar + controls), so the main dashboard chrome is skipped for those routes.
+    const isFullScreenModule = pathname.startsWith('/inventory') || pathname.startsWith('/billing');
+    if (isFullScreenModule) {
+        return <>{children}</>;
+    }
+
+    // ─── Role helpers ────────────────────────────────────────────────────────
+    const isAdmin   = user?.roles?.includes('ADMIN')   || user?.user_type === 'ADMIN';
     const isManager = user?.roles?.includes('MANAGER');
     const canCreate = isAdmin || isManager || user?.roles?.includes('CASHIER');
 
+    // ─── Nav items ───────────────────────────────────────────────────────────
     const navItems = [
-        { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, show: true },
-        { href: '/users', label: 'Users', icon: Users, show: isAdmin },
-        { href: '/roles', label: 'Roles', icon: Shield, show: isAdmin },
-        { href: '/profile', label: 'Profile', icon: User, show: true },
-        { href: '/company', label: 'Company', icon: Building2, show: isAdmin },
-        { href: '/inventory', label: 'Inventory', icon: Package, show: true },
-        { href: '/billing', label: 'Billing', icon: Receipt, show: canCreate },
+        {
+            href: '/dashboard',
+            label: 'Dashboard',
+            icon: LayoutDashboard,
+            show: true,
+        },
+        {
+            // Admin sees full Users page; Manager sees nothing here
+            href: '/users',
+            label: 'Users',
+            icon: Users,
+            show: isAdmin,
+        },
+        {
+            // Manager-only shortcut → goes straight to register page,
+            // pre-filtered so they can only add staff to their own branch.
+            href: '/users/register',
+            label: 'Add Staff',
+            icon: UserPlus,
+            show: isManager && !isAdmin,   // hide for Admin (they use the full Users page)
+        },
+        {
+            href: '/roles',
+            label: 'Roles',
+            icon: Shield,
+            show: isAdmin,
+        },
+        {
+            href: '/profile',
+            label: 'Profile',
+            icon: User,
+            show: true,
+        },
+        {
+            href: '/company',
+            label: 'Company',
+            icon: Building2,
+            show: isAdmin,
+        },
+        {
+            href: '/inventory',
+            label: 'Inventory',
+            icon: Package,
+            show: true,          // Admin sees all; Manager sees own branch (backend enforces)
+        },
+        {
+            href: '/billing',
+            label: 'Billing',
+            icon: Receipt,
+            show: canCreate,
+        },
     ];
 
-
+    // ─── Logout ──────────────────────────────────────────────────────────────
     const handleLogout = () => {
         logout();
         router.push('/login');
     };
 
+    // ─── Role badge label ─────────────────────────────────────────────────────
+    const roleBadge = user?.roles?.[0] || user?.user_type || 'USER';
+
+    // ─── Role badge colour ────────────────────────────────────────────────────
+    const roleBadgeStyle = (): React.CSSProperties => {
+        if (isAdmin)   return { background: '#eff6ff', color: '#2563eb' };
+        if (isManager) return { background: '#fdf4ff', color: '#9333ea' };
+        return           { background: '#f0fdf4', color: '#16a34a' };
+    };
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9' }}>
-            {/* Sidebar */}
+
+            {/* ── Sidebar ───────────────────────────────────────────────────── */}
             <div style={{
                 width: sidebarOpen ? '240px' : '64px',
                 background: '#0f172a',
@@ -81,26 +143,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     }}>
                         <ShoppingCart size={14} color="white" />
                     </div>
+
                     {sidebarOpen && (
                         <span style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>
-              Ryzera POS
-            </span>
+                            Ryzera POS
+                        </span>
                     )}
+
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                         style={{
-                            marginLeft: 'auto', background: 'none', border: 'none',
-                            cursor: 'pointer', color: '#94a3b8',
+                            marginLeft: 'auto', background: 'none',
+                            border: 'none', cursor: 'pointer', color: '#94a3b8',
                         }}
                     >
                         {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
                     </button>
                 </div>
 
-                {/* Nav Items */}
+                {/* Nav items */}
                 <nav style={{ flex: 1, padding: '0.75rem 0.5rem' }}>
                     {navItems.filter(i => i.show).map((item) => {
-                        const active = pathname === item.href;
+                        const active = pathname === item.href ||
+                            (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
+                        // Special highlight for "Add Staff" button
+                        const isAddStaff = item.href === '/users/register';
+
                         return (
                             <Link
                                 key={item.href}
@@ -113,11 +182,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     borderRadius: '0.5rem',
                                     marginBottom: '0.25rem',
                                     textDecoration: 'none',
-                                    background: active ? '#2563eb' : 'transparent',
-                                    color: active ? 'white' : '#94a3b8',
+                                    background: active
+                                        ? '#2563eb'
+                                        : isAddStaff
+                                            ? '#1e293b'   // subtle highlight for Add Staff
+                                            : 'transparent',
+                                    color: active ? 'white' : isAddStaff ? '#a78bfa' : '#94a3b8',
                                     fontSize: '0.875rem',
-                                    fontWeight: active ? 600 : 400,
+                                    fontWeight: active || isAddStaff ? 600 : 400,
                                     transition: 'all 0.15s',
+                                    border: isAddStaff && !active ? '1px solid #334155' : 'none',
                                 }}
                             >
                                 <item.icon size={18} style={{ flexShrink: 0 }} />
@@ -125,9 +199,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </Link>
                         );
                     })}
+
+                    {/* Manager branch info badge */}
+                    {isManager && !isAdmin && sidebarOpen && (
+                        <div style={{
+                            margin: '0.75rem 0.5rem 0',
+                            padding: '0.5rem 0.75rem',
+                            background: '#1e293b',
+                            borderRadius: '0.5rem',
+                            borderLeft: '3px solid #9333ea',
+                        }}>
+                            <div style={{ color: '#94a3b8', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Your Branch
+                            </div>
+                            <div style={{ color: '#e2e8f0', fontSize: '0.75rem', fontWeight: 600, marginTop: '0.2rem' }}>
+                                Branch #{user?.branch_id ?? '—'}
+                            </div>
+                            <div style={{ color: '#64748b', fontSize: '0.65rem', marginTop: '0.1rem' }}>
+                                Inventory & staff scoped to this branch
+                            </div>
+                        </div>
+                    )}
                 </nav>
 
-                {/* User + Logout */}
+                {/* User info + Logout */}
                 <div style={{ padding: '0.75rem', borderTop: '1px solid #1e293b' }}>
                     {sidebarOpen && (
                         <div style={{
@@ -139,11 +234,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <div style={{ color: 'white', fontSize: '0.8rem', fontWeight: 600 }}>
                                 {user?.info?.first_name} {user?.info?.last_name}
                             </div>
-                            <div style={{ color: '#64748b', fontSize: '0.7rem' }}>
-                                {user?.roles?.[0] || user?.user_type}
+                            <div style={{ color: '#64748b', fontSize: '0.7rem', marginTop: '0.1rem' }}>
+                                {roleBadge}
                             </div>
                         </div>
                     )}
+
                     <button
                         onClick={handleLogout}
                         style={{
@@ -166,9 +262,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </div>
 
-            {/* Main Content */}
+            {/* ── Main content ──────────────────────────────────────────────── */}
             <div style={{ flex: 1, overflow: 'auto' }}>
-                {/* Top Bar */}
+                {/* Top bar */}
                 <div style={{
                     background: 'white',
                     padding: '1rem 1.5rem',
@@ -178,21 +274,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     justifyContent: 'space-between',
                 }}>
                     <h1 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f172a' }}>
-                        {navItems.find(i => i.href === pathname)?.label || 'Dashboard'}
+                        {navItems.find(i => i.href === pathname)?.label ||
+                            navItems.find(i => i.href !== '/dashboard' && pathname.startsWith(i.href))?.label ||
+                            'Dashboard'}
                     </h1>
-                    <div style={{
-                        padding: '0.375rem 0.75rem',
-                        background: '#eff6ff',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        color: '#2563eb',
-                        fontWeight: 500,
-                    }}>
-                        {user?.roles?.[0] || user?.user_type}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        {/* Role badge */}
+                        <span style={{
+                            padding: '0.375rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: 500,
+                            ...roleBadgeStyle(),
+                        }}>
+                            {roleBadge}
+                        </span>
                     </div>
                 </div>
 
-                {/* Page Content */}
+                {/* Page content */}
                 <div style={{ padding: '1.5rem' }}>
                     {children}
                 </div>

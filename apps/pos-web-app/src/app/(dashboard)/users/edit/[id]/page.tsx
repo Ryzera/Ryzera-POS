@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 export default function EditUserPage() {
     const router = useRouter();
     const params = useParams();
-    const { user } = useAuthStore();
+    const { user: currentUser } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [roles, setRoles] = useState<{id: number, name: string}[]>([]);
@@ -18,10 +18,10 @@ export default function EditUserPage() {
     const [form, setForm] = useState({
         first_name: '', last_name: '', email: '',
         phone_number: '', status: 'ACTIVE', user_type: 'STAFF',
-        branch_id: '', roleId: '',
+        branch_id: '',
     });
 
-    const isAdmin = user?.roles?.includes('ADMIN') || user?.user_type === 'ADMIN';
+    const isAdmin = currentUser?.roles?.includes('ADMIN') || currentUser?.user_type === 'ADMIN';
 
     useEffect(() => {
         if (!isAdmin) { router.push('/users'); return; }
@@ -41,17 +41,23 @@ export default function EditUserPage() {
                     status: u.status,
                     user_type: u.user_type,
                     branch_id: u.branch_id ? String(u.branch_id) : '',
-                    roleId: u.userRoles?.[0]?.role?.id ? String(u.userRoles[0].role.id) : '',
                 });
-                setRoles(rolesRes.data.data || []);
-                setBranches(branchRes.data.data || []);
+
+                // Backend wraps every response as { data: <payload> } via ResponseInterceptor.
+                // /roles payload may be a plain array OR { items, total, page, limit }.
+                const rolePayload = rolesRes.data?.data;
+                setRoles(Array.isArray(rolePayload) ? rolePayload : (rolePayload?.items || []));
+
+                // /branches payload is paginated: { items, total, page, limit } — not a plain array.
+                const branchPayload = branchRes.data?.data;
+                setBranches(Array.isArray(branchPayload) ? branchPayload : (branchPayload?.items || []));
             } catch {
                 toast.error('Failed to load user');
                 router.push('/users');
             } finally { setFetching(false); }
         };
         fetchData();
-    }, []);
+    }, [params.id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -99,7 +105,8 @@ export default function EditUserPage() {
                 <button onClick={() => router.push('/users')} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: '2rem', height: '2rem', background: 'white',
-                    border: '1px solid #e2e8f0', borderRadius: '0.5rem', cursor: 'pointer', color: '#64748b',
+                    border: '1px solid #e2e8f0', borderRadius: '0.5rem',
+                    cursor: 'pointer', color: '#64748b',
                 }}>
                     <ArrowLeft size={16} />
                 </button>
@@ -121,17 +128,14 @@ export default function EditUserPage() {
                             <input name="last_name" value={form.last_name} onChange={handleChange} style={inputStyle} />
                         </div>
                     </div>
-
                     <div>
                         <label style={labelStyle}>Email</label>
                         <input name="email" type="email" value={form.email} onChange={handleChange} style={inputStyle} />
                     </div>
-
                     <div>
                         <label style={labelStyle}>Phone</label>
                         <input name="phone_number" value={form.phone_number} onChange={handleChange} style={inputStyle} />
                     </div>
-
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div>
                             <label style={labelStyle}>Status</label>
@@ -149,7 +153,6 @@ export default function EditUserPage() {
                             </select>
                         </div>
                     </div>
-
                     <div>
                         <label style={labelStyle}>Branch</label>
                         <select name="branch_id" value={form.branch_id} onChange={handleChange} style={inputStyle}>
@@ -159,7 +162,6 @@ export default function EditUserPage() {
                             ))}
                         </select>
                     </div>
-
                     <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '0.5rem' }}>
                         <button type="button" onClick={() => router.push('/users')} style={{
                             flex: 1, padding: '0.625rem', background: 'white',
@@ -174,7 +176,7 @@ export default function EditUserPage() {
                             fontSize: '0.875rem', color: 'white', fontWeight: 500,
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                         }}>
-                            {loading ? <><Loader2 size={14} className="animate-spin" />Saving...</> : 'Save Changes'}
+                            {loading ? <><Loader2 size={14} />Saving...</> : 'Save Changes'}
                         </button>
                     </div>
                 </form>

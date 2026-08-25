@@ -1,89 +1,81 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateBillDto } from '@ryzera/pos-schema';
 
 @Injectable()
 export class BillingRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) {}
 
-    async findAll(companyId: number, branchId?: number) {
-        return this.prisma.bill.findMany({
-            where: {
-                company_id: companyId,
-                ...(branchId && { branch_id: branchId }),
-            },
-            include: {
-                cashier: {
-                    select: { id: true, username: true, info: true },
-                },
-                branch: { select: { id: true, name: true } },
-                items: {
-                    include: { product: { select: { id: true, name: true, code: true } } },
+    async createSale(data: any) {
+        const { sale_items, ...restData } = data.data;
+
+        return this.prisma.sale.create({
+            data: {
+                ...restData,
+                updated_at: new Date(),
+                saleItems: {
+                    create: sale_items,
                 },
             },
+            include: { saleItems: true },
+        });
+    }
+
+    async findSaleById(sale_id: number) {
+        return this.prisma.sale.findUnique({
+            where:   { id: sale_id },
+            include: { saleItems: true, payments: true },
+        });
+    }
+
+    async updateSale(sale_id: number, data: any) {
+        return this.prisma.sale.update({
+            where: { id: sale_id },
+            data:  {
+                ...data,
+                updated_at: new Date(),
+            },
+        });
+    }
+
+    async createPayment(data: any) {
+        return this.prisma.payment.create({ data });
+    }
+
+    async findAllSales(branch_id?: number) {
+        return this.prisma.sale.findMany({
+            where:   branch_id ? { branch_id } : undefined,
+            include: { saleItems: true, payments: true },
             orderBy: { created_at: 'desc' },
         });
     }
 
-    async findById(id: number) {
-        return this.prisma.bill.findUnique({
-            where: { id },
-            include: {
-                cashier: { select: { id: true, username: true, info: true } },
-                branch: { select: { id: true, name: true } },
-                company: { select: { id: true, name: true } },
-                items: {
-                    include: { product: true },
+    async processPaymentTransaction(dto: any, sale: any) {
+        const result = await this.prisma.$transaction([
+            this.prisma.payment.create({
+                data: {
+                    sale_id:               dto.sale_id,
+                    payment_method:        dto.payment_method,
+                    amount_paid:           dto.amount_paid,
+                    payment_status:        'Paid',
+                    transaction_reference: dto.transaction_reference,
                 },
-            },
-        });
-    }
-
-    async create(dto: CreateBillDto, cashierId: number, companyId: number) {
-        // Calculate totals
-        const subtotal = dto.items.reduce(
-            (sum, item) => sum + item.unit_price * item.quantity, 0
-        );
-        const discount = dto.discount || 0;
-        const tax = 0;
-        const total = subtotal - discount + tax;
-
-        // Generate bill number
-        const billNumber = `BILL-${Date.now()}`;
-
-        return this.prisma.bill.create({
-            data: {
-                bill_number: billNumber,
-                company_id: companyId,
-                branch_id: dto.branch_id,
-                cashier_id: cashierId,
-                payment_method: dto.payment_method,
-                subtotal,
-                discount,
-                tax,
-                total,
-                notes: dto.notes,
-                status: 'COMPLETED',
-                items: {
-                    create: dto.items.map(item => ({
-                        product_id: item.product_id,
-                        quantity: item.quantity,
-                        unit_price: item.unit_price,
-                        total: item.unit_price * item.quantity,
-                    })),
+            }),
+            this.prisma.sale.update({
+                where: { id: dto.sale_id },
+                data:  {
+                    sale_status:    'Completed',
+                    payment_status: 'Paid',
+                    updated_at:     new Date(),
                 },
-            },
-            include: {
-                items: { include: { product: true } },
-                branch: { select: { id: true, name: true } },
-            },
-        });
-    }
+            }),
+        ]);
 
-    async updateStatus(id: number, status: string) {
-        return this.prisma.bill.update({
-            where: { id },
-            data: { status: status as any },
-        });
+        return {
+            payment_id:     result[0].id,
+            invoice_number: sale.invoice_number,
+            amount_paid:    result[0].amount_paid,
+            change:         Number(dto.amount_paid) - Number(sale.total_amount),
+            status:         'Payment Successful',
+        };
     }
 }

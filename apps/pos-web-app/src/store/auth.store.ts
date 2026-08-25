@@ -8,6 +8,7 @@ interface User {
     company_id: number;
     branch_id: number | null;
     roles: string[];
+    authorities: string[]; // flattened permission names from JWT payload, e.g. 'SALES_REPORT_VIEW'
     info: { first_name: string; last_name: string; email?: string } | null;
 }
 
@@ -15,8 +16,11 @@ interface AuthState {
     user: User | null;
     token: string | null;
     isAuthenticated: boolean;
+    hasHydrated: boolean;
     setAuth: (user: User, token: string) => void;
     logout: () => void;
+    setHasHydrated: (state: boolean) => void;
+    hasAuthority: (authority: string) => boolean;
 }
 
 // Cookie helper
@@ -32,10 +36,11 @@ function deleteCookie(name: string) {
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             token: null,
             isAuthenticated: false,
+            hasHydrated: false,
 
             setAuth: (user, token) => {
                 // save on both localStorage and cookie
@@ -49,7 +54,22 @@ export const useAuthStore = create<AuthState>()(
                 deleteCookie('access_token');
                 set({ user: null, token: null, isAuthenticated: false });
             },
+
+            setHasHydrated: (state) => {
+                set({ hasHydrated: state });
+            },
+
+            // e.g. hasAuthority('COMPANY_SETTINGS_MANAGE')
+            hasAuthority: (authority) => {
+                const { user } = get();
+                return user?.authorities?.includes(authority) ?? false;
+            },
         }),
-        { name: 'ryzera-auth' },
+        {
+            name: 'ryzera-auth',
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
+        },
     ),
 );

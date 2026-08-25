@@ -1,16 +1,13 @@
-import { defineConfig } from 'prisma/config';
+﻿import 'dotenv/config'
+import path from 'node:path'
+import { defineConfig, env } from 'prisma/config'
+
+console.log('DEBUG DATABASE_URL:', process.env.DATABASE_URL)
 
 export default defineConfig({
-  schema: './prisma/schema.prisma',
+  engine: 'classic',
+  schema: path.join('prisma', 'schema.prisma'),
   datasource: {
-    db: {
-      url: 'postgresql://postgres:postgres@localhost:5432/ryzera_pos?schema=public',
-    },
+    url: env('DATABASE_URL'),
   },
-  generator: {
-    client: {
-      provider: 'prisma-client-js',
-      output: './src/generated/prisma',
-    },
-  },
-});
+})

@@ -26,19 +26,25 @@ export class RolesGuard implements CanActivate {
 
         // User JWT payload එකෙන් ගන්න
         const request = context.switchToHttp().getRequest();
-        const user: JwtPayload = request.user;
+        const user: JwtPayload & { role?: string } = request.user;
 
         if (!user) {
             throw new ForbiddenException('No user found in request');
         }
 
+        // Normalize both shapes: user.roles (array, Authentication) and user.role (string, Inventory)
+        const userRoles: string[] = [
+            ...(Array.isArray(user.roles) ? user.roles : []),
+            ...(user.role ? [user.role] : []),
+        ];
+
         // ADMIN can access everywhere
-        if (user.roles.includes('ADMIN') || user.userType === 'ADMIN') {
+        if (userRoles.includes('ADMIN') || user.userType === 'ADMIN') {
             return true;
         }
 
         // Role match check
-        const hasRole = requiredRoles.some((role) => user.roles.includes(role));
+        const hasRole = requiredRoles.some((role) => userRoles.includes(role));
 
         if (!hasRole) {
             throw new ForbiddenException(
