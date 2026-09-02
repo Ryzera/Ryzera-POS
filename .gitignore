@@ -39,3 +39,7 @@ yarn-error.log*
 # Prisma generated files
 packages/pos-database/src/generated/
 /generated/prisma
+
+# IDE
+.vscode/
+.idea/
