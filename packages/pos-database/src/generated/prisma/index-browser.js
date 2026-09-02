@@ -24,12 +24,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 7.9.1
- * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
+ * Prisma Client JS version: 7.4.0
+ * Query Engine version: ab56fe763f921d033a6c195e7ddeb3e255bdbb57
  */
 Prisma.prismaVersion = {
-  client: "7.9.1",
-  engine: "e922089b7d7502aff4249d5da3420f6fa55fc6ad"
+  client: "7.4.0",
+  engine: "ab56fe763f921d033a6c195e7ddeb3e255bdbb57"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -587,6 +587,7 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   reportType: 'reportType',
   filtersUsed: 'filtersUsed',
   branchName: 'branchName',
+  branch_id: 'branch_id',
   user_id: 'user_id',
   created_at: 'created_at'
 };
@@ -643,6 +644,7 @@ exports.Prisma.NotificationScalarFieldEnum = {
   message: 'message',
   is_read: 'is_read',
   user_id: 'user_id',
+  target_role: 'target_role',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -697,6 +699,20 @@ exports.Prisma.DiscountApplicationScalarFieldEnum = {
   applied_by: 'applied_by',
   amount_deducted: 'amount_deducted',
   created_at: 'created_at'
+};
+
+exports.Prisma.EmailOutboxScalarFieldEnum = {
+  id: 'id',
+  event_type: 'event_type',
+  recipient: 'recipient',
+  subject: 'subject',
+  body: 'body',
+  status: 'status',
+  attempts: 'attempts',
+  last_error: 'last_error',
+  sent_at: 'sent_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -926,7 +942,8 @@ exports.Prisma.ModelName = {
   ScheduledReport: 'ScheduledReport',
   DiscountRule: 'DiscountRule',
   DiscountApproval: 'DiscountApproval',
-  DiscountApplication: 'DiscountApplication'
+  DiscountApplication: 'DiscountApplication',
+  EmailOutbox: 'EmailOutbox'
 };
 
 /**

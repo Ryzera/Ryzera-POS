@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/select";
 import { Modal, ModalHeader } from "@/components/ui/modal";
 
 interface Branch {
@@ -194,7 +194,7 @@ export default function BranchesPage() {
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-xl font-semibold text-gray-900">Branches</h1>
                 <div className="flex items-center gap-3">
-                    <Select
+                    <NativeSelect
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
                         className="w-40"
@@ -203,7 +203,7 @@ export default function BranchesPage() {
                         <option value="ACTIVE">Active</option>
                         <option value="INACTIVE">Inactive</option>
                         <option value="SUSPENDED">Suspended</option>
-                    </Select>
+                    </NativeSelect>
                     <Button onClick={openAdd}>+ Add Branch</Button>
                 </div>
             </div>

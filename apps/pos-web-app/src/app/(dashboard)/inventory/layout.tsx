@@ -29,9 +29,13 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        /* Change min-h-screen -> h-screen overflow-hidden */
+        <div className="flex h-screen overflow-hidden bg-gray-50">
             <Sidebar />
-            <main className="flex-1 min-w-0 overflow-auto">{children}</main>
+            {/* Add h-full and overflow-y-auto to main */}
+            <main className="flex-1 min-w-0 h-full overflow-y-auto">
+                {children}
+            </main>
             <Toaster position="top-right" />
         </div>
     );

@@ -32,12 +32,15 @@
     "@prisma/client": "^7.4.0",
     "@ryzera/pos-database": "workspace:*",
     "@ryzera/pos-schema": "workspace:*",
+    "@types/cron": "^2.4.3",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.3",
+    "cron": "^4.4.0",
     "dotenv": "^17.3.1",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "pdfkit": "^0.17.2",
     "pg": "^8.20.0",
     "prisma": "6",
     "reflect-metadata": "^0.2.2",
@@ -59,6 +62,7 @@
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^8.0.0",
     "@types/passport-jwt": "^4.0.1",
+    "@types/pdfkit": "^0.17.5",
     "@types/pg": "^8.20.0",
     "@types/supertest": "^6.0.3",
     "eslint": "^9.18.0",
@@ -77,3 +81,5 @@
     "typescript-eslint": "^8.20.0"
   }
 }
+
+

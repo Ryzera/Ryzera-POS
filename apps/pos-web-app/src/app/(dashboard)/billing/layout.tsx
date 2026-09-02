@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     ShoppingCart, List, Receipt,
-    RotateCcw, Users, GitBranch, Percent, ArrowLeft
+    RotateCcw, Users, Percent, ArrowLeft
 } from 'lucide-react';
 
 export default function BillingLayout({ children }: { children: React.ReactNode }) {
@@ -110,7 +110,6 @@ export default function BillingLayout({ children }: { children: React.ReactNode 
                         Setup
                     </div>
                     {navItem('/billing/cashiers', <Users size={15} />, 'Cashiers')}
-                    {navItem('/billing/branches', <GitBranch size={15} />, 'Branches')}
 
                     {/* ── Back to Main Dashboard ── */}
                     <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>

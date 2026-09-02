@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface User {
+export interface User {
     id: number;
     username: string;
     user_type: string;
     company_id: number;
     branch_id: number | null;
     roles: string[];
-    authorities: string[]; // flattened permission names from JWT payload, e.g. 'SALES_REPORT_VIEW'
+    authorities?: string[];
     info: { first_name: string; last_name: string; email?: string } | null;
 }
 

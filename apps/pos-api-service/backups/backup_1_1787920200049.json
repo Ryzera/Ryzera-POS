@@ -1,0 +1,1171 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "createdAt": "2026-08-28T12:30:01.080Z",
+    "branchId": 1,
+    "totalTablesDumped": 8,
+    "source": "Supabase Cloud Database (PostgreSQL)"
+  },
+  "tables": {
+    "branches": [
+      {
+        "id": 1,
+        "company_id": 1,
+        "name": "Head Office",
+        "code": "HQ",
+        "address": "Colombo 03",
+        "phone": "+94771234567",
+        "email": "hq@ryzera.com",
+        "city": null,
+        "manager_name": null,
+        "is_active": true,
+        "created_at": "2026-08-24T08:48:42.681Z",
+        "updated_at": "2026-08-27T03:25:23.673Z"
+      },
+      {
+        "id": 2,
+        "company_id": 1,
+        "name": "Kandy Branch",
+        "code": "KDY",
+        "address": "Kandy City Center",
+        "phone": "+94812345678",
+        "email": "kandy@ryzera.com",
+        "city": null,
+        "manager_name": null,
+        "is_active": true,
+        "created_at": "2026-08-24T08:48:43.122Z",
+        "updated_at": "2026-08-27T03:25:23.968Z"
+      },
+      {
+        "id": 3,
+        "company_id": 1,
+        "name": "Galle",
+        "code": "GAL01",
+        "address": "123 Main St, Galle",
+        "phone": "0112568925",
+        "email": null,
+        "city": null,
+        "manager_name": null,
+        "is_active": true,
+        "created_at": "2026-08-24T09:30:25.551Z",
+        "updated_at": "2026-08-27T03:25:24.182Z"
+      }
+    ],
+    "devices": [
+      {
+        "id": 1,
+        "name": "POS-Demo-Branch-1-01",
+        "type": "POS",
+        "status": "ONLINE",
+        "branch_id": 1,
+        "lastSeen": "2026-08-28T07:12:31.345Z",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-28T07:13:31.568Z"
+      },
+      {
+        "id": 2,
+        "name": "POS-Demo-Branch-2-01",
+        "type": "POS",
+        "status": "ONLINE",
+        "branch_id": 2,
+        "lastSeen": "2026-08-28T07:12:31.345Z",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-28T07:13:31.568Z"
+      },
+      {
+        "id": 3,
+        "name": "POS-Demo-Branch-3-01",
+        "type": "POS",
+        "status": "ONLINE",
+        "branch_id": 3,
+        "lastSeen": "2026-08-28T07:12:31.345Z",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-28T07:13:31.568Z"
+      },
+      {
+        "id": 4,
+        "name": "POS-Review-Branch-1-02",
+        "type": "POS",
+        "status": "ONLINE",
+        "branch_id": 1,
+        "lastSeen": "2026-08-28T07:12:31.345Z",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-28T07:13:31.568Z"
+      },
+      {
+        "id": 5,
+        "name": "POS-Review-Branch-2-02",
+        "type": "POS",
+        "status": "ONLINE",
+        "branch_id": 2,
+        "lastSeen": "2026-08-28T07:12:31.345Z",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-28T07:13:31.568Z"
+      },
+      {
+        "id": 6,
+        "name": "POS-Review-Branch-3-02",
+        "type": "POS",
+        "status": "ONLINE",
+        "branch_id": 3,
+        "lastSeen": "2026-08-28T07:12:31.345Z",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-28T07:13:31.568Z"
+      }
+    ],
+    "syncLogs": [
+      {
+        "id": 2,
+        "branch_id": 1,
+        "entity": "SALE",
+        "payload": {
+          "record": {
+            "sale_id": 1,
+            "user_id": 1,
+            "subtotal": 1680,
+            "branch_id": 1,
+            "created_at": "2026-08-24T20:44:52.682",
+            "tax_amount": 0,
+            "updated_at": "2026-08-24T20:44:51.57",
+            "sale_status": "Pending",
+            "total_amount": 1512,
+            "invoice_number": "INV-1787604290726",
+            "payment_status": "Pending",
+            "discount_amount": 168
+          },
+          "source_id": 1,
+          "demo_source": "existing_supabase_records",
+          "source_table": "sale"
+        },
+        "error": "Resolved: manual_merge",
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-28T07:04:06.141Z",
+        "created_at": "2026-08-26T17:37:51.100Z",
+        "updated_at": "2026-08-28T07:04:06.143Z"
+      },
+      {
+        "id": 3,
+        "branch_id": 1,
+        "entity": "PRODUCT",
+        "payload": {
+          "record": {
+            "sku": null,
+            "code": "BEV001",
+            "name": "Coca Cola 330ml",
+            "unit": "PCS",
+            "price": 120,
+            "status": "ACTIVE",
+            "barcode": null,
+            "quantity": 150,
+            "branch_id": 1,
+            "is_active": true,
+            "company_id": 1,
+            "cost_price": 80,
+            "created_at": "2026-08-24T08:49:00.708",
+            "product_id": 1,
+            "updated_at": "2026-08-24T08:49:00.708",
+            "category_id": null,
+            "description": null,
+            "supplier_id": null,
+            "min_quantity": 20
+          },
+          "source_id": 1,
+          "demo_source": "existing_supabase_records",
+          "source_table": "product"
+        },
+        "error": null,
+        "attempts": 0,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-26T17:41:01.614Z",
+        "created_at": "2026-08-26T17:38:51.100Z",
+        "updated_at": "2026-08-27T03:25:26.016Z"
+      },
+      {
+        "id": 5,
+        "branch_id": 1,
+        "entity": "SALE",
+        "payload": {
+          "record": {
+            "sale_id": 2,
+            "user_id": 1,
+            "subtotal": 1680,
+            "branch_id": 1,
+            "created_at": "2026-08-24T20:48:49.711",
+            "tax_amount": 0,
+            "updated_at": "2026-08-24T20:48:49.704",
+            "sale_status": "Pending",
+            "total_amount": 1512,
+            "invoice_number": "INV-1787604527996",
+            "payment_status": "Pending",
+            "discount_amount": 168
+          },
+          "source_id": 2,
+          "demo_source": "existing_supabase_records_review",
+          "source_table": "sale"
+        },
+        "error": null,
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-26T17:56:50.181Z",
+        "created_at": "2026-08-26T17:56:50.181Z",
+        "updated_at": "2026-08-27T03:25:26.918Z"
+      },
+      {
+        "id": 6,
+        "branch_id": 1,
+        "entity": "PRODUCT",
+        "payload": {
+          "record": {
+            "sku": null,
+            "code": "BEV002",
+            "name": "Pepsi 330ml",
+            "unit": "PCS",
+            "price": 110,
+            "status": "ACTIVE",
+            "barcode": null,
+            "quantity": 100,
+            "branch_id": 1,
+            "is_active": true,
+            "company_id": 1,
+            "cost_price": 75,
+            "created_at": "2026-08-24T08:49:00.817",
+            "product_id": 2,
+            "updated_at": "2026-08-24T08:49:00.817",
+            "category_id": null,
+            "description": null,
+            "supplier_id": null,
+            "min_quantity": 20
+          },
+          "source_id": 2,
+          "demo_source": "existing_supabase_records_review",
+          "source_table": "product"
+        },
+        "error": null,
+        "attempts": 0,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-26T18:17:01.131Z",
+        "created_at": "2026-08-26T18:01:50.181Z",
+        "updated_at": "2026-08-27T03:25:27.564Z"
+      },
+      {
+        "id": 10,
+        "branch_id": 1,
+        "entity": "SALE",
+        "payload": {
+          "amount": 3450,
+          "branch": "Head Office",
+          "cashierId": 1,
+          "invoiceNumber": "INV-2026-0828-01"
+        },
+        "error": null,
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-28T04:13:31.465Z",
+        "created_at": "2026-08-28T04:13:31.345Z",
+        "updated_at": "2026-08-28T07:13:32.666Z"
+      },
+      {
+        "id": 11,
+        "branch_id": 2,
+        "entity": "PRODUCT",
+        "payload": {
+          "sku": "BEV-001",
+          "name": "Coca Cola 330ml",
+          "updatedPrice": 125
+        },
+        "error": null,
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-28T05:13:31.430Z",
+        "created_at": "2026-08-28T05:13:31.345Z",
+        "updated_at": "2026-08-28T07:13:32.781Z"
+      },
+      {
+        "id": 12,
+        "branch_id": 3,
+        "entity": "INVENTORY",
+        "payload": {
+          "sku": "RC-002",
+          "action": "STOCK_IN",
+          "addedQty": 50
+        },
+        "error": null,
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-28T06:13:31.555Z",
+        "created_at": "2026-08-28T06:13:31.345Z",
+        "updated_at": "2026-08-28T07:13:32.860Z"
+      },
+      {
+        "id": 13,
+        "branch_id": 1,
+        "entity": "SALE",
+        "payload": {
+          "amount": 1890,
+          "branch": "Head Office",
+          "cashierId": 3,
+          "invoiceNumber": "INV-2026-0828-02"
+        },
+        "error": null,
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-28T06:53:31.440Z",
+        "created_at": "2026-08-28T06:53:31.345Z",
+        "updated_at": "2026-08-28T07:13:32.940Z"
+      },
+      {
+        "id": 14,
+        "branch_id": 2,
+        "entity": "SALE",
+        "payload": {
+          "amount": 5600,
+          "branch": "Kandy Branch",
+          "cashierId": 6,
+          "invoiceNumber": "INV-2026-0828-03"
+        },
+        "error": null,
+        "attempts": 1,
+        "status": "SYNCED",
+        "syncedAt": "2026-08-28T07:08:31.485Z",
+        "created_at": "2026-08-28T07:08:31.345Z",
+        "updated_at": "2026-08-28T07:13:33.069Z"
+      }
+    ],
+    "conflicts": [
+      {
+        "id": 1,
+        "syncLog_id": 3,
+        "status": "PENDING",
+        "clientData": {
+          "state": "offline_pending",
+          "source": "existing_supabase_records",
+          "payload": {
+            "record": {
+              "sku": null,
+              "code": "BEV001",
+              "name": "Coca Cola 330ml",
+              "unit": "PCS",
+              "price": 120,
+              "status": "ACTIVE",
+              "barcode": null,
+              "quantity": 150,
+              "branch_id": 1,
+              "is_active": true,
+              "company_id": 1,
+              "cost_price": 80,
+              "created_at": "2026-08-24T08:49:00.708",
+              "product_id": 1,
+              "updated_at": "2026-08-24T08:49:00.708",
+              "category_id": null,
+              "description": null,
+              "supplier_id": null,
+              "min_quantity": 20
+            },
+            "source_id": 1,
+            "demo_source": "existing_supabase_records",
+            "source_table": "product"
+          }
+        },
+        "serverData": {
+          "state": "newer_server_version",
+          "source": "central_database",
+          "resolution_required": true
+        },
+        "resolution": null,
+        "resolvedBy": null,
+        "resolvedAt": null,
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:29.090Z"
+      },
+      {
+        "id": 3,
+        "syncLog_id": 4,
+        "status": "PENDING",
+        "clientData": {
+          "state": "offline_client_version",
+          "source": "existing_supabase_records",
+          "payload": {
+            "record": {
+              "id": 1,
+              "action": "TRANSFER",
+              "userId": 1,
+              "branch_id": 1,
+              "changeQty": -10,
+              "created_at": "2026-08-24T08:56:38.275",
+              "product_id": 4,
+              "description": "Transferred out via Transfer #1",
+              "branchProductId": 1
+            },
+            "source_id": 1,
+            "demo_source": "existing_supabase_records",
+            "source_table": "inventory_log"
+          }
+        },
+        "serverData": {
+          "state": "newer_server_version",
+          "source": "central_database",
+          "resolution_required": true
+        },
+        "resolution": null,
+        "resolvedBy": null,
+        "resolvedAt": null,
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:25:30.291Z"
+      },
+      {
+        "id": 4,
+        "syncLog_id": 5,
+        "status": "PENDING",
+        "clientData": {
+          "state": "offline_client_version",
+          "source": "existing_supabase_records",
+          "payload": {
+            "record": {
+              "sale_id": 2,
+              "user_id": 1,
+              "subtotal": 1680,
+              "branch_id": 1,
+              "created_at": "2026-08-24T20:48:49.711",
+              "tax_amount": 0,
+              "updated_at": "2026-08-24T20:48:49.704",
+              "sale_status": "Pending",
+              "total_amount": 1512,
+              "invoice_number": "INV-1787604527996",
+              "payment_status": "Pending",
+              "discount_amount": 168
+            },
+            "source_id": 2,
+            "demo_source": "existing_supabase_records_review",
+            "source_table": "sale"
+          }
+        },
+        "serverData": {
+          "state": "newer_server_version",
+          "source": "central_database",
+          "resolution_required": true
+        },
+        "resolution": null,
+        "resolvedBy": null,
+        "resolvedAt": null,
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:25:30.907Z"
+      },
+      {
+        "id": 6,
+        "syncLog_id": 7,
+        "status": "PENDING",
+        "clientData": {
+          "state": "offline_client_version",
+          "source": "existing_supabase_records",
+          "payload": {
+            "record": {
+              "id": 2,
+              "action": "TRANSFER",
+              "userId": 1,
+              "branch_id": 2,
+              "changeQty": 10,
+              "created_at": "2026-08-24T08:56:48.207",
+              "product_id": 4,
+              "description": "Transferred in via Transfer #1",
+              "branchProductId": 2
+            },
+            "source_id": 2,
+            "demo_source": "existing_supabase_records_review",
+            "source_table": "inventory_log"
+          }
+        },
+        "serverData": {
+          "state": "newer_server_version",
+          "source": "central_database",
+          "resolution_required": true
+        },
+        "resolution": null,
+        "resolvedBy": null,
+        "resolvedAt": null,
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:25:31.127Z"
+      },
+      {
+        "id": 2,
+        "syncLog_id": 2,
+        "status": "RESOLVED",
+        "clientData": {
+          "state": "offline_client_version",
+          "source": "existing_supabase_records",
+          "payload": {
+            "record": {
+              "sale_id": 1,
+              "user_id": 1,
+              "subtotal": 1680,
+              "branch_id": 1,
+              "created_at": "2026-08-24T20:44:52.682",
+              "tax_amount": 0,
+              "updated_at": "2026-08-24T20:44:51.57",
+              "sale_status": "Pending",
+              "total_amount": 1512,
+              "invoice_number": "INV-1787604290726",
+              "payment_status": "Pending",
+              "discount_amount": 168
+            },
+            "source_id": 1,
+            "demo_source": "existing_supabase_records",
+            "source_table": "sale"
+          }
+        },
+        "serverData": {
+          "state": "newer_server_version",
+          "source": "central_database",
+          "resolution_required": true
+        },
+        "resolution": "manual_merge",
+        "resolvedBy": null,
+        "resolvedAt": "2026-08-28T07:04:06.028Z",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-28T07:04:06.031Z"
+      },
+      {
+        "id": 5,
+        "syncLog_id": 6,
+        "status": "PENDING",
+        "clientData": {
+          "state": "offline_client_version",
+          "source": "existing_supabase_records",
+          "payload": {
+            "record": {
+              "sku": null,
+              "code": "BEV002",
+              "name": "Pepsi 330ml",
+              "unit": "PCS",
+              "price": 110,
+              "status": "ACTIVE",
+              "barcode": null,
+              "quantity": 100,
+              "branch_id": 1,
+              "is_active": true,
+              "company_id": 1,
+              "cost_price": 75,
+              "created_at": "2026-08-24T08:49:00.817",
+              "product_id": 2,
+              "updated_at": "2026-08-24T08:49:00.817",
+              "category_id": null,
+              "description": null,
+              "supplier_id": null,
+              "min_quantity": 20
+            },
+            "source_id": 2,
+            "demo_source": "existing_supabase_records_review",
+            "source_table": "product"
+          }
+        },
+        "serverData": {
+          "state": "newer_server_version",
+          "source": "central_database",
+          "resolution_required": true
+        },
+        "resolution": null,
+        "resolvedBy": null,
+        "resolvedAt": null,
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:25:31.722Z"
+      }
+    ],
+    "healthMetrics": [
+      {
+        "id": 1,
+        "branch_id": 2,
+        "latency": 150,
+        "successRate": 97.5,
+        "uptime": 98.6,
+        "timestamp": "2026-08-26T15:40:51.100Z"
+      },
+      {
+        "id": 2,
+        "branch_id": 1,
+        "latency": 135,
+        "successRate": 98,
+        "uptime": 98.8,
+        "timestamp": "2026-08-26T16:40:51.100Z"
+      },
+      {
+        "id": 3,
+        "branch_id": 3,
+        "latency": 165,
+        "successRate": 97,
+        "uptime": 98.4,
+        "timestamp": "2026-08-26T14:40:51.100Z"
+      },
+      {
+        "id": 4,
+        "branch_id": 2,
+        "latency": 169,
+        "successRate": 97,
+        "uptime": 98.1,
+        "timestamp": "2026-08-25T16:16:50.181Z"
+      },
+      {
+        "id": 5,
+        "branch_id": 1,
+        "latency": 157,
+        "successRate": 97.4,
+        "uptime": 98.4,
+        "timestamp": "2026-08-25T17:16:50.181Z"
+      },
+      {
+        "id": 6,
+        "branch_id": 3,
+        "latency": 181,
+        "successRate": 96.6,
+        "uptime": 97.8,
+        "timestamp": "2026-08-25T15:16:50.181Z"
+      }
+    ],
+    "auditLogs": [
+      {
+        "id": 1,
+        "action": "Real-data Sync Demonstration Prepared",
+        "module": "Sync Suite",
+        "user_id": 1,
+        "branch_id": 1,
+        "details": {
+          "source": "existing_supabase_records",
+          "business_tables": [
+            "sale",
+            "product",
+            "inventory_log"
+          ]
+        },
+        "created_at": "2026-08-26T17:40:51.100Z"
+      },
+      {
+        "id": 2,
+        "action": "Sync Successful",
+        "module": "PRODUCT",
+        "user_id": null,
+        "branch_id": 1,
+        "details": null,
+        "created_at": "2026-08-26T17:41:01.825Z"
+      },
+      {
+        "id": 3,
+        "action": "Review: Device heartbeat received",
+        "module": "Device Management",
+        "user_id": 1,
+        "branch_id": 1,
+        "details": {
+          "source": "existing_supabase_records_review",
+          "review_event": "Review: Device heartbeat received"
+        },
+        "created_at": "2026-08-26T18:16:50.181Z"
+      },
+      {
+        "id": 4,
+        "action": "Review: Failed inventory retry inspected",
+        "module": "Inventory",
+        "user_id": 1,
+        "branch_id": 1,
+        "details": {
+          "source": "existing_supabase_records_review",
+          "review_event": "Review: Failed inventory retry inspected"
+        },
+        "created_at": "2026-08-26T18:16:50.181Z"
+      },
+      {
+        "id": 5,
+        "action": "Review: Conflict queue opened",
+        "module": "Sync Engine",
+        "user_id": 1,
+        "branch_id": 1,
+        "details": {
+          "source": "existing_supabase_records_review",
+          "review_event": "Review: Conflict queue opened"
+        },
+        "created_at": "2026-08-26T18:16:50.181Z"
+      },
+      {
+        "id": 6,
+        "action": "Review: Sale sync acknowledged",
+        "module": "Billing",
+        "user_id": 1,
+        "branch_id": 1,
+        "details": {
+          "source": "existing_supabase_records_review",
+          "review_event": "Review: Sale sync acknowledged"
+        },
+        "created_at": "2026-08-26T18:16:50.181Z"
+      },
+      {
+        "id": 7,
+        "action": "Review: Pending product payload inspected",
+        "module": "Inventory",
+        "user_id": 1,
+        "branch_id": 1,
+        "details": {
+          "source": "existing_supabase_records_review",
+          "review_event": "Review: Pending product payload inspected"
+        },
+        "created_at": "2026-08-26T18:16:50.181Z"
+      },
+      {
+        "id": 8,
+        "action": "Sync Successful",
+        "module": "PRODUCT",
+        "user_id": null,
+        "branch_id": 1,
+        "details": null,
+        "created_at": "2026-08-26T18:17:01.297Z"
+      },
+      {
+        "id": 9,
+        "action": "Conflict Resolved (manual_merge)",
+        "module": "SALE",
+        "user_id": null,
+        "branch_id": 1,
+        "details": null,
+        "created_at": "2026-08-28T07:04:06.255Z"
+      }
+    ],
+    "settings": [
+      {
+        "id": 14,
+        "key": "storeName",
+        "value": "Ryzera Super Store",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:30.963Z",
+        "updated_at": "2026-08-27T11:00:40.318Z"
+      },
+      {
+        "id": 15,
+        "key": "legalEntity",
+        "value": "Ryzera POS Solutions LTD",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:31.143Z",
+        "updated_at": "2026-08-27T11:00:40.552Z"
+      },
+      {
+        "id": 16,
+        "key": "taxId",
+        "value": "TRN-9988776655",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:31.353Z",
+        "updated_at": "2026-08-27T11:00:40.726Z"
+      },
+      {
+        "id": 17,
+        "key": "email",
+        "value": "admin@ryzera.com",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:31.521Z",
+        "updated_at": "2026-08-27T11:00:40.916Z"
+      },
+      {
+        "id": 18,
+        "key": "phone",
+        "value": "+94 11 234 5678",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:31.726Z",
+        "updated_at": "2026-08-27T11:00:41.092Z"
+      },
+      {
+        "id": 19,
+        "key": "website",
+        "value": "https://ryzera.com",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:31.890Z",
+        "updated_at": "2026-08-27T11:00:41.295Z"
+      },
+      {
+        "id": 20,
+        "key": "currency",
+        "value": "LKR",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:32.074Z",
+        "updated_at": "2026-08-27T11:00:41.463Z"
+      },
+      {
+        "id": 21,
+        "key": "symbol",
+        "value": "රු",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:32.237Z",
+        "updated_at": "2026-08-27T11:00:41.631Z"
+      },
+      {
+        "id": 22,
+        "key": "language",
+        "value": "English (US)",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:32.453Z",
+        "updated_at": "2026-08-27T11:00:41.832Z"
+      },
+      {
+        "id": 23,
+        "key": "timezone",
+        "value": "Asia/Colombo (GMT+5:30)",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:32.607Z",
+        "updated_at": "2026-08-27T11:00:42.006Z"
+      },
+      {
+        "id": 24,
+        "key": "taxName",
+        "value": "VAT",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:32.841Z",
+        "updated_at": "2026-08-27T11:00:42.174Z"
+      },
+      {
+        "id": 25,
+        "key": "taxPercent",
+        "value": "15.0",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:33.019Z",
+        "updated_at": "2026-08-27T11:00:42.373Z"
+      },
+      {
+        "id": 26,
+        "key": "inclusiveTax",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:33.186Z",
+        "updated_at": "2026-08-27T11:00:42.552Z"
+      },
+      {
+        "id": 27,
+        "key": "enableSscl",
+        "value": "false",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:33.357Z",
+        "updated_at": "2026-08-27T11:00:42.732Z"
+      },
+      {
+        "id": 28,
+        "key": "realTimeSync",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:33.544Z",
+        "updated_at": "2026-08-27T11:00:42.887Z"
+      },
+      {
+        "id": 29,
+        "key": "mediaPersistence",
+        "value": "false",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:33.704Z",
+        "updated_at": "2026-08-27T11:00:43.048Z"
+      },
+      {
+        "id": 30,
+        "key": "backgroundRefresh",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:33.865Z",
+        "updated_at": "2026-08-27T11:00:43.206Z"
+      },
+      {
+        "id": 31,
+        "key": "deltaCompression",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:34.034Z",
+        "updated_at": "2026-08-27T11:00:43.388Z"
+      },
+      {
+        "id": 1,
+        "key": "auto_sync_enabled",
+        "value": "true",
+        "description": "Automatic synchronization enabled for demonstration branch",
+        "branch_id": 1,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:52.743Z"
+      },
+      {
+        "id": 2,
+        "key": "auto_sync_enabled",
+        "value": "true",
+        "description": "Automatic synchronization enabled for demonstration branch",
+        "branch_id": 2,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:53.608Z"
+      },
+      {
+        "id": 3,
+        "key": "auto_sync_enabled",
+        "value": "true",
+        "description": "Automatic synchronization enabled for demonstration branch",
+        "branch_id": 3,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:54.112Z"
+      },
+      {
+        "id": 4,
+        "key": "retry_limit",
+        "value": "3",
+        "description": "Maximum retry attempts for failed synchronization records",
+        "branch_id": 1,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:55.101Z"
+      },
+      {
+        "id": 5,
+        "key": "retry_limit",
+        "value": "3",
+        "description": "Maximum retry attempts for failed synchronization records",
+        "branch_id": 2,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:56.126Z"
+      },
+      {
+        "id": 6,
+        "key": "retry_limit",
+        "value": "3",
+        "description": "Maximum retry attempts for failed synchronization records",
+        "branch_id": 3,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T17:40:51.100Z",
+        "updated_at": "2026-08-27T03:25:57.063Z"
+      },
+      {
+        "id": 7,
+        "key": "review_mode_2",
+        "value": "enabled",
+        "description": "Review demonstration setting derived for the selected branch",
+        "branch_id": 3,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:25:58.352Z"
+      },
+      {
+        "id": 8,
+        "key": "review_mode_1",
+        "value": "enabled",
+        "description": "Review demonstration setting derived for the selected branch",
+        "branch_id": 2,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:25:58.967Z"
+      },
+      {
+        "id": 9,
+        "key": "review_mode_2",
+        "value": "enabled",
+        "description": "Review demonstration setting derived for the selected branch",
+        "branch_id": 1,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:26:00.163Z"
+      },
+      {
+        "id": 10,
+        "key": "review_mode_1",
+        "value": "enabled",
+        "description": "Review demonstration setting derived for the selected branch",
+        "branch_id": 3,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:26:01.023Z"
+      },
+      {
+        "id": 11,
+        "key": "review_mode_2",
+        "value": "enabled",
+        "description": "Review demonstration setting derived for the selected branch",
+        "branch_id": 2,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:26:02.191Z"
+      },
+      {
+        "id": 12,
+        "key": "review_mode_1",
+        "value": "enabled",
+        "description": "Review demonstration setting derived for the selected branch",
+        "branch_id": 1,
+        "scope": "BRANCH",
+        "created_at": "2026-08-26T18:16:50.181Z",
+        "updated_at": "2026-08-27T03:26:03.394Z"
+      },
+      {
+        "id": 32,
+        "key": "syncInterval",
+        "value": "30",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:34.204Z",
+        "updated_at": "2026-08-27T11:00:43.581Z"
+      },
+      {
+        "id": 33,
+        "key": "maxRetries",
+        "value": "5",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:34.368Z",
+        "updated_at": "2026-08-27T11:00:43.791Z"
+      },
+      {
+        "id": 13,
+        "key": "backup_schedule",
+        "value": "{\"enabled\":true,\"cronExpression\":\"0 0 * * *\",\"timeString\":\"Daily at 12:00 AM\",\"lastRun\":null}",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T02:57:38.534Z",
+        "updated_at": "2026-08-27T11:00:45.847Z"
+      },
+      {
+        "id": 34,
+        "key": "failureAlerts",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:34.567Z",
+        "updated_at": "2026-08-27T11:00:43.988Z"
+      },
+      {
+        "id": 35,
+        "key": "dailySummary",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:34.736Z",
+        "updated_at": "2026-08-27T11:00:44.152Z"
+      },
+      {
+        "id": 36,
+        "key": "pushNotifications",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:34.937Z",
+        "updated_at": "2026-08-27T11:00:44.335Z"
+      },
+      {
+        "id": 37,
+        "key": "updateAlerts",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:35.092Z",
+        "updated_at": "2026-08-27T11:00:44.490Z"
+      },
+      {
+        "id": 38,
+        "key": "mfa",
+        "value": "false",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:35.310Z",
+        "updated_at": "2026-08-27T11:00:44.651Z"
+      },
+      {
+        "id": 39,
+        "key": "auditIntegrity",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:35.516Z",
+        "updated_at": "2026-08-27T11:00:44.857Z"
+      },
+      {
+        "id": 40,
+        "key": "autoLogout",
+        "value": "true",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:35.675Z",
+        "updated_at": "2026-08-27T11:00:45.032Z"
+      },
+      {
+        "id": 41,
+        "key": "invoiceHeader",
+        "value": "Welcome to Ryzera",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:35.829Z",
+        "updated_at": "2026-08-27T11:00:45.227Z"
+      },
+      {
+        "id": 42,
+        "key": "invoiceFooter",
+        "value": "Thank you for shopping with us!",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:36.039Z",
+        "updated_at": "2026-08-27T11:00:45.384Z"
+      },
+      {
+        "id": 43,
+        "key": "logoUrl",
+        "value": "",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-27T11:00:36.207Z",
+        "updated_at": "2026-08-27T11:00:45.668Z"
+      },
+      {
+        "id": 44,
+        "key": "queue_overload_threshold",
+        "value": "150",
+        "description": null,
+        "branch_id": null,
+        "scope": "GLOBAL",
+        "created_at": "2026-08-28T09:23:29.899Z",
+        "updated_at": "2026-08-28T09:23:29.899Z"
+      }
+    ]
+  }
+}

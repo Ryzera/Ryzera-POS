@@ -17,7 +17,11 @@ export default function ProductGrid({ products }: { products: Product[] }) {
         <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
             {products.map(p => {
                 const isOut = p.stock === 0;
-                const isLow = p.stock > 0 && p.stock <= 10;
+                // Low stock is driven by the product's real min_quantity from
+                // the DB (p.minStock), not a hardcoded number. If minStock
+                // wasn't provided (undefined), we don't know the threshold,
+                // so we don't show "Low" at all.
+                const isLow = p.stock > 0 && p.minStock != null && p.stock < p.minStock;
 
                 return (
                     <div

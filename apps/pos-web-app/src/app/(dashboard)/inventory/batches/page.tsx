@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/select";
 import { Modal, ModalHeader } from "@/components/ui/modal";
 
 interface Batch {
@@ -22,6 +22,10 @@ interface Batch {
 interface Product { id: string; name: string; sku: string; }
 
 const emptyForm = { productId: "", batchNumber: "", quantity: "", manufactureDate: "", expiryDate: "" };
+
+// Auto-generated placeholder names look like "Product-<timestamp>" — filter these
+// out of the picker until the underlying junk rows are cleaned up / prevented at creation.
+const JUNK_PRODUCT_NAME = /^Product-\d+$/;
 
 // Convert a plain date input value ("2026-08-18") to full ISO datetime.
 // Returns undefined for empty strings so optional dates stay optional.
@@ -107,6 +111,9 @@ export default function BatchesPage() {
     };
     const isExpired = (date?: string) => date ? new Date(date) < new Date() : false;
 
+    // Hide auto-generated placeholder products ("Product-<timestamp>") from the picker.
+    const selectableProducts = products.filter(p => !JUNK_PRODUCT_NAME.test(p.name));
+
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -175,10 +182,10 @@ export default function BatchesPage() {
                     <div className="grid grid-cols-2 gap-5">
                         <div className="col-span-2">
                             <Label>Product</Label>
-                            <Select name="productId" value={form.productId} onChange={handleChange} required>
+                            <NativeSelect name="productId" value={form.productId} onChange={handleChange} required>
                                 <option value="">Select product</option>
-                                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                            </Select>
+                                {selectableProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </NativeSelect>
                         </div>
                         <div>
                             <Label>Batch number</Label>

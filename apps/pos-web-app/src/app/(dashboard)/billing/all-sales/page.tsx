@@ -33,8 +33,18 @@ export default function AllSalesPage() {
                 const total = Number(s.grand_total ?? s.total_amount ?? s.total ?? 0);
                 const discount = Number(s.discount_amount ?? s.discount_total ?? 0);
                 const tax = Number(s.tax_amount ?? s.tax_total ?? 0);
-                const rawStatus = (s.status || 'COMPLETED').toLowerCase();
-                const status = rawStatus === 'completed' ? 'completed' : rawStatus === 'cancelled' ? 'cancelled' : rawStatus;
+
+                // sale_status from the backend is 'Pending' | 'Completed' | 'Cancelled'.
+                // Previously any missing/unrecognized status silently defaulted to
+                // 'COMPLETED', which hid genuinely Pending sales (e.g. payment that
+                // never actually processed) behind a false "Completed" badge.
+                const rawStatus = (s.sale_status || s.status || '').toLowerCase();
+                const status =
+                    rawStatus === 'completed' ? 'completed' :
+                        rawStatus === 'cancelled' ? 'cancelled' :
+                            rawStatus === 'pending'   ? 'pending' :
+                                rawStatus || 'unknown';
+
                 const rawPm = s.payment_method || s.paymentMethod || 'Cash';
                 const formattedPm = rawPm.charAt(0).toUpperCase() + rawPm.slice(1).toLowerCase();
 

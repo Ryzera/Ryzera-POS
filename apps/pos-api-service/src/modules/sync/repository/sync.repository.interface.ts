@@ -7,5 +7,12 @@ export interface ISyncRepository {
   create(data: any): Promise<any>;
   countByStatus(status: string): Promise<number>;
   findById(id: number): Promise<any>;
-  updateStatus(id: number, status: string, error?: string | null, syncedAt?: Date, incrementAttempts?: boolean): Promise<any>;
+  updateStatus(
+    id: number,
+    status: string,
+    error?: string | null,
+    syncedAt?: Date,
+    incrementAttempts?: boolean,
+  ): Promise<any>;
+  getMetricsData?(since: Date): Promise<any[]>;
 }

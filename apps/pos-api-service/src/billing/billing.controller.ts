@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, BadRequ
 import { BillingService } from './billing.service';
 import { CreateSaleSchema, CreateSaleDto } from './schema/create-sale.schema';
 import { ProcessPaymentSchema, ProcessPaymentDto } from './schema/process-payment.schema';
+import { ReturnsService } from '../returns/returns.service';
+import { CreateReturnSchema } from '../returns/schema/create-return.schema';
 import { ZodIssue } from 'zod';
 
 // Zod's raw `issues` are objects ({ code, message, path, ... }) — sending
@@ -17,7 +19,10 @@ function formatZodIssues(issues: ZodIssue[]): string[] {
 
 @Controller('billing')
 export class BillingController {
-    constructor(private billingService: BillingService) {}
+    constructor(
+        private billingService: BillingService,
+        private returnsService: ReturnsService,
+    ) {}
 
     @Post('sales')
     createSale(@Body() body: unknown) {
@@ -57,5 +62,14 @@ export class BillingController {
     @Get('discounts/branch/:branchId')
     getAvailableDiscounts(@Param('branchId', ParseIntPipe) branchId: number) {
         return this.billingService.getAvailableDiscounts(branchId);
+    }
+
+    @Post('sales/returns')
+    processReturn(@Body() body: unknown) {
+        const result = CreateReturnSchema.safeParse(body);
+        if (!result.success) {
+            throw new BadRequestException(formatZodIssues(result.error.issues));
+        }
+        return this.returnsService.processReturn(result.data);
     }
 }

@@ -10,9 +10,18 @@ import { createSale, processPayment } from '@/lib/api';
 interface Props {
     onClose: () => void;
     itemDiscounts?: Record<string, number>;
+    // Branch to check out against, set by the admin's branch filter.
+    // Falls back to the logged-in user's own branch when not provided
+    // (cashier/manager flows, or admin viewing "All Branches").
+    checkoutBranchId?: string | number;
+    // True when an admin has "All Branches" selected — checkout is
+    // ambiguous in that state, so we block Confirm with a clear message
+    // instead of silently guessing a branch (which previously caused
+    // "Insufficient stock" errors against the wrong branch).
+    requireBranchSelection?: boolean;
 }
 
-export default function PaymentModal({ onClose, itemDiscounts = {} }: Props) {
+export default function PaymentModal({ onClose, itemDiscounts = {}, checkoutBranchId, requireBranchSelection }: Props) {
     const { user } = useAuthStore();
     const {
         items, invoiceNo, discount, taxRate, paymentMethod,
@@ -40,10 +49,17 @@ export default function PaymentModal({ onClose, itemDiscounts = {} }: Props) {
         : getTaxAmount();
     const total     = hasItemDiscounts ? subtotal - itemDiscountTotal + taxAmt : total_;
     const change    = paymentMethod === 'Cash' ? (parseFloat(cashReceived) || 0) - total : 0;
-    const canConfirm = paymentMethod !== 'Cash' || parseFloat(cashReceived) >= total;
+    const canConfirm = (paymentMethod !== 'Cash' || parseFloat(cashReceived) >= total) && !requireBranchSelection;
 
     // Real dynamic user & branch
-    const currentBranchId = user?.branch_id ? Number(user.branch_id) : 1;
+    // Prefer the explicit branch filter (admin selling on behalf of a
+    // specific branch) over the logged-in user's own assigned branch —
+    // previously this always used user.branch_id, so an admin who picked
+    // a branch other than their own in the top-bar filter would still
+    // have sales checked out against the wrong branch's stock.
+    const currentBranchId = checkoutBranchId
+        ? Number(checkoutBranchId)
+        : user?.branch_id ? Number(user.branch_id) : 1;
     const currentUserId   = (user as any)?.id ?? (user as any)?.user_id ?? 1;
     const cashierName     = user?.info?.first_name
         ? `${user.info.first_name} ${user.info.last_name || ''}`.trim()
@@ -74,7 +90,17 @@ export default function PaymentModal({ onClose, itemDiscounts = {} }: Props) {
                 })),
             });
 
-            const saleId = sale?.sale_id ?? sale?.id ?? Math.floor(Math.random() * 9000) + 1000;
+            // createSale/processPayment no longer fabricate mock success data on
+            // failure (see lib/api.ts) — a failed request throws here instead of
+            // silently returning a fake sale. We also never invent a sale_id
+            // ourselves: a missing id means the sale was NOT actually created,
+            // and pretending it was is what caused "Completed" sales in the UI
+            // with no matching row in the database (no payment, no stock
+            // deduction, no inventory log).
+            const saleId = sale?.sale_id ?? sale?.id;
+            if (!saleId) {
+                throw new Error('Sale was not created — no sale id returned from server.');
+            }
 
             // 2. Process payment in database
             await processPayment({
@@ -84,7 +110,9 @@ export default function PaymentModal({ onClose, itemDiscounts = {} }: Props) {
                 transaction_reference: '',
             });
 
-            // 3. Record in local store for immediate UI update
+            // 3. Record in local store for immediate UI update — only reached
+            // once both createSale and processPayment have actually succeeded
+            // against the backend.
             addSale({
                 id: saleId,
                 invoice_no: invoiceNo,
@@ -215,6 +243,12 @@ export default function PaymentModal({ onClose, itemDiscounts = {} }: Props) {
                                     <span>Rs. {change >= 0 ? change.toLocaleString() : `${Math.abs(change).toLocaleString()} short`}</span>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {requireBranchSelection && (
+                        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                            Select a specific branch (not "All Branches") in the top bar before completing this sale.
                         </div>
                     )}
 

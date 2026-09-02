@@ -9,6 +9,12 @@ export interface Product {
     stock: number;
     category: string;
     image?: string;
+    // Minimum stock threshold from the DB (product.min_quantity). Used by
+    // ProductGrid to decide when to show the "Low: X" badge. Optional
+    // because FALLBACK_PRODUCTS and any legacy callers may not set it —
+    // when undefined, ProductGrid treats the product as having no low-stock
+    // threshold (badge won't show as "Low").
+    minStock?: number;
 }
 
 export interface CartItem {

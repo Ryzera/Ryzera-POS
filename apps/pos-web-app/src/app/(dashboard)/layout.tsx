@@ -16,8 +16,11 @@ import {
     Building2,
     Package,
     Receipt,
+    BarChart2,
+    RefreshCw,
     UserPlus,      // ← Manager "Add Staff" icon
 } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router   = useRouter();
@@ -31,11 +34,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (!isAuthenticated) return null;
 
-    // Inventory and Billing have their own full-page layouts (with their own
+    // Inventory,Reporting, Billing, and Sync have their own full-page layouts (with their own
     // sidebar + controls), so the main dashboard chrome is skipped for those routes.
-    const isFullScreenModule = pathname.startsWith('/inventory') || pathname.startsWith('/billing');
+    const isFullScreenModule = pathname.startsWith('/inventory') || pathname.startsWith('/billing') || pathname.startsWith('/reports') || pathname.startsWith('/sync');
     if (isFullScreenModule) {
-        return <>{children}</>;
+      return <>{children}</>;
     }
 
     // ─── Role helpers ────────────────────────────────────────────────────────
@@ -45,57 +48,69 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     // ─── Nav items ───────────────────────────────────────────────────────────
     const navItems = [
+      {
+        href: "/dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        show: true,
+      },
+      {
+        // Admin sees full Users page; Manager sees nothing here
+        href: "/users",
+        label: "Users",
+        icon: Users,
+        show: isAdmin,
+      },
+      {
+        // Manager-only shortcut → goes straight to register page,
+        // pre-filtered so they can only add staff to their own branch.
+        href: "/users/register",
+        label: "Add Staff",
+        icon: UserPlus,
+        show: isManager && !isAdmin, // hide for Admin (they use the full Users page)
+      },
+      {
+        href: "/roles",
+        label: "Roles",
+        icon: Shield,
+        show: isAdmin,
+      },
+      {
+        href: "/profile",
+        label: "Profile",
+        icon: User,
+        show: true,
+      },
+      {
+        href: "/company",
+        label: "Company",
+        icon: Building2,
+        show: isAdmin,
+      },
+      {
+        href: "/inventory",
+        label: "Inventory",
+        icon: Package,
+        show: true, // Admin sees all; Manager sees own branch (backend enforces)
+      },
+      {
+        href: "/billing",
+        label: "Billing",
+        icon: Receipt,
+        show: canCreate,
+      },
         {
-            href: '/dashboard',
-            label: 'Dashboard',
-            icon: LayoutDashboard,
-            show: true,
+            href: '/reports/dashboard',
+            label: 'Reports',
+            icon: BarChart2,
+            show: isAdmin || isManager || user?.roles?.includes('CASHIER') || user?.roles?.includes('INVENTORY_MANAGER'),
         },
-        {
-            // Admin sees full Users page; Manager sees nothing here
-            href: '/users',
-            label: 'Users',
-            icon: Users,
-            show: isAdmin,
-        },
-        {
-            // Manager-only shortcut → goes straight to register page,
-            // pre-filtered so they can only add staff to their own branch.
-            href: '/users/register',
-            label: 'Add Staff',
-            icon: UserPlus,
-            show: isManager && !isAdmin,   // hide for Admin (they use the full Users page)
-        },
-        {
-            href: '/roles',
-            label: 'Roles',
-            icon: Shield,
-            show: isAdmin,
-        },
-        {
-            href: '/profile',
-            label: 'Profile',
-            icon: User,
-            show: true,
-        },
-        {
-            href: '/company',
-            label: 'Company',
-            icon: Building2,
-            show: isAdmin,
-        },
-        {
-            href: '/inventory',
-            label: 'Inventory',
-            icon: Package,
-            show: true,          // Admin sees all; Manager sees own branch (backend enforces)
-        },
-        {
-            href: '/billing',
-            label: 'Billing',
-            icon: Receipt,
-            show: canCreate,
-        },
+      {
+        href: "/sync",
+        label: "Sync Suite",
+        icon: RefreshCw,
+        show: isAdmin || isManager,
+      },
     ];
 
     // ─── Logout ──────────────────────────────────────────────────────────────
@@ -280,6 +295,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </h1>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <NotificationBell />
                         {/* Role badge */}
                         <span style={{
                             padding: '0.375rem 0.75rem',

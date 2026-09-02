@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { productsApi, categoriesApi, suppliersApi, extractArray } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import toast from "react-hot-toast";
+import { Modal, ModalHeader } from "@/components/ui/modal";
 
 interface Product {
     id: string;
@@ -242,113 +243,6 @@ export default function ProductsPage() {
         );
     });
 
-    if (showForm && canEdit) return (
-        <div className="p-8 max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-                <h1 className="text-xl font-semibold text-gray-900">{editing ? "Edit Product" : "Add Product"}</h1>
-                <button onClick={() => setShowForm(false)} className="text-sm text-gray-500 hover:text-gray-700">Cancel</button>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-8">
-                <div>
-                    <p className="text-sm font-medium text-gray-500 mb-4">Basic information</p>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Product name</label>
-                            <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. Coca Cola 330ml" required
-                                   className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">SKU</label>
-                                <input name="sku" value={form.sku} onChange={handleChange} placeholder="CC-330"
-                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">Product code</label>
-                                <input name="code" value={form.code} onChange={handleChange} placeholder="e.g. PRD-001" required
-                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">Barcode</label>
-                                <input name="barcode" value={form.barcode} onChange={handleChange} placeholder="5449000000996"
-                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">Category</label>
-                                <select name="categoryId" value={form.categoryId} onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
-                                    <option value="">Select category</option>
-                                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-500 mb-1">Supplier</label>
-                                <select name="supplierId" value={form.supplierId} onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
-                                    <option value="">Select supplier</option>
-                                    {activeSuppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Description</label>
-                            <textarea name="description" value={form.description} onChange={handleChange}
-                                      placeholder="Short product description..." rows={3}
-                                      className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] resize-none" />
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <p className="text-sm font-medium text-gray-500 mb-4">Pricing & stock</p>
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Selling price (Rs.)</label>
-                            <input name="price" value={form.price} onChange={handleChange} type="number" step="any" placeholder="250.00" required
-                                   className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                        </div>
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Cost price (Rs.)</label>
-                            <input name="costPrice" value={form.costPrice} onChange={handleChange} type="number" step="any" placeholder="180.00"
-                                   className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                        </div>
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Min stock level</label>
-                            <input name="minStock" value={form.minStock} onChange={handleChange} type="number" placeholder="5"
-                                   className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Unit of measure</label>
-                            <select name="unit" value={form.unit} onChange={handleChange}
-                                    className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
-                                {["PCS","KG","PACK","LTR","BOX","MTR"].map(u => <option key={u}>{u}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">Status</label>
-                            <select name="status" value={form.status} onChange={handleChange}
-                                    className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
-                                <option value="ACTIVE">ACTIVE</option>
-                                <option value="INACTIVE">INACTIVE</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <button type="button" onClick={() => setShowForm(false)}
-                            className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50">Cancel</button>
-                    <button type="submit" disabled={saving}
-                            className="px-5 py-2 text-sm bg-[#1e2a4a] text-white rounded-md hover:bg-[#263559] disabled:opacity-60">
-                        {saving ? "Saving…" : "Save Product"}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-
     return (
         <div className="p-6">
             {/* Confirmation dialog */}
@@ -461,6 +355,109 @@ export default function ProductsPage() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Add / Edit Product modal */}
+            <Modal open={showForm && canEdit} onClose={() => setShowForm(false)} className="max-w-3xl">
+                <ModalHeader title={editing ? "Edit Product" : "Add Product"} onClose={() => setShowForm(false)} />
+                <form onSubmit={handleSubmit} className="space-y-8 px-5 py-5 max-h-[75vh] overflow-y-auto">
+                    <div>
+                        <p className="text-sm font-medium text-gray-500 mb-4">Basic information</p>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Product name</label>
+                                <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. Coca Cola 330ml" required
+                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                            </div>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">SKU</label>
+                                    <input name="sku" value={form.sku} onChange={handleChange} placeholder="CC-330"
+                                           className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Product code</label>
+                                    <input name="code" value={form.code} onChange={handleChange} placeholder="e.g. PRD-001" required
+                                           className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Barcode</label>
+                                    <input name="barcode" value={form.barcode} onChange={handleChange} placeholder="5449000000996"
+                                           className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Category</label>
+                                    <select name="categoryId" value={form.categoryId} onChange={handleChange}
+                                            className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
+                                        <option value="">Select category</option>
+                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Supplier</label>
+                                    <select name="supplierId" value={form.supplierId} onChange={handleChange}
+                                            className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
+                                        <option value="">Select supplier</option>
+                                        {activeSuppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Description</label>
+                                <textarea name="description" value={form.description} onChange={handleChange}
+                                          placeholder="Short product description..." rows={3}
+                                          className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] resize-none" />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-gray-500 mb-4">Pricing & stock</p>
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Selling price (Rs.)</label>
+                                <input name="price" value={form.price} onChange={handleChange} type="number" step="any" placeholder="250.00" required
+                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Cost price (Rs.)</label>
+                                <input name="costPrice" value={form.costPrice} onChange={handleChange} type="number" step="any" placeholder="180.00"
+                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Min stock level</label>
+                                <input name="minStock" value={form.minStock} onChange={handleChange} type="number" placeholder="5"
+                                       className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a]" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Unit of measure</label>
+                                <select name="unit" value={form.unit} onChange={handleChange}
+                                        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
+                                    {["PCS","KG","PACK","LTR","BOX","MTR"].map(u => <option key={u}>{u}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Status</label>
+                                <select name="status" value={form.status} onChange={handleChange}
+                                        className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#1e2a4a] bg-white">
+                                    <option value="ACTIVE">ACTIVE</option>
+                                    <option value="INACTIVE">INACTIVE</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button type="button" onClick={() => setShowForm(false)}
+                                className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50">Cancel</button>
+                        <button type="submit" disabled={saving}
+                                className="px-5 py-2 text-sm bg-[#1e2a4a] text-white rounded-md hover:bg-[#263559] disabled:opacity-60">
+                            {saving ? "Saving…" : "Save Product"}
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 }

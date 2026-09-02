@@ -168,6 +168,8 @@ function StatusBadge({ status }: { status: string }) {
 
 // ── Main page ────────────────────────────────────────────────
 
+const DASHBOARD_LIST_LIMIT = 10;
+
 export default function InventoryDashboardPage() {
     const router = useRouter();
     const { user } = useAuthStore();
@@ -376,6 +378,8 @@ export default function InventoryDashboardPage() {
         return matchSearch && matchCat && matchBranch && matchStatus;
     });
 
+    const displayedItems = filtered.slice(0, DASHBOARD_LIST_LIMIT);
+
     const totalValue = stockItems.reduce((sum, i) => sum + i.quantity * (i.unitPrice || 0), 0);
 
     const lowCount = alerts.filter((a) => a.type === 'low_stock').length;
@@ -459,45 +463,53 @@ export default function InventoryDashboardPage() {
             <Card>
                 <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                     <h2 className="font-semibold text-gray-800">Product Inventory</h2>
-                    <div className="flex gap-3">
-                        <Select
-                            value={filterCategory}
-                            onChange={(e) => setFilterCategory(e.target.value)}
-                            className="w-40"
-                        >
-                            <option value="">All Categories</option>
-                            {categories.map((c) => (
-                                <option key={c} value={c}>
-                                    {c}
-                                </option>
-                            ))}
-                        </Select>
-
-                        {isAdmin && (
-                            <Select
-                                value={filterBranch}
-                                onChange={(e) => setFilterBranch(e.target.value)}
+                    <div className="flex items-center gap-3">
+                        <div className="flex gap-3">
+                            <select
+                                value={filterCategory}
+                                onChange={(e) => setFilterCategory(e.target.value)}
                                 className="w-40"
                             >
-                                <option value="">All Branches</option>
-                                {branches.map((b) => (
-                                    <option key={b} value={b}>
-                                        {b}
+                                <option value="">All Categories</option>
+                                {categories.map((c) => (
+                                    <option key={c} value={c}>
+                                        {c}
                                     </option>
                                 ))}
-                            </Select>
-                        )}
+                            </select>
 
-                        <Select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="w-36"
+                            {isAdmin && (
+                                <select
+                                    value={filterBranch}
+                                    onChange={(e) => setFilterBranch(e.target.value)}
+                                    className="w-40"
+                                >
+                                    <option value="">All Branches</option>
+                                    {branches.map((b) => (
+                                        <option key={b} value={b}>
+                                            {b}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+
+                            <select
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="w-36"
+                            >
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="low_stock">Low Stock</option>
+                                <option value="out_of_stock">Out of Stock</option>
+                            </select>
+                        </div>
+                        <button
+                            onClick={() => router.push('/inventory/products')}
+                            className="text-xs text-[#4A8FD4] hover:underline whitespace-nowrap"
                         >
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="low_stock">Low Stock</option>
-                            <option value="out_of_stock">Out of Stock</option>
-                        </Select>
+                            View all →
+                        </button>
                     </div>
                 </div>
                 <table className="w-full text-sm">
@@ -513,14 +525,14 @@ export default function InventoryDashboardPage() {
                     </tr>
                     </thead>
                     <tbody>
-                    {filtered.length === 0 && (
+                    {displayedItems.length === 0 && (
                         <tr>
                             <td colSpan={isAdmin ? 7 : 6} className="px-6 py-10 text-center text-gray-400">
                                 No items found
                             </td>
                         </tr>
                     )}
-                    {filtered.map((item) => (
+                    {displayedItems.map((item) => (
                         <tr key={`${item.productId}-${item.branchId}`} className="border-b border-gray-50 hover:bg-gray-50/50">
                             <td className="px-6 py-4">
                                 <p className="font-medium text-gray-800 mb-1">{item.productName}</p>

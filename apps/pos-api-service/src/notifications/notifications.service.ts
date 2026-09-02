@@ -1,0 +1,71 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@ryzera/pos-database';
+
+@Injectable()
+export class NotificationsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  // Get all unread notifications for a user/branch
+  async getUnread(branchId?: number) {
+    return this.prisma.notification.findMany({
+      where: {
+        is_read: false,
+        ...(branchId ? { branch_id: branchId } : {}),
+      },
+      select: {
+        id: true,
+        branch_id: true,
+        type: true,
+        title: true,
+        message: true,
+        is_read: true,
+        user_id: true,
+        created_at: true,
+        updated_at: true,
+      },
+      orderBy: { created_at: 'desc' },
+      take: 20,
+    });
+  }
+
+  // Mark a notification as read
+  async markRead(notificationId: number) {
+    return this.prisma.notification.update({
+      where: { id: notificationId },
+      data: { is_read: true },
+      select: {
+        id: true,
+        branch_id: true,
+        type: true,
+        title: true,
+        message: true,
+        is_read: true,
+        user_id: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+  }
+
+  // Mark all notifications as read for a branch
+  async markAllRead(branchId?: number) {
+    return this.prisma.notification.updateMany({
+      where: {
+        is_read: false,
+        ...(branchId ? { branch_id: branchId } : {}),
+      },
+      data: { is_read: true },
+    });
+  }
+
+  // Get unread count only (for the bell badge)
+  async getUnreadCount(branchId?: number) {
+    const count = await this.prisma.notification.count({
+      where: {
+        is_read: false,
+        ...(branchId ? { branch_id: branchId } : {}),
+      },
+    });
+    return { count };
+  }
+}

@@ -29,8 +29,8 @@ export class UsersController {
     }
 
     @Get()
-    @Roles('ADMIN', 'MANAGER')
-    @ApiOperation({ summary: 'Get All Users — ADMIN sees all, MANAGER restricted to own branch' })
+    @Roles('ADMIN', 'MANAGER', 'INVENTORY_MANAGER')
+    @ApiOperation({ summary: 'Get All Users — ADMIN sees all, MANAGER/INVENTORY_MANAGER restricted to own branch (INVENTORY_MANAGER is read-only)' })
     @ApiQuery({ name: 'status', required: false, enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'] })
     @ApiQuery({ name: 'branch_id', required: false, type: 'number' })
     @ApiResponse({ status: 200, description: 'Users list' })
@@ -49,8 +49,8 @@ export class UsersController {
     }
 
     @Get(':id')
-    @Roles('ADMIN', 'MANAGER')
-    @ApiOperation({ summary: 'Get user by ID — MANAGER restricted to own branch' })
+    @Roles('ADMIN', 'MANAGER', 'INVENTORY_MANAGER')
+    @ApiOperation({ summary: 'Get user by ID — MANAGER/INVENTORY_MANAGER restricted to own branch (INVENTORY_MANAGER is read-only)' })
     @ApiParam({ name: 'id', type: 'number' })
     async findOne(
         @Param('id', ParseIntPipe) id: number,

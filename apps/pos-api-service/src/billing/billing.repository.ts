@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -23,7 +23,12 @@ export class BillingRepository {
     async findSaleById(sale_id: number) {
         return this.prisma.sale.findUnique({
             where:   { id: sale_id },
-            include: { saleItems: true, payments: true },
+            include: {
+                saleItems: {
+                    include: { product: true },
+                },
+                payments: true,
+            },
         });
     }
 
@@ -49,9 +54,35 @@ export class BillingRepository {
         });
     }
 
+    // ── Check stock availability before checkout ───────────────
+    async checkStockAvailability(branch_id: number, items: { product_id: number; quantity: number; product_name?: string }[]) {
+        for (const item of items) {
+            const branchProduct = await this.prisma.branchProduct.findUnique({
+                where: {
+                    branch_id_product_id: {
+                        branch_id,
+                        product_id: item.product_id,
+                    },
+                },
+                include: { product: true },
+            });
+
+            const available = branchProduct?.stockQty ?? 0;
+            const productName = item.product_name || branchProduct?.product?.name || `Product #${item.product_id}`;
+
+            if (!branchProduct || available < item.quantity) {
+                throw new BadRequestException(
+                    `Insufficient stock for "${productName}". Available: ${available}, Requested: ${item.quantity}`
+                );
+            }
+        }
+    }
+
+    // ── Atomic Payment & Inventory Stock Decrement ────────────
     async processPaymentTransaction(dto: any, sale: any) {
-        const result = await this.prisma.$transaction([
-            this.prisma.payment.create({
+        return this.prisma.$transaction(async (tx) => {
+            // 1. Create Payment
+            const payment = await tx.payment.create({
                 data: {
                     sale_id:               dto.sale_id,
                     payment_method:        dto.payment_method,
@@ -59,23 +90,113 @@ export class BillingRepository {
                     payment_status:        'Paid',
                     transaction_reference: dto.transaction_reference,
                 },
-            }),
-            this.prisma.sale.update({
+            });
+
+            // 2. Mark Sale as Completed & Paid
+            await tx.sale.update({
                 where: { id: dto.sale_id },
                 data:  {
                     sale_status:    'Completed',
                     payment_status: 'Paid',
                     updated_at:     new Date(),
                 },
-            }),
-        ]);
+            });
 
-        return {
-            payment_id:     result[0].id,
-            invoice_number: sale.invoice_number,
-            amount_paid:    result[0].amount_paid,
-            change:         Number(dto.amount_paid) - Number(sale.total_amount),
-            status:         'Payment Successful',
-        };
+            // 3. Deduct Branch Stock & Create Inventory Logs
+            for (const item of sale.saleItems) {
+                const qtyToDeduct = Math.round(Number(item.quantity));
+
+                let branchProduct = await tx.branchProduct.findUnique({
+                    where: {
+                        branch_id_product_id: {
+                            branch_id:  sale.branch_id,
+                            product_id: item.product_id,
+                        },
+                    },
+                    include: { product: true },
+                });
+
+                if (!branchProduct) {
+                    branchProduct = await tx.branchProduct.create({
+                        data: {
+                            branch_id:  sale.branch_id,
+                            product_id: item.product_id,
+                            stockQty:   0,
+                        },
+                        include: { product: true },
+                    });
+                }
+
+                if (branchProduct.stockQty < qtyToDeduct) {
+                    throw new BadRequestException(
+                        `Cannot complete sale: Insufficient stock for "${item.product_name}". Available: ${branchProduct.stockQty}, Required: ${qtyToDeduct}`
+                    );
+                }
+
+                // Decrement stock
+                const updatedBranchProduct = await tx.branchProduct.update({
+                    where: { id: branchProduct.id },
+                    data: {
+                        stockQty: { decrement: qtyToDeduct },
+                        updated_at: new Date(),
+                    },
+                });
+
+                // Create InventoryLog (action: SALE)
+                await tx.inventoryLog.create({
+                    data: {
+                        action:          'SALE',
+                        changeQty:       -qtyToDeduct,
+                        description:     `Sold ${qtyToDeduct} ${item.unit || 'units'} via Invoice #${sale.invoice_number}`,
+                        userId:          sale.user_id,
+                        product_id:      item.product_id,
+                        branch_id:       sale.branch_id,
+                        branchProductId: branchProduct.id,
+                        created_at:      new Date(),
+                    },
+                });
+
+                // Check Low Stock or Out of Stock Alert
+                const minStock = branchProduct.product?.min_quantity ?? 0;
+                if (updatedBranchProduct.stockQty <= minStock) {
+                    const existingAlert = await tx.stockAlert.findFirst({
+                        where: {
+                            branch_id:  sale.branch_id,
+                            product_id: item.product_id,
+                            status:     'PENDING',
+                        },
+                    });
+
+                    if (!existingAlert) {
+                        await tx.stockAlert.create({
+                            data: {
+                                branch_id:  sale.branch_id,
+                                product_id: item.product_id,
+                                stockQty:   updatedBranchProduct.stockQty,
+                                minStock:   minStock,
+                                status:     'PENDING',
+                                updated_at: new Date(),
+                            },
+                        });
+                    } else {
+                        await tx.stockAlert.update({
+                            where: { id: existingAlert.id },
+                            data: {
+                                stockQty:   updatedBranchProduct.stockQty,
+                                updated_at: new Date(),
+                            },
+                        });
+                    }
+                }
+            }
+
+            return {
+                payment_id:     payment.id,
+                invoice_number: sale.invoice_number,
+                amount_paid:    payment.amount_paid,
+                change:         Number(dto.amount_paid) - Number(sale.total_amount),
+                status:         'Payment Successful',
+            };
+        });
     }
 }

@@ -187,38 +187,35 @@ export const returnsApi = {
 };
 
 // ── Standalone Functions (Billing, Returns, Product Search) ───────
-// Maintained for direct imports with fallback handling
+// IMPORTANT: createSale and processPayment must NEVER swallow errors and
+// return fake/mock success data. Doing so previously caused PaymentModal
+// to show "Payment Successful" and write a local-only sale even when the
+// real backend call failed — meaning no Sale/Payment row, no stock
+// deduction, and no InventoryLog entry, while the UI claimed success.
+// These now rethrow so the caller's catch block (which shows a real
+// error to the cashier) actually runs.
+//
+// createSale/processPayment now unwrap the response through extractItem()
+// instead of returning res.data raw. The backend wraps single-object
+// responses in an envelope (e.g. { success: true, data: { id, ... } }),
+// so res.data.id was always undefined — PaymentModal's
+// `sale?.sale_id ?? sale?.id` check never found an id even though the
+// sale really was created, producing "Sale was not created — no sale id
+// returned from server." extractItem() already existed in this file for
+// exactly this shape; createSale/processPayment just weren't using it.
 export async function createSale(data: any) {
-    try {
-        const res = await api.post('/billing/sales', data);
-        return res.data;
-    } catch (error) {
-        console.warn('Backend not reachable — mock sale', error);
-        return {
-            sale_id: Math.floor(Math.random() * 9000) + 1000,
-            invoice_number: data?.invoice_number,
-        };
-    }
+    const res = await api.post('/billing/sales', data);
+    return extractItem<any>(res.data);
 }
 
 export async function processPayment(data: any) {
-    try {
-        const res = await api.post('/billing/sales/payment', data);
-        return res.data;
-    } catch (error) {
-        console.warn('Backend not reachable — mock payment', error);
-        return { success: true };
-    }
+    const res = await api.post('/billing/sales/payment', data);
+    return extractItem<any>(res.data);
 }
 
 export async function getAllSales(params?: object) {
-    try {
-        const res = await api.get('/billing/sales', { params });
-        return res.data;
-    } catch (error) {
-        console.warn('Backend not reachable — mock data', error);
-        return [];
-    }
+    const res = await api.get('/billing/sales', { params });
+    return res.data;
 }
 
 export async function getSaleById(id: number | string) {
@@ -232,13 +229,8 @@ export async function cancelSale(id: number | string) {
 }
 
 export async function processReturn(data: any) {
-    try {
-        const res = await api.post('/returns', data);
-        return res.data;
-    } catch (error) {
-        console.warn('Backend not reachable — mock return', error);
-        return { success: true };
-    }
+    const res = await api.post('/returns', data);
+    return res.data;
 }
 
 export async function getAllReturns(params?: object) {

@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "createdAt": "2026-08-28T06:43:59.592Z",
+    "branchId": 1,
+    "totalTablesDumped": 8,
+    "source": "Supabase Cloud Database (PostgreSQL)"
+  },
+  "tables": {
+    "branches": [],
+    "devices": [],
+    "syncLogs": [],
+    "conflicts": [],
+    "healthMetrics": [],
+    "auditLogs": [],
+    "settings": []
+  }
+}

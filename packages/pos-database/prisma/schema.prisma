@@ -247,6 +247,7 @@ model Branch {
   dailySummaries DailySummary[]
   savedReportConfigs SavedReportConfig[]
   reportSchedules    ReportSchedule[]
+  auditLogs AuditLog[]
 
   //discounts
   discountRules DiscountRule[]
@@ -931,7 +932,7 @@ model ReportDelivery {
   sentAt         DateTime @default(now())
   schedule_id    Int
 
-  schedule ReportSchedule @relation(fields: [schedule_id], references: [id])
+  schedule ReportSchedule @relation(fields: [schedule_id], references: [id], onDelete: Cascade)
 
   @@map("report_delivery")
 }
@@ -944,11 +945,14 @@ model AuditLog {
   reportType  String?
   filtersUsed String?
   branchName  String?
+  branch_id   Int?
   user_id     Int
   created_at  DateTime @default(now())
 
   user User @relation(fields: [user_id], references: [id])
+  branch Branch? @relation(fields: [branch_id], references: [id])
 
+  @@index([branch_id])
   @@map("audit_log")
 }
 
@@ -1019,6 +1023,7 @@ model Notification {
   message    String
   is_read    Boolean  @default(false)
   user_id    Int?
+  target_role String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -1049,7 +1054,7 @@ model DiscountRule {
   max_value     Decimal?       @db.Decimal(10, 2)
   min_purchase  Decimal?       @db.Decimal(10, 2)
   scope         DiscountScope  @default(GLOBAL)
-  company_id    Int?           // ← ? add (duplicate line delete)
+  company_id    Int?
   branch_id     Int?
   status        DiscountStatus @default(ACTIVE)
   valid_from    DateTime
@@ -1100,4 +1105,21 @@ model DiscountApplication {
 
 
   @@map("discount_application")
+}
+
+model EmailOutbox {
+  id         Int       @id @default(autoincrement())
+  event_type String
+  recipient  String
+  subject    String
+  body       String
+  status     String    @default("PENDING")
+  attempts   Int       @default(0)
+  last_error String?
+  sent_at    DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  @@index([status, created_at])
+  @@map("email_outbox")
 }

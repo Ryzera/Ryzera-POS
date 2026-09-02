@@ -48,7 +48,6 @@ export default function CashiersPage() {
     const [email, setEmail]             = useState('');
     const [phone, setPhone]             = useState('');
     const [formBranchId, setFormBranchId] = useState('');
-    const [userType, setUserType]       = useState<'ADMIN' | 'STAFF'>('STAFF');
     const [saving, setSaving]           = useState(false);
     const [error, setError]             = useState('');
 
@@ -128,7 +127,7 @@ export default function CashiersPage() {
                 email:      email || undefined,
                 phone_number: phone || undefined,
                 branch_id:  selectedBranch,
-                user_type:  isAdmin ? userType : 'STAFF',
+                user_type:  'STAFF',
             }, { headers: authHeaders });
 
             setShowForm(false);
@@ -143,7 +142,7 @@ export default function CashiersPage() {
 
     function resetForm() {
         setUsername(''); setPassword(''); setFirstName(''); setLastName('');
-        setEmail(''); setPhone(''); setFormBranchId(''); setUserType('STAFF');
+        setEmail(''); setPhone(''); setFormBranchId('');
         setError('');
     }
 
@@ -249,35 +248,6 @@ export default function CashiersPage() {
                                 />
                             </div>
                         )}
-
-                        <div>
-                            <label style={{ fontSize: '11px', fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: '4px' }}>ROLE</label>
-                            {isAdmin ? (
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                    {(['STAFF', 'ADMIN'] as const).map(t => (
-                                        <button
-                                            key={t}
-                                            onClick={() => setUserType(t)}
-                                            style={{
-                                                flex: 1, padding: '8px', borderRadius: '6px',
-                                                fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-                                                border: userType === t ? '2px solid #2563eb' : '1px solid #e5e7eb',
-                                                background: userType === t ? '#eff6ff' : '#fff',
-                                                color: userType === t ? '#2563eb' : '#6b7280',
-                                            }}
-                                        >
-                                            {t}
-                                        </button>
-                                    ))}
-                                </div>
-                            ) : (
-                                <input
-                                    disabled
-                                    value="STAFF"
-                                    style={{ width: '100%', height: '36px', padding: '0 12px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '13px', background: '#f3f4f6', color: '#6b7280', boxSizing: 'border-box' }}
-                                />
-                            )}
-                        </div>
                     </div>
 
                     {error && (

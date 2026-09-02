@@ -17,7 +17,19 @@ interface DiscountRule {
     valid_until: string;
 }
 
-export default function CartPanel() {
+interface CartPanelProps {
+    onPaymentSuccess?: () => void;
+    // Explicit branch to check out against — set by the admin's branch
+    // filter on the billing page. When undefined, PaymentModal falls back
+    // to the logged-in user's own assigned branch.
+    checkoutBranchId?: string | number;
+    // True when an admin has "All Branches" selected — checkout is
+    // ambiguous in that state, so PaymentModal should block it with a
+    // clear message rather than silently guessing a branch.
+    requireBranchSelection?: boolean;
+}
+
+export default function CartPanel({ onPaymentSuccess, checkoutBranchId, requireBranchSelection }: CartPanelProps) {
     const {
         items, invoiceNo, discount, taxRate, paymentMethod,
         updateQuantity, removeItem, setDiscount, setTaxRate,
@@ -129,9 +141,23 @@ export default function CartPanel() {
 
     const safeDiscounts = Array.isArray(availableDiscounts) ? availableDiscounts : [];
 
+    function handleModalClose() {
+        setShowModal(false);
+    }
+
     return (
         <>
-            {showModal && <PaymentModal onClose={() => setShowModal(false)} itemDiscounts={itemDiscounts} />}
+            {showModal && (
+                <PaymentModal
+                    onClose={() => {
+                        handleModalClose();
+                        onPaymentSuccess?.();
+                    }}
+                    itemDiscounts={itemDiscounts}
+                    checkoutBranchId={checkoutBranchId}
+                    requireBranchSelection={requireBranchSelection}
+                />
+            )}
 
             <div style={{
                 width: '340px', minWidth: '340px', background: '#fff',

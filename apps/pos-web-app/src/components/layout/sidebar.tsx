@@ -58,19 +58,19 @@ const navSections: NavSection[] = [
     },
     {
         label: "Operations",
-        roles: ADMIN_MANAGER,
+        roles: INVENTORY_ROLES,
         items: [
-            { href: "/inventory/purchase-orders", label: "Purchase Orders", icon: ShoppingCart, roles: ADMIN_MANAGER },
-            { href: "/inventory/transfers", label: "Transfers", icon: ArrowLeftRight, roles: ADMIN_MANAGER },
+            { href: "/inventory/purchase-orders", label: "Purchase Orders", icon: ShoppingCart, roles: INVENTORY_ROLES },
+            { href: "/inventory/transfers", label: "Transfers", icon: ArrowLeftRight, roles: INVENTORY_ROLES },
         ],
     },
     {
         label: "Setup",
-        roles: ADMIN_MANAGER,
+        roles: INVENTORY_ROLES,
         items: [
-            { href: "/inventory/suppliers", label: "Suppliers", icon: Users, roles: ADMIN_MANAGER },
+            { href: "/inventory/suppliers", label: "Suppliers", icon: Users, roles: INVENTORY_ROLES },
             { href: "/inventory/branches", label: "Branches", icon: GitBranch, roles: ADMIN_ONLY },
-            { href: "/inventory/categories", label: "Categories", icon: Tag, roles: ADMIN_MANAGER },
+            { href: "/inventory/categories", label: "Categories", icon: Tag, roles: INVENTORY_ROLES },
         ],
     },
 ];

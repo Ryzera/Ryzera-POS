@@ -7,17 +7,32 @@ import api from '@/lib/api';
 import { ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface Product { id: number; name: string; code: string; price: number; quantity: number; }
-interface CartItem { product: Product; quantity: number; unit_price: number; }
+interface Product {
+    id: number;
+    name: string;
+    code: string;
+    price: number;
+    quantity: number;
+    unit?: string;         // falls back to 'pcs' if the products endpoint doesn't return this
+    cost_price?: number;   // falls back to price if the products endpoint doesn't return this
+    tax_percent?: number;  // falls back to 0 if the products endpoint doesn't return this
+}
+
+interface CartItem {
+    product: Product;
+    quantity: number;
+    unit_price: number;
+}
+
+type PaymentMethod = 'CASH' | 'CARD' | 'ONLINE' | 'SPLIT';
 
 export default function CreateBillPage() {
     const router = useRouter();
     const { user } = useAuthStore();
     const [products, setProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<CartItem[]>([]);
-    const [paymentMethod, setPaymentMethod] = useState('CASH');
-    const [discount, setDiscount] = useState(0);
-    const [notes, setNotes] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
+    const [billDiscountPercent, setBillDiscountPercent] = useState(0);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -45,23 +60,55 @@ export default function CreateBillPage() {
     };
 
     const subtotal = cart.reduce((sum, i) => sum + i.unit_price * i.quantity, 0);
-    const total = subtotal - discount;
+    const discountAmount = subtotal * (billDiscountPercent / 100);
+    const total = subtotal - discountAmount;
 
     const handleSubmit = async () => {
         if (cart.length === 0) { toast.error('Add at least one item'); return; }
+
+        const branchId = Number(user?.branch_id) || 1;
+        const userId = Number(user?.id);
+
+        if (!userId) {
+            toast.error('Could not determine current user — please re-login');
+            return;
+        }
+
         setLoading(true);
         try {
-            await api.post('/billing', {
-                branch_id: user?.branch_id || 1,
-                payment_method: paymentMethod,
-                discount,
-                notes,
+            // ── Step 1: Create the sale ──────────────────────────
+            const createRes = await api.post('/billing/sales', {
+                branch_id: branchId,
+                user_id: userId,
+                discount_type: billDiscountPercent > 0 ? 'bill' : undefined,
+                bill_discount_percent: billDiscountPercent > 0 ? billDiscountPercent : undefined,
                 items: cart.map(i => ({
                     product_id: i.product.id,
+                    product_name: i.product.name,
                     quantity: i.quantity,
+                    unit: i.product.unit || 'pcs',
                     unit_price: i.unit_price,
+                    cost_price: i.product.cost_price ?? i.product.price,
+                    tax_percent: i.product.tax_percent ?? 0,
                 })),
             });
+
+            const sale = createRes.data?.data ?? createRes.data;
+            const saleId = sale?.id;
+
+            if (!saleId) {
+                throw new Error('Sale was created but no sale id was returned');
+            }
+
+            // ── Step 2: Process payment immediately ──────────────
+            // Without this, the sale stays "Pending" forever, stock never
+            // decrements, and no inventory log entry gets written.
+            await api.post('/billing/sales/payment', {
+                sale_id: saleId,
+                payment_method: paymentMethod,
+                amount_paid: total,
+            });
+
             toast.success('Bill created successfully!');
             router.push('/billing');
         } catch (err: any) {
@@ -189,32 +236,36 @@ export default function CreateBillPage() {
                                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#374151', marginBottom: '0.25rem' }}>
                                     Payment Method
                                 </label>
-                                <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={inputStyle}>
+                                <select
+                                    value={paymentMethod}
+                                    onChange={e => setPaymentMethod(e.target.value as PaymentMethod)}
+                                    style={inputStyle}
+                                >
                                     <option value="CASH">Cash</option>
                                     <option value="CARD">Card</option>
                                     <option value="ONLINE">Online</option>
+                                    <option value="SPLIT">Split</option>
                                 </select>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#374151', marginBottom: '0.25rem' }}>
-                                    Discount (Rs.)
+                                    Bill Discount (%)
                                 </label>
-                                <input type="number" min="0" value={discount}
-                                       onChange={e => setDiscount(Number(e.target.value))}
-                                       style={inputStyle} placeholder="0" />
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#374151', marginBottom: '0.25rem' }}>
-                                    Notes
-                                </label>
-                                <input value={notes} onChange={e => setNotes(e.target.value)}
-                                       style={inputStyle} placeholder="Optional notes" />
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={billDiscountPercent}
+                                    onChange={e => setBillDiscountPercent(Number(e.target.value))}
+                                    style={inputStyle}
+                                    placeholder="0"
+                                />
                             </div>
 
                             <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem' }}>
                                 {[
                                     { label: 'Subtotal', value: `Rs. ${subtotal.toLocaleString()}` },
-                                    { label: 'Discount', value: `- Rs. ${discount.toLocaleString()}` },
+                                    { label: 'Discount', value: `- Rs. ${discountAmount.toLocaleString()}` },
                                     { label: 'Total', value: `Rs. ${total.toLocaleString()}`, bold: true },
                                 ].map(row => (
                                     <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>

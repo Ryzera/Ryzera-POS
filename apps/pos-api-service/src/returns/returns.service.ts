@@ -40,33 +40,13 @@ export class ReturnsService {
             );
         }, 0);
 
-        return this.returnsRepository.createReturn({
-            data: {
-                sale_id: dto.sale_id,
-                reason: dto.reason,
-                refund_method: dto.refund_method,
-                return_amount: refund_amount,
-                status: 'Completed',
-                return_type:
-                    dto.items.length === sale.saleItems.length ? 'Full' : 'Partial',
-                updated_at: new Date(),
-                returnItems: {
-                    create: dto.items.map((returnItem) => {
-                        const saleItem = sale.saleItems.find(
-                            (i) => i.id === returnItem.sale_item_id,
-                        );
-                        const unitPrice = Number(saleItem?.unit_price ?? 0);
-                        return {
-                            sale_item_id: returnItem.sale_item_id,
-                            quantity_returned: returnItem.quantity_returned,
-                            unit_price: unitPrice,
-                            refund_amount: unitPrice * returnItem.quantity_returned,
-                            item_condition: returnItem.item_condition || 'Good',
-                        };
-                    }),
-                },
-            } as any,
-            include: { returnItems: true },
+        const return_type = dto.items.length === sale.saleItems.length ? 'Full' : 'Partial';
+
+        return this.returnsRepository.processReturnTransaction({
+            sale,
+            dto,
+            refund_amount,
+            return_type,
         });
     }
 

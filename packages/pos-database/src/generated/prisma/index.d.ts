@@ -268,6 +268,11 @@ export type DiscountApproval = $Result.DefaultSelection<Prisma.$DiscountApproval
  * 
  */
 export type DiscountApplication = $Result.DefaultSelection<Prisma.$DiscountApplicationPayload>
+/**
+ * Model EmailOutbox
+ * 
+ */
+export type EmailOutbox = $Result.DefaultSelection<Prisma.$EmailOutboxPayload>
 
 /**
  * Enums
@@ -581,9 +586,7 @@ export const DiscountApprovalStatus: typeof $Enums.DiscountApprovalStatus
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
- * const prisma = new PrismaClient({
- *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
- * })
+ * const prisma = new PrismaClient()
  * // Fetch zero or more Companies
  * const companies = await prisma.company.findMany()
  * ```
@@ -604,9 +607,7 @@ export class PrismaClient<
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
-   * const prisma = new PrismaClient({
-   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
-   * })
+   * const prisma = new PrismaClient()
    * // Fetch zero or more Companies
    * const companies = await prisma.company.findMany()
    * ```
@@ -615,7 +616,7 @@ export class PrismaClient<
    * Read more in our [docs](https://pris.ly/d/client).
    */
 
-  constructor(optionsArg ?: Prisma.PrismaClientConstructorArgs<ClientOptions>);
+  constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
   $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
 
   /**
@@ -686,9 +687,9 @@ export class PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
@@ -1205,6 +1206,16 @@ export class PrismaClient<
     * ```
     */
   get discountApplication(): Prisma.DiscountApplicationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailOutbox`: Exposes CRUD operations for the **EmailOutbox** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailOutboxes
+    * const emailOutboxes = await prisma.emailOutbox.findMany()
+    * ```
+    */
+  get emailOutbox(): Prisma.EmailOutboxDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1255,8 +1266,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.9.1
-   * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
+   * Prisma Client JS version: 7.4.0
+   * Query Engine version: ab56fe763f921d033a6c195e7ddeb3e255bdbb57
    */
   export type PrismaVersion = {
     client: string
@@ -1391,19 +1402,6 @@ export namespace Prisma {
   };
 
   /**
-   * Resolved type of the argument passed to the `PrismaClient` constructor.
-   *
-   * When called without a narrower options type (the common case), this resolves
-   * to `PrismaClientOptions` directly, which produces a clear TypeScript error
-   * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
-   * the argument is missing or incomplete. When the user supplies a narrower
-   * options type (e.g. via a literal), it falls back to `Subset` to keep
-   * filtering out unknown properties.
-   */
-  export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
-    [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
-
-  /**
    * SelectSubset
    * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
    * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -1435,7 +1433,7 @@ export namespace Prisma {
   type XOR<T, U> =
     T extends object ?
     U extends object ?
-      ((Without<T, U> & U) | (Without<U, T> & T)) & object
+      (Without<T, U> & U) | (Without<U, T> & T)
     : U : T
 
 
@@ -1702,7 +1700,8 @@ export namespace Prisma {
     ScheduledReport: 'ScheduledReport',
     DiscountRule: 'DiscountRule',
     DiscountApproval: 'DiscountApproval',
-    DiscountApplication: 'DiscountApplication'
+    DiscountApplication: 'DiscountApplication',
+    EmailOutbox: 'EmailOutbox'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1718,7 +1717,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "branch" | "user" | "userInfo" | "role" | "authority" | "userRole" | "roleAuthority" | "userLog" | "supplier" | "category" | "product" | "branchProduct" | "inventoryLog" | "stockAlert" | "purchaseOrder" | "purchaseOrderItem" | "purchaseInvoice" | "transfer" | "transferItem" | "batch" | "bill" | "billItem" | "sale" | "saleItem" | "payment" | "return" | "returnItem" | "syncLog" | "syncDevice" | "syncSetting" | "syncConflict" | "syncBackup" | "syncBackupSchedule" | "syncHealthMetric" | "syncAuditLog" | "dailySummary" | "savedReportConfig" | "reportSchedule" | "reportDelivery" | "auditLog" | "kpiTarget" | "kpiMarginTarget" | "kpiInventoryThreshold" | "kpiNotificationRule" | "kpiReportDefault" | "notification" | "scheduledReport" | "discountRule" | "discountApproval" | "discountApplication"
+      modelProps: "company" | "branch" | "user" | "userInfo" | "role" | "authority" | "userRole" | "roleAuthority" | "userLog" | "supplier" | "category" | "product" | "branchProduct" | "inventoryLog" | "stockAlert" | "purchaseOrder" | "purchaseOrderItem" | "purchaseInvoice" | "transfer" | "transferItem" | "batch" | "bill" | "billItem" | "sale" | "saleItem" | "payment" | "return" | "returnItem" | "syncLog" | "syncDevice" | "syncSetting" | "syncConflict" | "syncBackup" | "syncBackupSchedule" | "syncHealthMetric" | "syncAuditLog" | "dailySummary" | "savedReportConfig" | "reportSchedule" | "reportDelivery" | "auditLog" | "kpiTarget" | "kpiMarginTarget" | "kpiInventoryThreshold" | "kpiNotificationRule" | "kpiReportDefault" | "notification" | "scheduledReport" | "discountRule" | "discountApproval" | "discountApplication" | "emailOutbox"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5496,6 +5495,80 @@ export namespace Prisma {
           }
         }
       }
+      EmailOutbox: {
+        payload: Prisma.$EmailOutboxPayload<ExtArgs>
+        fields: Prisma.EmailOutboxFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailOutboxFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailOutboxFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailOutboxFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailOutboxFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>
+          }
+          findMany: {
+            args: Prisma.EmailOutboxFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>[]
+          }
+          create: {
+            args: Prisma.EmailOutboxCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>
+          }
+          createMany: {
+            args: Prisma.EmailOutboxCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailOutboxCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailOutboxDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>
+          }
+          update: {
+            args: Prisma.EmailOutboxUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailOutboxDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailOutboxUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmailOutboxUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmailOutboxUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailOutboxPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailOutboxAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailOutbox>
+          }
+          groupBy: {
+            args: Prisma.EmailOutboxGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailOutboxGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailOutboxCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailOutboxCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5564,26 +5637,11 @@ export namespace Prisma {
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
     /**
-     * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
-     * 
-     * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
-     * 
-     * Learn more: https://pris.ly/d/driver-adapters
-     * 
-     * @example
-     * ```ts
-     * import { PrismaPg } from '@prisma/adapter-pg'
-     * import { PrismaClient } from './generated/prisma/client'
-     * 
-     * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
-     * const prisma = new PrismaClient({ adapter })
-     * ```
+     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
      */
     adapter?: runtime.SqlDriverAdapterFactory
     /**
-     * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
-     * 
-     * Learn more: https://pris.ly/d/accelerate
+     * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
      */
     accelerateUrl?: string
     /**
@@ -5670,6 +5728,7 @@ export namespace Prisma {
     discountRule?: DiscountRuleOmit
     discountApproval?: DiscountApprovalOmit
     discountApplication?: DiscountApplicationOmit
+    emailOutbox?: EmailOutboxOmit
   }
 
   /* Types for Logging */
@@ -5836,6 +5895,7 @@ export namespace Prisma {
     dailySummaries: number
     savedReportConfigs: number
     reportSchedules: number
+    auditLogs: number
     discountRules: number
   }
 
@@ -5859,6 +5919,7 @@ export namespace Prisma {
     dailySummaries?: boolean | BranchCountOutputTypeCountDailySummariesArgs
     savedReportConfigs?: boolean | BranchCountOutputTypeCountSavedReportConfigsArgs
     reportSchedules?: boolean | BranchCountOutputTypeCountReportSchedulesArgs
+    auditLogs?: boolean | BranchCountOutputTypeCountAuditLogsArgs
     discountRules?: boolean | BranchCountOutputTypeCountDiscountRulesArgs
   }
 
@@ -6004,6 +6065,13 @@ export namespace Prisma {
    */
   export type BranchCountOutputTypeCountReportSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReportScheduleWhereInput
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
   }
 
   /**
@@ -7646,11 +7714,6 @@ export namespace Prisma {
      * Skip the first `n` Companies.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Companies.
-     */
     distinct?: CompanyScalarFieldEnum | CompanyScalarFieldEnum[]
   }
 
@@ -8259,6 +8322,7 @@ export namespace Prisma {
     dailySummaries?: boolean | Branch$dailySummariesArgs<ExtArgs>
     savedReportConfigs?: boolean | Branch$savedReportConfigsArgs<ExtArgs>
     reportSchedules?: boolean | Branch$reportSchedulesArgs<ExtArgs>
+    auditLogs?: boolean | Branch$auditLogsArgs<ExtArgs>
     discountRules?: boolean | Branch$discountRulesArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
@@ -8332,6 +8396,7 @@ export namespace Prisma {
     dailySummaries?: boolean | Branch$dailySummariesArgs<ExtArgs>
     savedReportConfigs?: boolean | Branch$savedReportConfigsArgs<ExtArgs>
     reportSchedules?: boolean | Branch$reportSchedulesArgs<ExtArgs>
+    auditLogs?: boolean | Branch$auditLogsArgs<ExtArgs>
     discountRules?: boolean | Branch$discountRulesArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -8365,6 +8430,7 @@ export namespace Prisma {
       dailySummaries: Prisma.$DailySummaryPayload<ExtArgs>[]
       savedReportConfigs: Prisma.$SavedReportConfigPayload<ExtArgs>[]
       reportSchedules: Prisma.$ReportSchedulePayload<ExtArgs>[]
+      auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       discountRules: Prisma.$DiscountRulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -8794,6 +8860,7 @@ export namespace Prisma {
     dailySummaries<T extends Branch$dailySummariesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$dailySummariesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailySummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     savedReportConfigs<T extends Branch$savedReportConfigsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$savedReportConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavedReportConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportSchedules<T extends Branch$reportSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$reportSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    auditLogs<T extends Branch$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     discountRules<T extends Branch$discountRulesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$discountRulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -9032,11 +9099,6 @@ export namespace Prisma {
      * Skip the first `n` Branches.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Branches.
-     */
     distinct?: BranchScalarFieldEnum | BranchScalarFieldEnum[]
   }
 
@@ -9690,6 +9752,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReportScheduleScalarFieldEnum | ReportScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * Branch.auditLogs
+   */
+  export type Branch$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AuditLog
+     */
+    omit?: AuditLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    cursor?: AuditLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
   }
 
   /**
@@ -10791,11 +10877,6 @@ export namespace Prisma {
      * Skip the first `n` Users.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Users.
-     */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
@@ -12281,11 +12362,6 @@ export namespace Prisma {
      * Skip the first `n` UserInfos.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserInfos.
-     */
     distinct?: UserInfoScalarFieldEnum | UserInfoScalarFieldEnum[]
   }
 
@@ -13352,11 +13428,6 @@ export namespace Prisma {
      * Skip the first `n` Roles.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Roles.
-     */
     distinct?: RoleScalarFieldEnum | RoleScalarFieldEnum[]
   }
 
@@ -14459,11 +14530,6 @@ export namespace Prisma {
      * Skip the first `n` Authorities.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Authorities.
-     */
     distinct?: AuthorityScalarFieldEnum | AuthorityScalarFieldEnum[]
   }
 
@@ -15562,11 +15628,6 @@ export namespace Prisma {
      * Skip the first `n` UserRoles.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserRoles.
-     */
     distinct?: UserRoleScalarFieldEnum | UserRoleScalarFieldEnum[]
   }
 
@@ -16649,11 +16710,6 @@ export namespace Prisma {
      * Skip the first `n` RoleAuthorities.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of RoleAuthorities.
-     */
     distinct?: RoleAuthorityScalarFieldEnum | RoleAuthorityScalarFieldEnum[]
   }
 
@@ -17814,11 +17870,6 @@ export namespace Prisma {
      * Skip the first `n` UserLogs.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserLogs.
-     */
     distinct?: UserLogScalarFieldEnum | UserLogScalarFieldEnum[]
   }
 
@@ -18999,11 +19050,6 @@ export namespace Prisma {
      * Skip the first `n` Suppliers.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Suppliers.
-     */
     distinct?: SupplierScalarFieldEnum | SupplierScalarFieldEnum[]
   }
 
@@ -20093,11 +20139,6 @@ export namespace Prisma {
      * Skip the first `n` Categories.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Categories.
-     */
     distinct?: CategoryScalarFieldEnum | CategoryScalarFieldEnum[]
   }
 
@@ -21478,11 +21519,6 @@ export namespace Prisma {
      * Skip the first `n` Products.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Products.
-     */
     distinct?: ProductScalarFieldEnum | ProductScalarFieldEnum[]
   }
 
@@ -22880,11 +22916,6 @@ export namespace Prisma {
      * Skip the first `n` BranchProducts.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of BranchProducts.
-     */
     distinct?: BranchProductScalarFieldEnum | BranchProductScalarFieldEnum[]
   }
 
@@ -24097,11 +24128,6 @@ export namespace Prisma {
      * Skip the first `n` InventoryLogs.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of InventoryLogs.
-     */
     distinct?: InventoryLogScalarFieldEnum | InventoryLogScalarFieldEnum[]
   }
 
@@ -25261,11 +25287,6 @@ export namespace Prisma {
      * Skip the first `n` StockAlerts.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of StockAlerts.
-     */
     distinct?: StockAlertScalarFieldEnum | StockAlertScalarFieldEnum[]
   }
 
@@ -26479,11 +26500,6 @@ export namespace Prisma {
      * Skip the first `n` PurchaseOrders.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of PurchaseOrders.
-     */
     distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
   }
 
@@ -27679,11 +27695,6 @@ export namespace Prisma {
      * Skip the first `n` PurchaseOrderItems.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of PurchaseOrderItems.
-     */
     distinct?: PurchaseOrderItemScalarFieldEnum | PurchaseOrderItemScalarFieldEnum[]
   }
 
@@ -28862,11 +28873,6 @@ export namespace Prisma {
      * Skip the first `n` PurchaseInvoices.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of PurchaseInvoices.
-     */
     distinct?: PurchaseInvoiceScalarFieldEnum | PurchaseInvoiceScalarFieldEnum[]
   }
 
@@ -30032,11 +30038,6 @@ export namespace Prisma {
      * Skip the first `n` Transfers.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Transfers.
-     */
     distinct?: TransferScalarFieldEnum | TransferScalarFieldEnum[]
   }
 
@@ -31160,11 +31161,6 @@ export namespace Prisma {
      * Skip the first `n` TransferItems.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TransferItems.
-     */
     distinct?: TransferItemScalarFieldEnum | TransferItemScalarFieldEnum[]
   }
 
@@ -32304,11 +32300,6 @@ export namespace Prisma {
      * Skip the first `n` Batches.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Batches.
-     */
     distinct?: BatchScalarFieldEnum | BatchScalarFieldEnum[]
   }
 
@@ -33572,11 +33563,6 @@ export namespace Prisma {
      * Skip the first `n` Bills.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Bills.
-     */
     distinct?: BillScalarFieldEnum | BillScalarFieldEnum[]
   }
 
@@ -34758,11 +34744,6 @@ export namespace Prisma {
      * Skip the first `n` BillItems.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of BillItems.
-     */
     distinct?: BillItemScalarFieldEnum | BillItemScalarFieldEnum[]
   }
 
@@ -35974,11 +35955,6 @@ export namespace Prisma {
      * Skip the first `n` Sales.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Sales.
-     */
     distinct?: SaleScalarFieldEnum | SaleScalarFieldEnum[]
   }
 
@@ -37323,11 +37299,6 @@ export namespace Prisma {
      * Skip the first `n` SaleItems.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SaleItems.
-     */
     distinct?: SaleItemScalarFieldEnum | SaleItemScalarFieldEnum[]
   }
 
@@ -38491,11 +38462,6 @@ export namespace Prisma {
      * Skip the first `n` Payments.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Payments.
-     */
     distinct?: PaymentScalarFieldEnum | PaymentScalarFieldEnum[]
   }
 
@@ -39667,11 +39633,6 @@ export namespace Prisma {
      * Skip the first `n` Returns.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Returns.
-     */
     distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
   }
 
@@ -40855,11 +40816,6 @@ export namespace Prisma {
      * Skip the first `n` ReturnItems.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ReturnItems.
-     */
     distinct?: ReturnItemScalarFieldEnum | ReturnItemScalarFieldEnum[]
   }
 
@@ -42025,11 +41981,6 @@ export namespace Prisma {
      * Skip the first `n` SyncLogs.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncLogs.
-     */
     distinct?: SyncLogScalarFieldEnum | SyncLogScalarFieldEnum[]
   }
 
@@ -43203,11 +43154,6 @@ export namespace Prisma {
      * Skip the first `n` SyncDevices.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncDevices.
-     */
     distinct?: SyncDeviceScalarFieldEnum | SyncDeviceScalarFieldEnum[]
   }
 
@@ -44343,11 +44289,6 @@ export namespace Prisma {
      * Skip the first `n` SyncSettings.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncSettings.
-     */
     distinct?: SyncSettingScalarFieldEnum | SyncSettingScalarFieldEnum[]
   }
 
@@ -45524,11 +45465,6 @@ export namespace Prisma {
      * Skip the first `n` SyncConflicts.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncConflicts.
-     */
     distinct?: SyncConflictScalarFieldEnum | SyncConflictScalarFieldEnum[]
   }
 
@@ -46625,11 +46561,6 @@ export namespace Prisma {
      * Skip the first `n` SyncBackups.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncBackups.
-     */
     distinct?: SyncBackupScalarFieldEnum | SyncBackupScalarFieldEnum[]
   }
 
@@ -47726,11 +47657,6 @@ export namespace Prisma {
      * Skip the first `n` SyncBackupSchedules.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncBackupSchedules.
-     */
     distinct?: SyncBackupScheduleScalarFieldEnum | SyncBackupScheduleScalarFieldEnum[]
   }
 
@@ -48852,11 +48778,6 @@ export namespace Prisma {
      * Skip the first `n` SyncHealthMetrics.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncHealthMetrics.
-     */
     distinct?: SyncHealthMetricScalarFieldEnum | SyncHealthMetricScalarFieldEnum[]
   }
 
@@ -49944,11 +49865,6 @@ export namespace Prisma {
      * Skip the first `n` SyncAuditLogs.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SyncAuditLogs.
-     */
     distinct?: SyncAuditLogScalarFieldEnum | SyncAuditLogScalarFieldEnum[]
   }
 
@@ -51187,11 +51103,6 @@ export namespace Prisma {
      * Skip the first `n` DailySummaries.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DailySummaries.
-     */
     distinct?: DailySummaryScalarFieldEnum | DailySummaryScalarFieldEnum[]
   }
 
@@ -52388,11 +52299,6 @@ export namespace Prisma {
      * Skip the first `n` SavedReportConfigs.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SavedReportConfigs.
-     */
     distinct?: SavedReportConfigScalarFieldEnum | SavedReportConfigScalarFieldEnum[]
   }
 
@@ -53604,11 +53510,6 @@ export namespace Prisma {
      * Skip the first `n` ReportSchedules.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ReportSchedules.
-     */
     distinct?: ReportScheduleScalarFieldEnum | ReportScheduleScalarFieldEnum[]
   }
 
@@ -54774,11 +54675,6 @@ export namespace Prisma {
      * Skip the first `n` ReportDeliveries.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ReportDeliveries.
-     */
     distinct?: ReportDeliveryScalarFieldEnum | ReportDeliveryScalarFieldEnum[]
   }
 
@@ -55011,11 +54907,13 @@ export namespace Prisma {
 
   export type AuditLogAvgAggregateOutputType = {
     id: number | null
+    branch_id: number | null
     user_id: number | null
   }
 
   export type AuditLogSumAggregateOutputType = {
     id: number | null
+    branch_id: number | null
     user_id: number | null
   }
 
@@ -55027,6 +54925,7 @@ export namespace Prisma {
     reportType: string | null
     filtersUsed: string | null
     branchName: string | null
+    branch_id: number | null
     user_id: number | null
     created_at: Date | null
   }
@@ -55039,6 +54938,7 @@ export namespace Prisma {
     reportType: string | null
     filtersUsed: string | null
     branchName: string | null
+    branch_id: number | null
     user_id: number | null
     created_at: Date | null
   }
@@ -55051,6 +54951,7 @@ export namespace Prisma {
     reportType: number
     filtersUsed: number
     branchName: number
+    branch_id: number
     user_id: number
     created_at: number
     _all: number
@@ -55059,11 +54960,13 @@ export namespace Prisma {
 
   export type AuditLogAvgAggregateInputType = {
     id?: true
+    branch_id?: true
     user_id?: true
   }
 
   export type AuditLogSumAggregateInputType = {
     id?: true
+    branch_id?: true
     user_id?: true
   }
 
@@ -55075,6 +54978,7 @@ export namespace Prisma {
     reportType?: true
     filtersUsed?: true
     branchName?: true
+    branch_id?: true
     user_id?: true
     created_at?: true
   }
@@ -55087,6 +54991,7 @@ export namespace Prisma {
     reportType?: true
     filtersUsed?: true
     branchName?: true
+    branch_id?: true
     user_id?: true
     created_at?: true
   }
@@ -55099,6 +55004,7 @@ export namespace Prisma {
     reportType?: true
     filtersUsed?: true
     branchName?: true
+    branch_id?: true
     user_id?: true
     created_at?: true
     _all?: true
@@ -55198,6 +55104,7 @@ export namespace Prisma {
     reportType: string | null
     filtersUsed: string | null
     branchName: string | null
+    branch_id: number | null
     user_id: number
     created_at: Date
     _count: AuditLogCountAggregateOutputType | null
@@ -55229,9 +55136,11 @@ export namespace Prisma {
     reportType?: boolean
     filtersUsed?: boolean
     branchName?: boolean
+    branch_id?: boolean
     user_id?: boolean
     created_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | AuditLog$branchArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
 
   export type AuditLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -55242,9 +55151,11 @@ export namespace Prisma {
     reportType?: boolean
     filtersUsed?: boolean
     branchName?: boolean
+    branch_id?: boolean
     user_id?: boolean
     created_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | AuditLog$branchArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
 
   export type AuditLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -55255,9 +55166,11 @@ export namespace Prisma {
     reportType?: boolean
     filtersUsed?: boolean
     branchName?: boolean
+    branch_id?: boolean
     user_id?: boolean
     created_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | AuditLog$branchArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
 
   export type AuditLogSelectScalar = {
@@ -55268,25 +55181,30 @@ export namespace Prisma {
     reportType?: boolean
     filtersUsed?: boolean
     branchName?: boolean
+    branch_id?: boolean
     user_id?: boolean
     created_at?: boolean
   }
 
-  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "role" | "action" | "reportType" | "filtersUsed" | "branchName" | "user_id" | "created_at", ExtArgs["result"]["auditLog"]>
+  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "role" | "action" | "reportType" | "filtersUsed" | "branchName" | "branch_id" | "user_id" | "created_at", ExtArgs["result"]["auditLog"]>
   export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | AuditLog$branchArgs<ExtArgs>
   }
   export type AuditLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | AuditLog$branchArgs<ExtArgs>
   }
   export type AuditLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    branch?: boolean | AuditLog$branchArgs<ExtArgs>
   }
 
   export type $AuditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AuditLog"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
+      branch: Prisma.$BranchPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -55296,6 +55214,7 @@ export namespace Prisma {
       reportType: string | null
       filtersUsed: string | null
       branchName: string | null
+      branch_id: number | null
       user_id: number
       created_at: Date
     }, ExtArgs["result"]["auditLog"]>
@@ -55693,6 +55612,7 @@ export namespace Prisma {
   export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    branch<T extends AuditLog$branchArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -55729,6 +55649,7 @@ export namespace Prisma {
     readonly reportType: FieldRef<"AuditLog", 'String'>
     readonly filtersUsed: FieldRef<"AuditLog", 'String'>
     readonly branchName: FieldRef<"AuditLog", 'String'>
+    readonly branch_id: FieldRef<"AuditLog", 'Int'>
     readonly user_id: FieldRef<"AuditLog", 'Int'>
     readonly created_at: FieldRef<"AuditLog", 'DateTime'>
   }
@@ -55927,11 +55848,6 @@ export namespace Prisma {
      * Skip the first `n` AuditLogs.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of AuditLogs.
-     */
     distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
   }
 
@@ -56129,6 +56045,25 @@ export namespace Prisma {
      * Limit how many AuditLogs to delete.
      */
     limit?: number
+  }
+
+  /**
+   * AuditLog.branch
+   */
+  export type AuditLog$branchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
   }
 
   /**
@@ -56984,11 +56919,6 @@ export namespace Prisma {
      * Skip the first `n` KpiTargets.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of KpiTargets.
-     */
     distinct?: KpiTargetScalarFieldEnum | KpiTargetScalarFieldEnum[]
   }
 
@@ -58017,11 +57947,6 @@ export namespace Prisma {
      * Skip the first `n` KpiMarginTargets.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of KpiMarginTargets.
-     */
     distinct?: KpiMarginTargetScalarFieldEnum | KpiMarginTargetScalarFieldEnum[]
   }
 
@@ -59067,11 +58992,6 @@ export namespace Prisma {
      * Skip the first `n` KpiInventoryThresholds.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of KpiInventoryThresholds.
-     */
     distinct?: KpiInventoryThresholdScalarFieldEnum | KpiInventoryThresholdScalarFieldEnum[]
   }
 
@@ -60187,11 +60107,6 @@ export namespace Prisma {
      * Skip the first `n` KpiNotificationRules.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of KpiNotificationRules.
-     */
     distinct?: KpiNotificationRuleScalarFieldEnum | KpiNotificationRuleScalarFieldEnum[]
   }
 
@@ -61225,11 +61140,6 @@ export namespace Prisma {
      * Skip the first `n` KpiReportDefaults.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of KpiReportDefaults.
-     */
     distinct?: KpiReportDefaultScalarFieldEnum | KpiReportDefaultScalarFieldEnum[]
   }
 
@@ -61452,6 +61362,7 @@ export namespace Prisma {
     message: string | null
     is_read: boolean | null
     user_id: number | null
+    target_role: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -61464,6 +61375,7 @@ export namespace Prisma {
     message: string | null
     is_read: boolean | null
     user_id: number | null
+    target_role: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -61476,6 +61388,7 @@ export namespace Prisma {
     message: number
     is_read: number
     user_id: number
+    target_role: number
     created_at: number
     updated_at: number
     _all: number
@@ -61502,6 +61415,7 @@ export namespace Prisma {
     message?: true
     is_read?: true
     user_id?: true
+    target_role?: true
     created_at?: true
     updated_at?: true
   }
@@ -61514,6 +61428,7 @@ export namespace Prisma {
     message?: true
     is_read?: true
     user_id?: true
+    target_role?: true
     created_at?: true
     updated_at?: true
   }
@@ -61526,6 +61441,7 @@ export namespace Prisma {
     message?: true
     is_read?: true
     user_id?: true
+    target_role?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -61625,6 +61541,7 @@ export namespace Prisma {
     message: string
     is_read: boolean
     user_id: number | null
+    target_role: string | null
     created_at: Date
     updated_at: Date
     _count: NotificationCountAggregateOutputType | null
@@ -61656,6 +61573,7 @@ export namespace Prisma {
     message?: boolean
     is_read?: boolean
     user_id?: boolean
+    target_role?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["notification"]>
@@ -61668,6 +61586,7 @@ export namespace Prisma {
     message?: boolean
     is_read?: boolean
     user_id?: boolean
+    target_role?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["notification"]>
@@ -61680,6 +61599,7 @@ export namespace Prisma {
     message?: boolean
     is_read?: boolean
     user_id?: boolean
+    target_role?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["notification"]>
@@ -61692,11 +61612,12 @@ export namespace Prisma {
     message?: boolean
     is_read?: boolean
     user_id?: boolean
+    target_role?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branch_id" | "type" | "title" | "message" | "is_read" | "user_id" | "created_at" | "updated_at", ExtArgs["result"]["notification"]>
+  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branch_id" | "type" | "title" | "message" | "is_read" | "user_id" | "target_role" | "created_at" | "updated_at", ExtArgs["result"]["notification"]>
 
   export type $NotificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Notification"
@@ -61709,6 +61630,7 @@ export namespace Prisma {
       message: string
       is_read: boolean
       user_id: number | null
+      target_role: string | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["notification"]>
@@ -62141,6 +62063,7 @@ export namespace Prisma {
     readonly message: FieldRef<"Notification", 'String'>
     readonly is_read: FieldRef<"Notification", 'Boolean'>
     readonly user_id: FieldRef<"Notification", 'Int'>
+    readonly target_role: FieldRef<"Notification", 'String'>
     readonly created_at: FieldRef<"Notification", 'DateTime'>
     readonly updated_at: FieldRef<"Notification", 'DateTime'>
   }
@@ -62319,11 +62242,6 @@ export namespace Prisma {
      * Skip the first `n` Notifications.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Notifications.
-     */
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
   }
 
@@ -63418,11 +63336,6 @@ export namespace Prisma {
      * Skip the first `n` ScheduledReports.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ScheduledReports.
-     */
     distinct?: ScheduledReportScalarFieldEnum | ScheduledReportScalarFieldEnum[]
   }
 
@@ -64680,11 +64593,6 @@ export namespace Prisma {
      * Skip the first `n` DiscountRules.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DiscountRules.
-     */
     distinct?: DiscountRuleScalarFieldEnum | DiscountRuleScalarFieldEnum[]
   }
 
@@ -65930,11 +65838,6 @@ export namespace Prisma {
      * Skip the first `n` DiscountApprovals.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DiscountApprovals.
-     */
     distinct?: DiscountApprovalScalarFieldEnum | DiscountApprovalScalarFieldEnum[]
   }
 
@@ -67091,11 +66994,6 @@ export namespace Prisma {
      * Skip the first `n` DiscountApplications.
      */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DiscountApplications.
-     */
     distinct?: DiscountApplicationScalarFieldEnum | DiscountApplicationScalarFieldEnum[]
   }
 
@@ -67330,6 +67228,1117 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: DiscountApplicationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmailOutbox
+   */
+
+  export type AggregateEmailOutbox = {
+    _count: EmailOutboxCountAggregateOutputType | null
+    _avg: EmailOutboxAvgAggregateOutputType | null
+    _sum: EmailOutboxSumAggregateOutputType | null
+    _min: EmailOutboxMinAggregateOutputType | null
+    _max: EmailOutboxMaxAggregateOutputType | null
+  }
+
+  export type EmailOutboxAvgAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type EmailOutboxSumAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type EmailOutboxMinAggregateOutputType = {
+    id: number | null
+    event_type: string | null
+    recipient: string | null
+    subject: string | null
+    body: string | null
+    status: string | null
+    attempts: number | null
+    last_error: string | null
+    sent_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type EmailOutboxMaxAggregateOutputType = {
+    id: number | null
+    event_type: string | null
+    recipient: string | null
+    subject: string | null
+    body: string | null
+    status: string | null
+    attempts: number | null
+    last_error: string | null
+    sent_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type EmailOutboxCountAggregateOutputType = {
+    id: number
+    event_type: number
+    recipient: number
+    subject: number
+    body: number
+    status: number
+    attempts: number
+    last_error: number
+    sent_at: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type EmailOutboxAvgAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type EmailOutboxSumAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type EmailOutboxMinAggregateInputType = {
+    id?: true
+    event_type?: true
+    recipient?: true
+    subject?: true
+    body?: true
+    status?: true
+    attempts?: true
+    last_error?: true
+    sent_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type EmailOutboxMaxAggregateInputType = {
+    id?: true
+    event_type?: true
+    recipient?: true
+    subject?: true
+    body?: true
+    status?: true
+    attempts?: true
+    last_error?: true
+    sent_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type EmailOutboxCountAggregateInputType = {
+    id?: true
+    event_type?: true
+    recipient?: true
+    subject?: true
+    body?: true
+    status?: true
+    attempts?: true
+    last_error?: true
+    sent_at?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type EmailOutboxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailOutbox to aggregate.
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOutboxes to fetch.
+     */
+    orderBy?: EmailOutboxOrderByWithRelationInput | EmailOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailOutboxes
+    **/
+    _count?: true | EmailOutboxCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmailOutboxAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmailOutboxSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailOutboxMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailOutboxMaxAggregateInputType
+  }
+
+  export type GetEmailOutboxAggregateType<T extends EmailOutboxAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailOutbox]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailOutbox[P]>
+      : GetScalarType<T[P], AggregateEmailOutbox[P]>
+  }
+
+
+
+
+  export type EmailOutboxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailOutboxWhereInput
+    orderBy?: EmailOutboxOrderByWithAggregationInput | EmailOutboxOrderByWithAggregationInput[]
+    by: EmailOutboxScalarFieldEnum[] | EmailOutboxScalarFieldEnum
+    having?: EmailOutboxScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailOutboxCountAggregateInputType | true
+    _avg?: EmailOutboxAvgAggregateInputType
+    _sum?: EmailOutboxSumAggregateInputType
+    _min?: EmailOutboxMinAggregateInputType
+    _max?: EmailOutboxMaxAggregateInputType
+  }
+
+  export type EmailOutboxGroupByOutputType = {
+    id: number
+    event_type: string
+    recipient: string
+    subject: string
+    body: string
+    status: string
+    attempts: number
+    last_error: string | null
+    sent_at: Date | null
+    created_at: Date
+    updated_at: Date
+    _count: EmailOutboxCountAggregateOutputType | null
+    _avg: EmailOutboxAvgAggregateOutputType | null
+    _sum: EmailOutboxSumAggregateOutputType | null
+    _min: EmailOutboxMinAggregateOutputType | null
+    _max: EmailOutboxMaxAggregateOutputType | null
+  }
+
+  type GetEmailOutboxGroupByPayload<T extends EmailOutboxGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailOutboxGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailOutboxGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailOutboxGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailOutboxGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailOutboxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event_type?: boolean
+    recipient?: boolean
+    subject?: boolean
+    body?: boolean
+    status?: boolean
+    attempts?: boolean
+    last_error?: boolean
+    sent_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["emailOutbox"]>
+
+  export type EmailOutboxSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event_type?: boolean
+    recipient?: boolean
+    subject?: boolean
+    body?: boolean
+    status?: boolean
+    attempts?: boolean
+    last_error?: boolean
+    sent_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["emailOutbox"]>
+
+  export type EmailOutboxSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event_type?: boolean
+    recipient?: boolean
+    subject?: boolean
+    body?: boolean
+    status?: boolean
+    attempts?: boolean
+    last_error?: boolean
+    sent_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["emailOutbox"]>
+
+  export type EmailOutboxSelectScalar = {
+    id?: boolean
+    event_type?: boolean
+    recipient?: boolean
+    subject?: boolean
+    body?: boolean
+    status?: boolean
+    attempts?: boolean
+    last_error?: boolean
+    sent_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type EmailOutboxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event_type" | "recipient" | "subject" | "body" | "status" | "attempts" | "last_error" | "sent_at" | "created_at" | "updated_at", ExtArgs["result"]["emailOutbox"]>
+
+  export type $EmailOutboxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailOutbox"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      event_type: string
+      recipient: string
+      subject: string
+      body: string
+      status: string
+      attempts: number
+      last_error: string | null
+      sent_at: Date | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["emailOutbox"]>
+    composites: {}
+  }
+
+  type EmailOutboxGetPayload<S extends boolean | null | undefined | EmailOutboxDefaultArgs> = $Result.GetResult<Prisma.$EmailOutboxPayload, S>
+
+  type EmailOutboxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailOutboxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailOutboxCountAggregateInputType | true
+    }
+
+  export interface EmailOutboxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailOutbox'], meta: { name: 'EmailOutbox' } }
+    /**
+     * Find zero or one EmailOutbox that matches the filter.
+     * @param {EmailOutboxFindUniqueArgs} args - Arguments to find a EmailOutbox
+     * @example
+     * // Get one EmailOutbox
+     * const emailOutbox = await prisma.emailOutbox.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailOutboxFindUniqueArgs>(args: SelectSubset<T, EmailOutboxFindUniqueArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailOutbox that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailOutboxFindUniqueOrThrowArgs} args - Arguments to find a EmailOutbox
+     * @example
+     * // Get one EmailOutbox
+     * const emailOutbox = await prisma.emailOutbox.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailOutboxFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailOutboxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailOutbox that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxFindFirstArgs} args - Arguments to find a EmailOutbox
+     * @example
+     * // Get one EmailOutbox
+     * const emailOutbox = await prisma.emailOutbox.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailOutboxFindFirstArgs>(args?: SelectSubset<T, EmailOutboxFindFirstArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailOutbox that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxFindFirstOrThrowArgs} args - Arguments to find a EmailOutbox
+     * @example
+     * // Get one EmailOutbox
+     * const emailOutbox = await prisma.emailOutbox.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailOutboxFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailOutboxFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailOutboxes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailOutboxes
+     * const emailOutboxes = await prisma.emailOutbox.findMany()
+     * 
+     * // Get first 10 EmailOutboxes
+     * const emailOutboxes = await prisma.emailOutbox.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailOutboxWithIdOnly = await prisma.emailOutbox.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailOutboxFindManyArgs>(args?: SelectSubset<T, EmailOutboxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailOutbox.
+     * @param {EmailOutboxCreateArgs} args - Arguments to create a EmailOutbox.
+     * @example
+     * // Create one EmailOutbox
+     * const EmailOutbox = await prisma.emailOutbox.create({
+     *   data: {
+     *     // ... data to create a EmailOutbox
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailOutboxCreateArgs>(args: SelectSubset<T, EmailOutboxCreateArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailOutboxes.
+     * @param {EmailOutboxCreateManyArgs} args - Arguments to create many EmailOutboxes.
+     * @example
+     * // Create many EmailOutboxes
+     * const emailOutbox = await prisma.emailOutbox.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailOutboxCreateManyArgs>(args?: SelectSubset<T, EmailOutboxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailOutboxes and returns the data saved in the database.
+     * @param {EmailOutboxCreateManyAndReturnArgs} args - Arguments to create many EmailOutboxes.
+     * @example
+     * // Create many EmailOutboxes
+     * const emailOutbox = await prisma.emailOutbox.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailOutboxes and only return the `id`
+     * const emailOutboxWithIdOnly = await prisma.emailOutbox.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailOutboxCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailOutboxCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailOutbox.
+     * @param {EmailOutboxDeleteArgs} args - Arguments to delete one EmailOutbox.
+     * @example
+     * // Delete one EmailOutbox
+     * const EmailOutbox = await prisma.emailOutbox.delete({
+     *   where: {
+     *     // ... filter to delete one EmailOutbox
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailOutboxDeleteArgs>(args: SelectSubset<T, EmailOutboxDeleteArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailOutbox.
+     * @param {EmailOutboxUpdateArgs} args - Arguments to update one EmailOutbox.
+     * @example
+     * // Update one EmailOutbox
+     * const emailOutbox = await prisma.emailOutbox.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailOutboxUpdateArgs>(args: SelectSubset<T, EmailOutboxUpdateArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailOutboxes.
+     * @param {EmailOutboxDeleteManyArgs} args - Arguments to filter EmailOutboxes to delete.
+     * @example
+     * // Delete a few EmailOutboxes
+     * const { count } = await prisma.emailOutbox.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailOutboxDeleteManyArgs>(args?: SelectSubset<T, EmailOutboxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailOutboxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailOutboxes
+     * const emailOutbox = await prisma.emailOutbox.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailOutboxUpdateManyArgs>(args: SelectSubset<T, EmailOutboxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailOutboxes and returns the data updated in the database.
+     * @param {EmailOutboxUpdateManyAndReturnArgs} args - Arguments to update many EmailOutboxes.
+     * @example
+     * // Update many EmailOutboxes
+     * const emailOutbox = await prisma.emailOutbox.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmailOutboxes and only return the `id`
+     * const emailOutboxWithIdOnly = await prisma.emailOutbox.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmailOutboxUpdateManyAndReturnArgs>(args: SelectSubset<T, EmailOutboxUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmailOutbox.
+     * @param {EmailOutboxUpsertArgs} args - Arguments to update or create a EmailOutbox.
+     * @example
+     * // Update or create a EmailOutbox
+     * const emailOutbox = await prisma.emailOutbox.upsert({
+     *   create: {
+     *     // ... data to create a EmailOutbox
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailOutbox we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailOutboxUpsertArgs>(args: SelectSubset<T, EmailOutboxUpsertArgs<ExtArgs>>): Prisma__EmailOutboxClient<$Result.GetResult<Prisma.$EmailOutboxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailOutboxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxCountArgs} args - Arguments to filter EmailOutboxes to count.
+     * @example
+     * // Count the number of EmailOutboxes
+     * const count = await prisma.emailOutbox.count({
+     *   where: {
+     *     // ... the filter for the EmailOutboxes we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailOutboxCountArgs>(
+      args?: Subset<T, EmailOutboxCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailOutboxCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailOutbox.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailOutboxAggregateArgs>(args: Subset<T, EmailOutboxAggregateArgs>): Prisma.PrismaPromise<GetEmailOutboxAggregateType<T>>
+
+    /**
+     * Group by EmailOutbox.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailOutboxGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailOutboxGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailOutboxGroupByArgs['orderBy'] }
+        : { orderBy?: EmailOutboxGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailOutboxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailOutboxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailOutbox model
+   */
+  readonly fields: EmailOutboxFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailOutbox.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailOutboxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailOutbox model
+   */
+  interface EmailOutboxFieldRefs {
+    readonly id: FieldRef<"EmailOutbox", 'Int'>
+    readonly event_type: FieldRef<"EmailOutbox", 'String'>
+    readonly recipient: FieldRef<"EmailOutbox", 'String'>
+    readonly subject: FieldRef<"EmailOutbox", 'String'>
+    readonly body: FieldRef<"EmailOutbox", 'String'>
+    readonly status: FieldRef<"EmailOutbox", 'String'>
+    readonly attempts: FieldRef<"EmailOutbox", 'Int'>
+    readonly last_error: FieldRef<"EmailOutbox", 'String'>
+    readonly sent_at: FieldRef<"EmailOutbox", 'DateTime'>
+    readonly created_at: FieldRef<"EmailOutbox", 'DateTime'>
+    readonly updated_at: FieldRef<"EmailOutbox", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailOutbox findUnique
+   */
+  export type EmailOutboxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOutbox to fetch.
+     */
+    where: EmailOutboxWhereUniqueInput
+  }
+
+  /**
+   * EmailOutbox findUniqueOrThrow
+   */
+  export type EmailOutboxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOutbox to fetch.
+     */
+    where: EmailOutboxWhereUniqueInput
+  }
+
+  /**
+   * EmailOutbox findFirst
+   */
+  export type EmailOutboxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOutbox to fetch.
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOutboxes to fetch.
+     */
+    orderBy?: EmailOutboxOrderByWithRelationInput | EmailOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailOutboxes.
+     */
+    cursor?: EmailOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailOutboxes.
+     */
+    distinct?: EmailOutboxScalarFieldEnum | EmailOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * EmailOutbox findFirstOrThrow
+   */
+  export type EmailOutboxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOutbox to fetch.
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOutboxes to fetch.
+     */
+    orderBy?: EmailOutboxOrderByWithRelationInput | EmailOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailOutboxes.
+     */
+    cursor?: EmailOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailOutboxes.
+     */
+    distinct?: EmailOutboxScalarFieldEnum | EmailOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * EmailOutbox findMany
+   */
+  export type EmailOutboxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailOutboxes to fetch.
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailOutboxes to fetch.
+     */
+    orderBy?: EmailOutboxOrderByWithRelationInput | EmailOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailOutboxes.
+     */
+    cursor?: EmailOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailOutboxes.
+     */
+    skip?: number
+    distinct?: EmailOutboxScalarFieldEnum | EmailOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * EmailOutbox create
+   */
+  export type EmailOutboxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EmailOutbox.
+     */
+    data: XOR<EmailOutboxCreateInput, EmailOutboxUncheckedCreateInput>
+  }
+
+  /**
+   * EmailOutbox createMany
+   */
+  export type EmailOutboxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailOutboxes.
+     */
+    data: EmailOutboxCreateManyInput | EmailOutboxCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailOutbox createManyAndReturn
+   */
+  export type EmailOutboxCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailOutboxes.
+     */
+    data: EmailOutboxCreateManyInput | EmailOutboxCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailOutbox update
+   */
+  export type EmailOutboxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EmailOutbox.
+     */
+    data: XOR<EmailOutboxUpdateInput, EmailOutboxUncheckedUpdateInput>
+    /**
+     * Choose, which EmailOutbox to update.
+     */
+    where: EmailOutboxWhereUniqueInput
+  }
+
+  /**
+   * EmailOutbox updateMany
+   */
+  export type EmailOutboxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailOutboxes.
+     */
+    data: XOR<EmailOutboxUpdateManyMutationInput, EmailOutboxUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailOutboxes to update
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * Limit how many EmailOutboxes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailOutbox updateManyAndReturn
+   */
+  export type EmailOutboxUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * The data used to update EmailOutboxes.
+     */
+    data: XOR<EmailOutboxUpdateManyMutationInput, EmailOutboxUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailOutboxes to update
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * Limit how many EmailOutboxes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailOutbox upsert
+   */
+  export type EmailOutboxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EmailOutbox to update in case it exists.
+     */
+    where: EmailOutboxWhereUniqueInput
+    /**
+     * In case the EmailOutbox found by the `where` argument doesn't exist, create a new EmailOutbox with this data.
+     */
+    create: XOR<EmailOutboxCreateInput, EmailOutboxUncheckedCreateInput>
+    /**
+     * In case the EmailOutbox was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailOutboxUpdateInput, EmailOutboxUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailOutbox delete
+   */
+  export type EmailOutboxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
+    /**
+     * Filter which EmailOutbox to delete.
+     */
+    where: EmailOutboxWhereUniqueInput
+  }
+
+  /**
+   * EmailOutbox deleteMany
+   */
+  export type EmailOutboxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailOutboxes to delete
+     */
+    where?: EmailOutboxWhereInput
+    /**
+     * Limit how many EmailOutboxes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailOutbox without action
+   */
+  export type EmailOutboxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailOutbox
+     */
+    select?: EmailOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailOutbox
+     */
+    omit?: EmailOutboxOmit<ExtArgs> | null
   }
 
 
@@ -67934,6 +68943,7 @@ export namespace Prisma {
     reportType: 'reportType',
     filtersUsed: 'filtersUsed',
     branchName: 'branchName',
+    branch_id: 'branch_id',
     user_id: 'user_id',
     created_at: 'created_at'
   };
@@ -68008,6 +69018,7 @@ export namespace Prisma {
     message: 'message',
     is_read: 'is_read',
     user_id: 'user_id',
+    target_role: 'target_role',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -68077,6 +69088,23 @@ export namespace Prisma {
   };
 
   export type DiscountApplicationScalarFieldEnum = (typeof DiscountApplicationScalarFieldEnum)[keyof typeof DiscountApplicationScalarFieldEnum]
+
+
+  export const EmailOutboxScalarFieldEnum: {
+    id: 'id',
+    event_type: 'event_type',
+    recipient: 'recipient',
+    subject: 'subject',
+    body: 'body',
+    status: 'status',
+    attempts: 'attempts',
+    last_error: 'last_error',
+    sent_at: 'sent_at',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type EmailOutboxScalarFieldEnum = (typeof EmailOutboxScalarFieldEnum)[keyof typeof EmailOutboxScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -68659,6 +69687,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryListRelationFilter
     savedReportConfigs?: SavedReportConfigListRelationFilter
     reportSchedules?: ReportScheduleListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
     discountRules?: DiscountRuleListRelationFilter
   }
 
@@ -68695,6 +69724,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryOrderByRelationAggregateInput
     savedReportConfigs?: SavedReportConfigOrderByRelationAggregateInput
     reportSchedules?: ReportScheduleOrderByRelationAggregateInput
+    auditLogs?: AuditLogOrderByRelationAggregateInput
     discountRules?: DiscountRuleOrderByRelationAggregateInput
   }
 
@@ -68735,6 +69765,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryListRelationFilter
     savedReportConfigs?: SavedReportConfigListRelationFilter
     reportSchedules?: ReportScheduleListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
     discountRules?: DiscountRuleListRelationFilter
   }, "id" | "company_id_code">
 
@@ -71784,9 +72815,11 @@ export namespace Prisma {
     reportType?: StringNullableFilter<"AuditLog"> | string | null
     filtersUsed?: StringNullableFilter<"AuditLog"> | string | null
     branchName?: StringNullableFilter<"AuditLog"> | string | null
+    branch_id?: IntNullableFilter<"AuditLog"> | number | null
     user_id?: IntFilter<"AuditLog"> | number
     created_at?: DateTimeFilter<"AuditLog"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
   }
 
   export type AuditLogOrderByWithRelationInput = {
@@ -71797,9 +72830,11 @@ export namespace Prisma {
     reportType?: SortOrderInput | SortOrder
     filtersUsed?: SortOrderInput | SortOrder
     branchName?: SortOrderInput | SortOrder
+    branch_id?: SortOrderInput | SortOrder
     user_id?: SortOrder
     created_at?: SortOrder
     user?: UserOrderByWithRelationInput
+    branch?: BranchOrderByWithRelationInput
   }
 
   export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
@@ -71813,9 +72848,11 @@ export namespace Prisma {
     reportType?: StringNullableFilter<"AuditLog"> | string | null
     filtersUsed?: StringNullableFilter<"AuditLog"> | string | null
     branchName?: StringNullableFilter<"AuditLog"> | string | null
+    branch_id?: IntNullableFilter<"AuditLog"> | number | null
     user_id?: IntFilter<"AuditLog"> | number
     created_at?: DateTimeFilter<"AuditLog"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
   }, "id">
 
   export type AuditLogOrderByWithAggregationInput = {
@@ -71826,6 +72863,7 @@ export namespace Prisma {
     reportType?: SortOrderInput | SortOrder
     filtersUsed?: SortOrderInput | SortOrder
     branchName?: SortOrderInput | SortOrder
+    branch_id?: SortOrderInput | SortOrder
     user_id?: SortOrder
     created_at?: SortOrder
     _count?: AuditLogCountOrderByAggregateInput
@@ -71846,6 +72884,7 @@ export namespace Prisma {
     reportType?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
     filtersUsed?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
     branchName?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    branch_id?: IntNullableWithAggregatesFilter<"AuditLog"> | number | null
     user_id?: IntWithAggregatesFilter<"AuditLog"> | number
     created_at?: DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
   }
@@ -72152,6 +73191,7 @@ export namespace Prisma {
     message?: StringFilter<"Notification"> | string
     is_read?: BoolFilter<"Notification"> | boolean
     user_id?: IntNullableFilter<"Notification"> | number | null
+    target_role?: StringNullableFilter<"Notification"> | string | null
     created_at?: DateTimeFilter<"Notification"> | Date | string
     updated_at?: DateTimeFilter<"Notification"> | Date | string
   }
@@ -72164,6 +73204,7 @@ export namespace Prisma {
     message?: SortOrder
     is_read?: SortOrder
     user_id?: SortOrderInput | SortOrder
+    target_role?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -72179,6 +73220,7 @@ export namespace Prisma {
     message?: StringFilter<"Notification"> | string
     is_read?: BoolFilter<"Notification"> | boolean
     user_id?: IntNullableFilter<"Notification"> | number | null
+    target_role?: StringNullableFilter<"Notification"> | string | null
     created_at?: DateTimeFilter<"Notification"> | Date | string
     updated_at?: DateTimeFilter<"Notification"> | Date | string
   }, "id">
@@ -72191,6 +73233,7 @@ export namespace Prisma {
     message?: SortOrder
     is_read?: SortOrder
     user_id?: SortOrderInput | SortOrder
+    target_role?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: NotificationCountOrderByAggregateInput
@@ -72211,6 +73254,7 @@ export namespace Prisma {
     message?: StringWithAggregatesFilter<"Notification"> | string
     is_read?: BoolWithAggregatesFilter<"Notification"> | boolean
     user_id?: IntNullableWithAggregatesFilter<"Notification"> | number | null
+    target_role?: StringNullableWithAggregatesFilter<"Notification"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
   }
@@ -72564,6 +73608,90 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"DiscountApplication"> | Date | string
   }
 
+  export type EmailOutboxWhereInput = {
+    AND?: EmailOutboxWhereInput | EmailOutboxWhereInput[]
+    OR?: EmailOutboxWhereInput[]
+    NOT?: EmailOutboxWhereInput | EmailOutboxWhereInput[]
+    id?: IntFilter<"EmailOutbox"> | number
+    event_type?: StringFilter<"EmailOutbox"> | string
+    recipient?: StringFilter<"EmailOutbox"> | string
+    subject?: StringFilter<"EmailOutbox"> | string
+    body?: StringFilter<"EmailOutbox"> | string
+    status?: StringFilter<"EmailOutbox"> | string
+    attempts?: IntFilter<"EmailOutbox"> | number
+    last_error?: StringNullableFilter<"EmailOutbox"> | string | null
+    sent_at?: DateTimeNullableFilter<"EmailOutbox"> | Date | string | null
+    created_at?: DateTimeFilter<"EmailOutbox"> | Date | string
+    updated_at?: DateTimeFilter<"EmailOutbox"> | Date | string
+  }
+
+  export type EmailOutboxOrderByWithRelationInput = {
+    id?: SortOrder
+    event_type?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    last_error?: SortOrderInput | SortOrder
+    sent_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EmailOutboxWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: EmailOutboxWhereInput | EmailOutboxWhereInput[]
+    OR?: EmailOutboxWhereInput[]
+    NOT?: EmailOutboxWhereInput | EmailOutboxWhereInput[]
+    event_type?: StringFilter<"EmailOutbox"> | string
+    recipient?: StringFilter<"EmailOutbox"> | string
+    subject?: StringFilter<"EmailOutbox"> | string
+    body?: StringFilter<"EmailOutbox"> | string
+    status?: StringFilter<"EmailOutbox"> | string
+    attempts?: IntFilter<"EmailOutbox"> | number
+    last_error?: StringNullableFilter<"EmailOutbox"> | string | null
+    sent_at?: DateTimeNullableFilter<"EmailOutbox"> | Date | string | null
+    created_at?: DateTimeFilter<"EmailOutbox"> | Date | string
+    updated_at?: DateTimeFilter<"EmailOutbox"> | Date | string
+  }, "id">
+
+  export type EmailOutboxOrderByWithAggregationInput = {
+    id?: SortOrder
+    event_type?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    last_error?: SortOrderInput | SortOrder
+    sent_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: EmailOutboxCountOrderByAggregateInput
+    _avg?: EmailOutboxAvgOrderByAggregateInput
+    _max?: EmailOutboxMaxOrderByAggregateInput
+    _min?: EmailOutboxMinOrderByAggregateInput
+    _sum?: EmailOutboxSumOrderByAggregateInput
+  }
+
+  export type EmailOutboxScalarWhereWithAggregatesInput = {
+    AND?: EmailOutboxScalarWhereWithAggregatesInput | EmailOutboxScalarWhereWithAggregatesInput[]
+    OR?: EmailOutboxScalarWhereWithAggregatesInput[]
+    NOT?: EmailOutboxScalarWhereWithAggregatesInput | EmailOutboxScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"EmailOutbox"> | number
+    event_type?: StringWithAggregatesFilter<"EmailOutbox"> | string
+    recipient?: StringWithAggregatesFilter<"EmailOutbox"> | string
+    subject?: StringWithAggregatesFilter<"EmailOutbox"> | string
+    body?: StringWithAggregatesFilter<"EmailOutbox"> | string
+    status?: StringWithAggregatesFilter<"EmailOutbox"> | string
+    attempts?: IntWithAggregatesFilter<"EmailOutbox"> | number
+    last_error?: StringNullableWithAggregatesFilter<"EmailOutbox"> | string | null
+    sent_at?: DateTimeNullableWithAggregatesFilter<"EmailOutbox"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"EmailOutbox"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"EmailOutbox"> | Date | string
+  }
+
   export type CompanyCreateInput = {
     name: string
     code: string
@@ -72696,6 +73824,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -72731,6 +73860,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -72765,6 +73895,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -72800,6 +73931,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -75877,6 +77009,7 @@ export namespace Prisma {
     branchName?: string | null
     created_at?: Date | string
     user: UserCreateNestedOneWithoutAuditLogsInput
+    branch?: BranchCreateNestedOneWithoutAuditLogsInput
   }
 
   export type AuditLogUncheckedCreateInput = {
@@ -75887,6 +77020,7 @@ export namespace Prisma {
     reportType?: string | null
     filtersUsed?: string | null
     branchName?: string | null
+    branch_id?: number | null
     user_id: number
     created_at?: Date | string
   }
@@ -75900,6 +77034,7 @@ export namespace Prisma {
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutAuditLogsNestedInput
+    branch?: BranchUpdateOneWithoutAuditLogsNestedInput
   }
 
   export type AuditLogUncheckedUpdateInput = {
@@ -75910,6 +77045,7 @@ export namespace Prisma {
     reportType?: NullableStringFieldUpdateOperationsInput | string | null
     filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     user_id?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75922,6 +77058,7 @@ export namespace Prisma {
     reportType?: string | null
     filtersUsed?: string | null
     branchName?: string | null
+    branch_id?: number | null
     user_id: number
     created_at?: Date | string
   }
@@ -75944,6 +77081,7 @@ export namespace Prisma {
     reportType?: NullableStringFieldUpdateOperationsInput | string | null
     filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     user_id?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76248,6 +77386,7 @@ export namespace Prisma {
     message: string
     is_read?: boolean
     user_id?: number | null
+    target_role?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -76260,6 +77399,7 @@ export namespace Prisma {
     message: string
     is_read?: boolean
     user_id?: number | null
+    target_role?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -76271,6 +77411,7 @@ export namespace Prisma {
     message?: StringFieldUpdateOperationsInput | string
     is_read?: BoolFieldUpdateOperationsInput | boolean
     user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    target_role?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76283,6 +77424,7 @@ export namespace Prisma {
     message?: StringFieldUpdateOperationsInput | string
     is_read?: BoolFieldUpdateOperationsInput | boolean
     user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    target_role?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76295,6 +77437,7 @@ export namespace Prisma {
     message: string
     is_read?: boolean
     user_id?: number | null
+    target_role?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -76306,6 +77449,7 @@ export namespace Prisma {
     message?: StringFieldUpdateOperationsInput | string
     is_read?: BoolFieldUpdateOperationsInput | boolean
     user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    target_role?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76318,6 +77462,7 @@ export namespace Prisma {
     message?: StringFieldUpdateOperationsInput | string
     is_read?: BoolFieldUpdateOperationsInput | boolean
     user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    target_role?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76673,6 +77818,101 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EmailOutboxCreateInput = {
+    event_type: string
+    recipient: string
+    subject: string
+    body: string
+    status?: string
+    attempts?: number
+    last_error?: string | null
+    sent_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type EmailOutboxUncheckedCreateInput = {
+    id?: number
+    event_type: string
+    recipient: string
+    subject: string
+    body: string
+    status?: string
+    attempts?: number
+    last_error?: string | null
+    sent_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type EmailOutboxUpdateInput = {
+    event_type?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    last_error?: NullableStringFieldUpdateOperationsInput | string | null
+    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailOutboxUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    event_type?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    last_error?: NullableStringFieldUpdateOperationsInput | string | null
+    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailOutboxCreateManyInput = {
+    id?: number
+    event_type: string
+    recipient: string
+    subject: string
+    body: string
+    status?: string
+    attempts?: number
+    last_error?: string | null
+    sent_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type EmailOutboxUpdateManyMutationInput = {
+    event_type?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    last_error?: NullableStringFieldUpdateOperationsInput | string | null
+    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailOutboxUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    event_type?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    last_error?: NullableStringFieldUpdateOperationsInput | string | null
+    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -76998,6 +78238,12 @@ export namespace Prisma {
     none?: ReportScheduleWhereInput
   }
 
+  export type AuditLogListRelationFilter = {
+    every?: AuditLogWhereInput
+    some?: AuditLogWhereInput
+    none?: AuditLogWhereInput
+  }
+
   export type UserLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -77055,6 +78301,10 @@ export namespace Prisma {
   }
 
   export type ReportScheduleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AuditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -77170,12 +78420,6 @@ export namespace Prisma {
     none?: UserRoleWhereInput
   }
 
-  export type AuditLogListRelationFilter = {
-    every?: AuditLogWhereInput
-    some?: AuditLogWhereInput
-    none?: AuditLogWhereInput
-  }
-
   export type DiscountApprovalListRelationFilter = {
     every?: DiscountApprovalWhereInput
     some?: DiscountApprovalWhereInput
@@ -77189,10 +78433,6 @@ export namespace Prisma {
   }
 
   export type UserRoleOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type AuditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -79775,12 +81015,14 @@ export namespace Prisma {
     reportType?: SortOrder
     filtersUsed?: SortOrder
     branchName?: SortOrder
+    branch_id?: SortOrder
     user_id?: SortOrder
     created_at?: SortOrder
   }
 
   export type AuditLogAvgOrderByAggregateInput = {
     id?: SortOrder
+    branch_id?: SortOrder
     user_id?: SortOrder
   }
 
@@ -79792,6 +81034,7 @@ export namespace Prisma {
     reportType?: SortOrder
     filtersUsed?: SortOrder
     branchName?: SortOrder
+    branch_id?: SortOrder
     user_id?: SortOrder
     created_at?: SortOrder
   }
@@ -79804,12 +81047,14 @@ export namespace Prisma {
     reportType?: SortOrder
     filtersUsed?: SortOrder
     branchName?: SortOrder
+    branch_id?: SortOrder
     user_id?: SortOrder
     created_at?: SortOrder
   }
 
   export type AuditLogSumOrderByAggregateInput = {
     id?: SortOrder
+    branch_id?: SortOrder
     user_id?: SortOrder
   }
 
@@ -80022,6 +81267,7 @@ export namespace Prisma {
     message?: SortOrder
     is_read?: SortOrder
     user_id?: SortOrder
+    target_role?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -80040,6 +81286,7 @@ export namespace Prisma {
     message?: SortOrder
     is_read?: SortOrder
     user_id?: SortOrder
+    target_role?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -80052,6 +81299,7 @@ export namespace Prisma {
     message?: SortOrder
     is_read?: SortOrder
     user_id?: SortOrder
+    target_role?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -80362,6 +81610,58 @@ export namespace Prisma {
     bill_id?: SortOrder
     applied_by?: SortOrder
     amount_deducted?: SortOrder
+  }
+
+  export type EmailOutboxCountOrderByAggregateInput = {
+    id?: SortOrder
+    event_type?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    last_error?: SortOrder
+    sent_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EmailOutboxAvgOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type EmailOutboxMaxOrderByAggregateInput = {
+    id?: SortOrder
+    event_type?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    last_error?: SortOrder
+    sent_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EmailOutboxMinOrderByAggregateInput = {
+    id?: SortOrder
+    event_type?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    last_error?: SortOrder
+    sent_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EmailOutboxSumOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
   }
 
   export type BranchCreateNestedManyWithoutCompanyInput = {
@@ -80737,6 +82037,13 @@ export namespace Prisma {
     connect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
   }
 
+  export type AuditLogCreateNestedManyWithoutBranchInput = {
+    create?: XOR<AuditLogCreateWithoutBranchInput, AuditLogUncheckedCreateWithoutBranchInput> | AuditLogCreateWithoutBranchInput[] | AuditLogUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutBranchInput | AuditLogCreateOrConnectWithoutBranchInput[]
+    createMany?: AuditLogCreateManyBranchInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
   export type DiscountRuleCreateNestedManyWithoutBranchInput = {
     create?: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput> | DiscountRuleCreateWithoutBranchInput[] | DiscountRuleUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: DiscountRuleCreateOrConnectWithoutBranchInput | DiscountRuleCreateOrConnectWithoutBranchInput[]
@@ -80875,6 +82182,13 @@ export namespace Prisma {
     connectOrCreate?: ReportScheduleCreateOrConnectWithoutBranchInput | ReportScheduleCreateOrConnectWithoutBranchInput[]
     createMany?: ReportScheduleCreateManyBranchInputEnvelope
     connect?: ReportScheduleWhereUniqueInput | ReportScheduleWhereUniqueInput[]
+  }
+
+  export type AuditLogUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<AuditLogCreateWithoutBranchInput, AuditLogUncheckedCreateWithoutBranchInput> | AuditLogCreateWithoutBranchInput[] | AuditLogUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutBranchInput | AuditLogCreateOrConnectWithoutBranchInput[]
+    createMany?: AuditLogCreateManyBranchInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
   export type DiscountRuleUncheckedCreateNestedManyWithoutBranchInput = {
@@ -81158,6 +82472,20 @@ export namespace Prisma {
     deleteMany?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
   }
 
+  export type AuditLogUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<AuditLogCreateWithoutBranchInput, AuditLogUncheckedCreateWithoutBranchInput> | AuditLogCreateWithoutBranchInput[] | AuditLogUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutBranchInput | AuditLogCreateOrConnectWithoutBranchInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutBranchInput | AuditLogUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: AuditLogCreateManyBranchInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutBranchInput | AuditLogUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutBranchInput | AuditLogUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
   export type DiscountRuleUpdateManyWithoutBranchNestedInput = {
     create?: XOR<DiscountRuleCreateWithoutBranchInput, DiscountRuleUncheckedCreateWithoutBranchInput> | DiscountRuleCreateWithoutBranchInput[] | DiscountRuleUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: DiscountRuleCreateOrConnectWithoutBranchInput | DiscountRuleCreateOrConnectWithoutBranchInput[]
@@ -81436,6 +82764,20 @@ export namespace Prisma {
     update?: ReportScheduleUpdateWithWhereUniqueWithoutBranchInput | ReportScheduleUpdateWithWhereUniqueWithoutBranchInput[]
     updateMany?: ReportScheduleUpdateManyWithWhereWithoutBranchInput | ReportScheduleUpdateManyWithWhereWithoutBranchInput[]
     deleteMany?: ReportScheduleScalarWhereInput | ReportScheduleScalarWhereInput[]
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<AuditLogCreateWithoutBranchInput, AuditLogUncheckedCreateWithoutBranchInput> | AuditLogCreateWithoutBranchInput[] | AuditLogUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutBranchInput | AuditLogCreateOrConnectWithoutBranchInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutBranchInput | AuditLogUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: AuditLogCreateManyBranchInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutBranchInput | AuditLogUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutBranchInput | AuditLogUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
   export type DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput = {
@@ -84124,12 +85466,28 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type BranchCreateNestedOneWithoutAuditLogsInput = {
+    create?: XOR<BranchCreateWithoutAuditLogsInput, BranchUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutAuditLogsInput
+    connect?: BranchWhereUniqueInput
+  }
+
   export type UserUpdateOneRequiredWithoutAuditLogsNestedInput = {
     create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
     upsert?: UserUpsertWithoutAuditLogsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type BranchUpdateOneWithoutAuditLogsNestedInput = {
+    create?: XOR<BranchCreateWithoutAuditLogsInput, BranchUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutAuditLogsInput
+    upsert?: BranchUpsertWithoutAuditLogsInput
+    disconnect?: BranchWhereInput | boolean
+    delete?: BranchWhereInput | boolean
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutAuditLogsInput, BranchUpdateWithoutAuditLogsInput>, BranchUncheckedUpdateWithoutAuditLogsInput>
   }
 
   export type CompanyCreateNestedOneWithoutDiscountRulesInput = {
@@ -85087,6 +86445,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -85121,6 +86480,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -86257,6 +87617,39 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AuditLogCreateWithoutBranchInput = {
+    username: string
+    role: string
+    action: string
+    reportType?: string | null
+    filtersUsed?: string | null
+    branchName?: string | null
+    created_at?: Date | string
+    user: UserCreateNestedOneWithoutAuditLogsInput
+  }
+
+  export type AuditLogUncheckedCreateWithoutBranchInput = {
+    id?: number
+    username: string
+    role: string
+    action: string
+    reportType?: string | null
+    filtersUsed?: string | null
+    branchName?: string | null
+    user_id: number
+    created_at?: Date | string
+  }
+
+  export type AuditLogCreateOrConnectWithoutBranchInput = {
+    where: AuditLogWhereUniqueInput
+    create: XOR<AuditLogCreateWithoutBranchInput, AuditLogUncheckedCreateWithoutBranchInput>
+  }
+
+  export type AuditLogCreateManyBranchInputEnvelope = {
+    data: AuditLogCreateManyBranchInput | AuditLogCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
   export type DiscountRuleCreateWithoutBranchInput = {
     name: string
     description?: string | null
@@ -86870,6 +88263,38 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"ReportSchedule"> | Date | string
   }
 
+  export type AuditLogUpsertWithWhereUniqueWithoutBranchInput = {
+    where: AuditLogWhereUniqueInput
+    update: XOR<AuditLogUpdateWithoutBranchInput, AuditLogUncheckedUpdateWithoutBranchInput>
+    create: XOR<AuditLogCreateWithoutBranchInput, AuditLogUncheckedCreateWithoutBranchInput>
+  }
+
+  export type AuditLogUpdateWithWhereUniqueWithoutBranchInput = {
+    where: AuditLogWhereUniqueInput
+    data: XOR<AuditLogUpdateWithoutBranchInput, AuditLogUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type AuditLogUpdateManyWithWhereWithoutBranchInput = {
+    where: AuditLogScalarWhereInput
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type AuditLogScalarWhereInput = {
+    AND?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    OR?: AuditLogScalarWhereInput[]
+    NOT?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    id?: IntFilter<"AuditLog"> | number
+    username?: StringFilter<"AuditLog"> | string
+    role?: StringFilter<"AuditLog"> | string
+    action?: StringFilter<"AuditLog"> | string
+    reportType?: StringNullableFilter<"AuditLog"> | string | null
+    filtersUsed?: StringNullableFilter<"AuditLog"> | string | null
+    branchName?: StringNullableFilter<"AuditLog"> | string | null
+    branch_id?: IntNullableFilter<"AuditLog"> | number | null
+    user_id?: IntFilter<"AuditLog"> | number
+    created_at?: DateTimeFilter<"AuditLog"> | Date | string
+  }
+
   export type DiscountRuleUpsertWithWhereUniqueWithoutBranchInput = {
     where: DiscountRuleWhereUniqueInput
     update: XOR<DiscountRuleUpdateWithoutBranchInput, DiscountRuleUncheckedUpdateWithoutBranchInput>
@@ -86952,6 +88377,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -86986,6 +88412,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -87288,6 +88715,7 @@ export namespace Prisma {
     filtersUsed?: string | null
     branchName?: string | null
     created_at?: Date | string
+    branch?: BranchCreateNestedOneWithoutAuditLogsInput
   }
 
   export type AuditLogUncheckedCreateWithoutUserInput = {
@@ -87298,6 +88726,7 @@ export namespace Prisma {
     reportType?: string | null
     filtersUsed?: string | null
     branchName?: string | null
+    branch_id?: number | null
     created_at?: Date | string
   }
 
@@ -87526,6 +88955,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -87560,6 +88990,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -87744,21 +89175,6 @@ export namespace Prisma {
   export type AuditLogUpdateManyWithWhereWithoutUserInput = {
     where: AuditLogScalarWhereInput
     data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type AuditLogScalarWhereInput = {
-    AND?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
-    OR?: AuditLogScalarWhereInput[]
-    NOT?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
-    id?: IntFilter<"AuditLog"> | number
-    username?: StringFilter<"AuditLog"> | string
-    role?: StringFilter<"AuditLog"> | string
-    action?: StringFilter<"AuditLog"> | string
-    reportType?: StringNullableFilter<"AuditLog"> | string | null
-    filtersUsed?: StringNullableFilter<"AuditLog"> | string | null
-    branchName?: StringNullableFilter<"AuditLog"> | string | null
-    user_id?: IntFilter<"AuditLog"> | number
-    created_at?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
   export type DiscountRuleUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -88439,6 +89855,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -88473,6 +89890,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -88590,6 +90008,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -88624,6 +90043,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -88910,6 +90330,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -88944,6 +90365,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -89317,6 +90739,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -89351,6 +90774,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -89639,6 +91063,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -89673,6 +91098,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -89815,6 +91241,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -89849,6 +91276,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -90090,6 +91518,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -90124,6 +91553,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -90333,6 +91763,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -90367,6 +91798,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -90492,6 +91924,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -90526,6 +91959,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -90673,6 +92107,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -90707,6 +92142,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -90808,6 +92244,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -90842,6 +92279,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -91072,6 +92510,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -91106,6 +92545,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -91553,6 +92993,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -91587,6 +93028,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -91625,6 +93067,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -91659,6 +93102,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -91791,6 +93235,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -91825,6 +93270,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -91869,6 +93315,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -91903,6 +93350,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -92374,6 +93822,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -92408,6 +93857,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -92611,6 +94061,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -92645,6 +94096,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -93813,6 +95265,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -93847,6 +95300,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -93924,6 +95378,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -93958,6 +95413,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -94025,6 +95481,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -94059,6 +95516,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -94108,6 +95566,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -94142,6 +95601,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -94175,6 +95635,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -94209,6 +95670,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -94258,6 +95720,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -94292,6 +95755,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -94391,6 +95855,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -94425,6 +95890,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -94474,6 +95940,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -94508,6 +95975,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -94541,6 +96009,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -94575,6 +96044,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -94624,6 +96094,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -94658,6 +96129,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -94691,6 +96163,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -94725,6 +96198,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -94774,6 +96248,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -94808,6 +96283,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -94841,6 +96317,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -94875,6 +96352,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -94924,6 +96402,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -94958,6 +96437,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -95053,6 +96533,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -95087,6 +96568,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -95204,6 +96686,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -95238,6 +96721,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -95333,6 +96817,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
   }
 
@@ -95367,6 +96852,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
     discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -95511,6 +96997,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -95545,6 +97032,7 @@ export namespace Prisma {
     syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -95709,6 +97197,80 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
   }
 
+  export type BranchCreateWithoutAuditLogsInput = {
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutBranchesInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    logs?: UserLogCreateNestedManyWithoutBranchInput
+    products?: ProductCreateNestedManyWithoutBranchInput
+    bills?: BillCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutAuditLogsInput = {
+    id?: number
+    company_id: number
+    name: string
+    code: string
+    address?: string | null
+    phone?: string | null
+    email?: string | null
+    city?: string | null
+    manager_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    logs?: UserLogUncheckedCreateNestedManyWithoutBranchInput
+    products?: ProductUncheckedCreateNestedManyWithoutBranchInput
+    bills?: BillUncheckedCreateNestedManyWithoutBranchInput
+    branchProducts?: BranchProductUncheckedCreateNestedManyWithoutBranchInput
+    inventoryLogs?: InventoryLogUncheckedCreateNestedManyWithoutBranchInput
+    stockAlerts?: StockAlertUncheckedCreateNestedManyWithoutBranchInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutBranchInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutSourceBranchInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutDestinationBranchInput
+    syncLogs?: SyncLogUncheckedCreateNestedManyWithoutBranchInput
+    syncDevices?: SyncDeviceUncheckedCreateNestedManyWithoutBranchInput
+    syncSettings?: SyncSettingUncheckedCreateNestedManyWithoutBranchInput
+    syncBackups?: SyncBackupUncheckedCreateNestedManyWithoutBranchInput
+    syncSchedules?: SyncBackupScheduleUncheckedCreateNestedManyWithoutBranchInput
+    syncMetrics?: SyncHealthMetricUncheckedCreateNestedManyWithoutBranchInput
+    dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
+    savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
+    reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    discountRules?: DiscountRuleUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutAuditLogsInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutAuditLogsInput, BranchUncheckedCreateWithoutAuditLogsInput>
+  }
+
   export type UserUpsertWithoutAuditLogsInput = {
     update: XOR<UserUpdateWithoutAuditLogsInput, UserUncheckedUpdateWithoutAuditLogsInput>
     create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
@@ -95775,6 +97337,86 @@ export namespace Prisma {
     discountRequests?: DiscountApprovalUncheckedUpdateManyWithoutRequestedByNestedInput
     discountApplications?: DiscountApplicationUncheckedUpdateManyWithoutAppliedByNestedInput
     discountApprovals?: DiscountApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type BranchUpsertWithoutAuditLogsInput = {
+    update: XOR<BranchUpdateWithoutAuditLogsInput, BranchUncheckedUpdateWithoutAuditLogsInput>
+    create: XOR<BranchCreateWithoutAuditLogsInput, BranchUncheckedCreateWithoutAuditLogsInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutAuditLogsInput, BranchUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type BranchUpdateWithoutAuditLogsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutBranchesNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUpdateManyWithoutBranchNestedInput
+    products?: ProductUpdateManyWithoutBranchNestedInput
+    bills?: BillUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutAuditLogsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    company_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    manager_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    logs?: UserLogUncheckedUpdateManyWithoutBranchNestedInput
+    products?: ProductUncheckedUpdateManyWithoutBranchNestedInput
+    bills?: BillUncheckedUpdateManyWithoutBranchNestedInput
+    branchProducts?: BranchProductUncheckedUpdateManyWithoutBranchNestedInput
+    inventoryLogs?: InventoryLogUncheckedUpdateManyWithoutBranchNestedInput
+    stockAlerts?: StockAlertUncheckedUpdateManyWithoutBranchNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutBranchNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutSourceBranchNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutDestinationBranchNestedInput
+    syncLogs?: SyncLogUncheckedUpdateManyWithoutBranchNestedInput
+    syncDevices?: SyncDeviceUncheckedUpdateManyWithoutBranchNestedInput
+    syncSettings?: SyncSettingUncheckedUpdateManyWithoutBranchNestedInput
+    syncBackups?: SyncBackupUncheckedUpdateManyWithoutBranchNestedInput
+    syncSchedules?: SyncBackupScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    syncMetrics?: SyncHealthMetricUncheckedUpdateManyWithoutBranchNestedInput
+    dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
+    savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
+    reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type CompanyCreateWithoutDiscountRulesInput = {
@@ -95844,6 +97486,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutDiscountRulesInput = {
@@ -95878,6 +97521,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedCreateNestedManyWithoutBranchInput
     savedReportConfigs?: SavedReportConfigUncheckedCreateNestedManyWithoutBranchInput
     reportSchedules?: ReportScheduleUncheckedCreateNestedManyWithoutBranchInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutDiscountRulesInput = {
@@ -96085,6 +97729,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutDiscountRulesInput = {
@@ -96119,6 +97764,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutCreatedDiscountsInput = {
@@ -96999,6 +98645,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUpdateManyWithoutBranchNestedInput
   }
 
@@ -97033,6 +98680,7 @@ export namespace Prisma {
     dailySummaries?: DailySummaryUncheckedUpdateManyWithoutBranchNestedInput
     savedReportConfigs?: SavedReportConfigUncheckedUpdateManyWithoutBranchNestedInput
     reportSchedules?: ReportScheduleUncheckedUpdateManyWithoutBranchNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutBranchNestedInput
     discountRules?: DiscountRuleUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -97526,6 +99174,18 @@ export namespace Prisma {
     user_id: number
     created_at?: Date | string
     updated_at?: Date | string
+  }
+
+  export type AuditLogCreateManyBranchInput = {
+    id?: number
+    username: string
+    role: string
+    action: string
+    reportType?: string | null
+    filtersUsed?: string | null
+    branchName?: string | null
+    user_id: number
+    created_at?: Date | string
   }
 
   export type DiscountRuleCreateManyBranchInput = {
@@ -98251,6 +99911,41 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AuditLogUpdateWithoutBranchInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    reportType?: NullableStringFieldUpdateOperationsInput | string | null
+    filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAuditLogsNestedInput
+  }
+
+  export type AuditLogUncheckedUpdateWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    reportType?: NullableStringFieldUpdateOperationsInput | string | null
+    filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutBranchInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    reportType?: NullableStringFieldUpdateOperationsInput | string | null
+    filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
+    branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type DiscountRuleUpdateWithoutBranchInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -98405,6 +100100,7 @@ export namespace Prisma {
     reportType?: string | null
     filtersUsed?: string | null
     branchName?: string | null
+    branch_id?: number | null
     created_at?: Date | string
   }
 
@@ -98733,6 +100429,7 @@ export namespace Prisma {
     filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneWithoutAuditLogsNestedInput
   }
 
   export type AuditLogUncheckedUpdateWithoutUserInput = {
@@ -98743,6 +100440,7 @@ export namespace Prisma {
     reportType?: NullableStringFieldUpdateOperationsInput | string | null
     filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -98754,6 +100452,7 @@ export namespace Prisma {
     reportType?: NullableStringFieldUpdateOperationsInput | string | null
     filtersUsed?: NullableStringFieldUpdateOperationsInput | string | null
     branchName?: NullableStringFieldUpdateOperationsInput | string | null
+    branch_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

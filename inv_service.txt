@@ -1,53 +1,98 @@
-﻿import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type {
+  AdjustStockDto,
+  AssignProductToBranchDto,
+} from '@ryzera/pos-schema';
+import type {
+  BranchProductQueryDto,
+  InventoryLogQueryDto,
+  StockAlertQueryDto,
+} from './inventory-query.schema';
 import { InventoryRepository } from './inventory.repository';
-import { CreateProductDto, UpdateProductDto } from '@ryzera/pos-schema';
-import { BranchScopeResult } from '../auth/decorators/branch-scope.decorator'; // adjust path
 
 @Injectable()
 export class InventoryService {
-    constructor(private readonly repo: InventoryRepository) {}
+  constructor(private readonly inventoryRepo: InventoryRepository) {}
 
-    async findAll(companyId: number | undefined, branchId: number | undefined, scope: BranchScopeResult) {
-        // scope.branchId is undefined for Admin (no restriction).
-        // For everyone else, it OVERRIDES whatever branchId was passed in the query â€”
-        // a Manager can't page ?branchId=5 to peek at another branch.
-        const effectiveBranchId = scope.branchId ?? branchId;
-        return this.repo.findAll(companyId, effectiveBranchId);
+  // ── BranchProduct ──────────────────────────────────────────
+
+  findAllBranchProducts(query: BranchProductQueryDto) {
+    return this.inventoryRepo.findAllBranchProducts(query);
+  }
+
+  async findBranchProduct(branchId: number, productId: number) {
+    const bp = await this.inventoryRepo.findBranchProduct(branchId, productId);
+    if (!bp)
+      throw new NotFoundException(
+        `Product "${productId}" not found in branch "${branchId}"`,
+      );
+    return bp;
+  }
+
+  async assignProductToBranch(dto: AssignProductToBranchDto) {
+    const existing = await this.inventoryRepo.findBranchProduct(
+      Number(dto.branchId),
+      Number(dto.productId),
+    );
+    if (existing)
+      throw new ConflictException(
+        'Product is already assigned to this branch.',
+      );
+    return this.inventoryRepo.assignProductToBranch(dto);
+  }
+
+  // ── Stock Adjustment ───────────────────────────────────────
+
+  async adjustStock(
+    branchId: number,
+    productId: number,
+    userId: number,
+    dto: AdjustStockDto,
+  ) {
+    const bp = await this.inventoryRepo.findBranchProduct(branchId, productId);
+    if (!bp)
+      throw new NotFoundException(
+        `Product "${productId}" not found in branch "${branchId}"`,
+      );
+
+    const resultingQty = bp.stockQty + dto.changeQty;
+    if (resultingQty < 0) {
+      throw new BadRequestException(
+        `Insufficient stock. Available: ${bp.stockQty}, Requested change: ${dto.changeQty}`,
+      );
     }
 
-    async findOne(id: number, scope: BranchScopeResult) {
-        const product = await this.repo.findById(id);
-        if (!product) throw new NotFoundException(`Product #${id} not found`);
+    return this.inventoryRepo.adjustStock(
+      bp.id,
+      branchId,
+      productId,
+      userId,
+      dto,
+    );
+  }
 
-        // Manager/Staff trying to view a product outside their branch â€” pretend it
-        // doesn't exist rather than leaking a 403 (don't confirm other branches' data).
-        if (scope.branchId && product.branch_id !== scope.branchId) {
-            throw new NotFoundException(`Product #${id} not found`);
-        }
-        return product;
-    }
+  // ── Inventory Logs ─────────────────────────────────────────
 
-    async create(dto: CreateProductDto, scope: BranchScopeResult) {
-        // Non-admins can only create products in their own branch â€” force it,
-        // ignore/override anything the client sent for branch_id.
-        const branch_id = scope.branchId ?? (dto as any).branch_id;
-        return this.repo.create({ ...dto, branch_id } as CreateProductDto);
-    }
+  findAllLogs(query: InventoryLogQueryDto) {
+    return this.inventoryRepo.findAllLogs(query);
+  }
 
-    async update(id: number, dto: UpdateProductDto, scope: BranchScopeResult) {
-        const existing = await this.findOne(id, scope); // reuses the branch check above
+  // ── Stock Alerts ───────────────────────────────────────────
 
-        // Also block a Manager from moving a product to a different branch via update.
-        if (scope.branchId && (dto as any).branch_id && (dto as any).branch_id !== scope.branchId) {
-            throw new ForbiddenException('You cannot move a product to a different branch.');
-        }
+  findAllAlerts(query: StockAlertQueryDto) {
+    return this.inventoryRepo.findAllAlerts(query);
+  }
 
-        return this.repo.update(id, dto);
-    }
+  async resolveAlert(id: number) {
+    return this.inventoryRepo.updateAlertStatus(id, 'RESOLVED');
+  }
 
-    async remove(id: number) {
-        const product = await this.repo.findById(id);
-        if (!product) throw new NotFoundException(`Product #${id} not found`);
-        return this.repo.delete(id);
-    }
+  async markAlertSeen(id: number) {
+    return this.inventoryRepo.updateAlertStatus(id, 'SEEN');
+  }
 }

@@ -10,6 +10,8 @@
     }
   },
   "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -34,7 +36,6 @@
     "typeorm": "^0.3.28"
   },
   "devDependencies": {
-    "@angular-devkit/schematics": "^22.1.4",
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^25.2.3",
     "prettier": "^3.7.4",
@@ -42,7 +43,7 @@
     "turbo": "^2.8.9",
     "typescript": "5.9.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@11.24.0",
   "engines": {
     "node": ">=18"
   }

@@ -12,10 +12,19 @@ export class BillingService {
     ) {}
 
     async createSale(dto: CreateSaleDto) {
+        // ── Pre-check stock availability ──
+        await this.billingRepository.checkStockAvailability(
+            dto.branch_id,
+            dto.items.map((i) => ({
+                product_id:   i.product_id,
+                quantity:     i.quantity,
+                product_name: i.product_name,
+            }))
+        );
+
         const invoice_number = `INV-${Date.now()}`;
 
-        // ── Validate discounts against active GLOBAL/BRANCH rules ──
-        // Item-level discounts (only relevant when discount_type === 'item')
+        // ── Validate discounts against active rules ──
         if (dto.discount_type === 'item') {
             for (const item of dto.items) {
                 if (item.discount_percent) {
@@ -27,7 +36,6 @@ export class BillingService {
             }
         }
 
-        // Bill-level discount (only relevant when discount_type === 'bill')
         if (dto.discount_type === 'bill' && dto.bill_discount_percent) {
             await this.discountRuleService.validateDiscountPercent(
                 dto.bill_discount_percent,
@@ -37,23 +45,22 @@ export class BillingService {
 
         const calculatedItems = dto.items.map((item) => {
             const subtotal = item.quantity * item.unit_price;
-            const discount_percent = dto.discount_type === 'item' ? (item.discount_percent ?? 0)
-                : 0;
+            const discount_percent = dto.discount_type === 'item' ? (item.discount_percent ?? 0) : 0;
             const tax_percent = item.tax_percent ?? 0;
             const discount_amount = (subtotal * discount_percent) / 100;
             const tax_amount = ((subtotal - discount_amount) * tax_percent) / 100;
             const total_amount = subtotal - discount_amount + tax_amount;
 
             return {
-                product_id: item.product_id,
-                product_name: item.product_name,
-                quantity: item.quantity,
-                unit: item.unit,
-                unit_price: item.unit_price,
-                cost_price: item.cost_price,
+                product_id:       item.product_id,
+                product_name:     item.product_name,
+                quantity:         item.quantity,
+                unit:             item.unit,
+                unit_price:       item.unit_price,
+                cost_price:       item.cost_price,
                 discount_percent: item.discount_percent,
                 discount_amount,
-                tax_percent: item.tax_percent,
+                tax_percent:      item.tax_percent,
                 tax_amount,
                 subtotal,
                 total_amount,
@@ -71,21 +78,19 @@ export class BillingService {
 
         return this.billingRepository.createSale({
             data: {
-                branch_id: dto.branch_id,
-                user_id: dto.user_id,
+                branch_id:       dto.branch_id,
+                user_id:         dto.user_id,
                 invoice_number,
-                sale_status: 'Pending',
-                payment_status: 'Pending',
+                sale_status:     'Pending',
+                payment_status:  'Pending',
                 subtotal,
                 discount_amount: itemDiscounts + bill_discount_amount,
-                tax_amount: itemTaxes,
+                tax_amount:      itemTaxes,
                 total_amount,
-                updated_at: new Date(), // `sale.updated_at` has no @default — required on create
-                sale_items: {
-                    create: calculatedItems, // repository destructures `sale_items` and maps it into the `sale_item` relation
-                },
+                updated_at:      new Date(),
+                sale_items:      calculatedItems,
             },
-            include: { sale_item: true },
+            include: { saleItems: true },
         });
     }
 
@@ -127,9 +132,6 @@ export class BillingService {
         );
     }
 
-    // ── Available Discounts for Cashier checkout screen ───────
-    // Delegates to DiscountRuleService so there's a single source
-    // of truth for "which rules are active for this branch right now".
     async getAvailableDiscounts(branchId: number) {
         return this.discountRuleService.getActiveRulesForBranch(branchId);
     }

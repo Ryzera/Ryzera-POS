@@ -14,7 +14,13 @@ async function bootstrap() {
     app.enableCors({
         origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'x-user-type',
+            'x-branch-id',
+            'x-company-id',
+        ],
     });
 
     // Swagger
